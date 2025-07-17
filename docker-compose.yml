@@ -10,11 +10,13 @@ services:
       - DATABASE_URL=postgresql://sercue:sercue123@db:5432/sercuescribe
       - REDIS_URL=redis://redis:6379/0
       - ENVIRONMENT=development
+      - AUDIO_STORAGE_PATH=/app/audio_sessions
     depends_on:
       - db
       - redis
     volumes:
       - .:/app
+      - audio_data:/app/audio_sessions
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
   worker:
@@ -23,10 +25,13 @@ services:
       - DATABASE_URL=postgresql://sercue:sercue123@db:5432/sercuescribe
       - REDIS_URL=redis://redis:6379/0
       - ENVIRONMENT=development
+      - AUDIO_STORAGE_PATH=/app/audio_sessions
     depends_on:
       - db
       - redis
       - app
+    volumes:
+      - audio_data:/app/audio_sessions
     command: celery -A app.core.celery worker --loglevel=info
 
   db:
@@ -63,3 +68,4 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  audio_data:

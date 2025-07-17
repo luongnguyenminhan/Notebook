@@ -3,9 +3,9 @@ FROM python:3.11-slim-bookworm
 WORKDIR /app
 
 
-# Install system dependencies (including PortAudio for sounddevice, Chromium for Selenium)
+# Install system dependencies (including PortAudio for sounddevice, Chromium for Selenium, FFmpeg for audio processing)
 RUN apt-get update && apt-get install -y \
-    gcc curl portaudio19-dev chromium chromium-driver \
+    gcc curl portaudio19-dev chromium chromium-driver ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv
