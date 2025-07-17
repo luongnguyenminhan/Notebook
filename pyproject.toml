@@ -1,0 +1,16 @@
+[tool.ruff]
+line-length = 9999
+exclude = [".venv", "venv", "migrations", "alembic", "__pycache__", ".git", ".tox", "build", "dist"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+[tool.ruff.isort]
+combine-as-imports = true
+force-single-line = false
+known-first-party = ["app"]

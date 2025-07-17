@@ -1,23 +1,65 @@
 version: '3.8'
 
 services:
-  chrome-bot:
+  app:
     build: .
-    container_name: meet-bot
-    volumes:
-      - .:/app  # Mount entire project directory to container root
-      - ./screenshots:/app/screenshots  # Dedicated screenshots folder
-      - ./logs:/app/logs  # Dedicated logs folder  
-      - ./output:/app/output  # Dedicated output folder
-      - ./data:/app/data  # Additional data folder for any new files
+    image: app-base
+    ports:
+      - "8000:8000"
     environment:
-      - DISPLAY=:99
-      - PYTHONPATH=/app
-    shm_size: 2gb  # Increase shared memory for Chrome
-    security_opt:
-      - seccomp:unconfined  # Required for Chrome sandbox
-    cap_add:
-      - SYS_ADMIN  # Required for Chrome
-    stdin_open: true
-    tty: true
-    restart: unless-stopped
+      - DATABASE_URL=postgresql://sercue:sercue123@db:5432/sercuescribe
+      - REDIS_URL=redis://redis:6379/0
+      - ENVIRONMENT=development
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - .:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  worker:
+    image: app-base
+    environment:
+      - DATABASE_URL=postgresql://sercue:sercue123@db:5432/sercuescribe
+      - REDIS_URL=redis://redis:6379/0
+      - ENVIRONMENT=development
+    depends_on:
+      - db
+      - redis
+      - app
+    command: celery -A app.core.celery worker --loglevel=info
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=sercue
+      - POSTGRES_PASSWORD=sercue123
+      - POSTGRES_DB=sercuescribe
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+  flower:
+    image: app-base
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
+      - app
+    command: celery -A app.core.celery flower --port=5555
+
+volumes:
+  postgres_data:
+  redis_data:

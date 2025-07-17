@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.env
+.env.local
+.env.production
+.idea/
+.vscode/
+.DS_Store
+venv/
+.pytest_cache/
+*.log
+
+# Docker
+.docker/
+docker-compose.override.yml
