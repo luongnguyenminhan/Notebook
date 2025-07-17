@@ -1,16 +1,31 @@
 [tool.ruff]
-line-length = 9999
-exclude = [".venv", "venv", "migrations", "alembic", "__pycache__", ".git", ".tox", "build", "dist"]
+line-length = 1200
+exclude = [
+    ".venv", 
+    "venv", 
+    "migrations", 
+    "alembic", 
+    "__pycache__", 
+    ".git", 
+    ".tox", 
+    "build", 
+    "dist", 
+    "node_modules", 
+    "frontend"
+]
 
 [tool.ruff.lint]
-select = ["E", "F", "I"]
+select = ["E", "F", "I", "W", "N"]
+ignore = ["E501"]  # Line too long (handled by line-length setting)
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+force-single-line = false
+known-first-party = ["app"]
+split-on-trailing-comma = true
 
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
 line-ending = "auto"
-
-[tool.ruff.isort]
-combine-as-imports = true
-force-single-line = false
-known-first-party = ["app"]
+skip-magic-trailing-comma = false
