@@ -16,7 +16,7 @@ services:
       - redis
     volumes:
       - .:/app
-      - audio_data:/app/audio_sessions
+      - ./audio_sessions:/app/audio_sessions
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
   worker:
@@ -31,7 +31,7 @@ services:
       - redis
       - app
     volumes:
-      - audio_data:/app/audio_sessions
+      - ./audio_sessions:/app/audio_sessions
     command: celery -A app.core.celery worker --loglevel=info
 
   db:

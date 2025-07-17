@@ -13,3 +13,4 @@ venv/
 # Docker
 .docker/
 docker-compose.override.yml
+.venv/

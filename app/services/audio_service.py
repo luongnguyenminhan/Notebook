@@ -15,7 +15,16 @@ class AudioStreamManager:
 
     def __init__(self, storage_path: Optional[str] = None):
         self.storage_path = Path(storage_path or audio_config.AUDIO_STORAGE_PATH)
-        self.storage_path.mkdir(parents=True, exist_ok=True)
+        try:
+            self.storage_path.mkdir(parents=True, exist_ok=True)
+        except PermissionError:
+            # If we can't create the storage path, try to use a fallback
+            import tempfile
+            fallback_path = Path(tempfile.gettempdir()) / "audio_sessions"
+            fallback_path.mkdir(parents=True, exist_ok=True)
+            self.storage_path = fallback_path
+            print(f"Warning: Could not create {storage_path}, using fallback: {self.storage_path}")
+
         self.active_sessions: Dict[str, AudioStreamSession] = {}
         self._temp_dirs: Dict[str, Path] = {}
 
