@@ -14,3 +14,4 @@ venv/
 .docker/
 docker-compose.override.yml
 .venv/
+finetuned_vivos_noisy/

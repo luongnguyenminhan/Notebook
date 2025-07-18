@@ -140,6 +140,8 @@ async def websocket_audio_stream_existing(websocket: WebSocket, session_id: str,
             # Receive data from client
             data = await websocket.receive()
 
+            # Whisper inference and print is handled in audio_service.py for each chunk
+
             if "bytes" in data:
                 # Handle binary audio data
                 audio_bytes = data["bytes"]

@@ -19,6 +19,8 @@ pydub>=0.25.1
 # HuggingFace Transformers and dependencies for speech-to-text
 transformers>=4.40.0
 torch>=2.0.0
+torchaudio>=2.0.0
+soundfile>=0.12.1
 selenium==4.21.0
 sounddevice>=0.4.7
 scipy>=1.13.1
