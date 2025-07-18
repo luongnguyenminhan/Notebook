@@ -18,18 +18,14 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY app/ ./app/
+COPY static/ ./static/
 COPY alembic.ini .
 COPY alembic/ ./alembic/
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
-# Make entrypoint executable
-RUN chmod +x /docker-entrypoint.sh
-
-# Create non-root user and fix permissions
-RUN useradd --create-home --shell /bin/bash app
-
 # Make entrypoint executable and fix ownership
 RUN chmod +x /docker-entrypoint.sh && \
+    useradd --create-home --shell /bin/bash app && \
     chown app:app /docker-entrypoint.sh && \
     chown -R app:app /app
 
@@ -49,5 +45,5 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
 # Set entrypoint
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
-# Run the application
+# Default command (can be overridden by docker-compose)
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

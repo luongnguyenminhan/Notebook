@@ -2,10 +2,12 @@
 """
 Debug script to check Whisper model and GPU availability
 """
+
 import os
 import sys
 from pathlib import Path
 import torch
+
 
 def check_gpu():
     """Check GPU availability and functionality"""
@@ -27,23 +29,24 @@ def check_gpu():
         print("  ℹ️ Using CPU")
         return False
 
+
 def check_model_files():
     """Check if model files exist and are accessible"""
     print("\n📁 Model Files Check:")
     model_path = Path("/app/finetuned_vivos_noisy")  # Docker path
     if not model_path.exists():
         model_path = Path("./finetuned_vivos_noisy")  # Local path
-    
+
     print(f"  Model path: {model_path}")
     print(f"  Exists: {model_path.exists()}")
-    
+
     if model_path.exists():
         files = list(model_path.glob("*"))
         print(f"  Files found ({len(files)}):")
         for file in sorted(files):
             size = file.stat().st_size if file.is_file() else 0
             print(f"    {file.name} ({size:,} bytes)")
-        
+
         # Check critical files
         critical_files = ["config.json", "model.safetensors", "tokenizer.json"]
         for file in critical_files:
@@ -51,7 +54,7 @@ def check_model_files():
             if file_path.exists():
                 size = file_path.stat().st_size
                 print(f"  ✅ {file}: {size:,} bytes")
-                
+
                 # Special check for safetensors file
                 if file == "model.safetensors":
                     if size < 1000:  # Less than 1KB suggests corruption
@@ -67,20 +70,21 @@ def check_model_files():
         print(f"  ❌ Model directory not found")
         return None
 
+
 def test_model_loading():
     """Test loading the model"""
     print("\n🤖 Model Loading Test:")
     model_path = check_model_files()
     if not model_path:
         return False
-    
+
     try:
         from transformers import WhisperProcessor, WhisperForConditionalGeneration
-        
+
         print("  Loading processor...")
         processor = WhisperProcessor.from_pretrained(str(model_path))
         print("  ✅ Processor loaded successfully")
-        
+
         print("  Loading model...")
         try:
             # Try with safetensors first
@@ -89,54 +93,53 @@ def test_model_loading():
         except Exception as e:
             print(f"  ⚠️ Safetensors failed: {e}")
             print("  Trying without safetensors...")
-            model = WhisperForConditionalGeneration.from_pretrained(
-                str(model_path),
-                use_safetensors=False
-            )
+            model = WhisperForConditionalGeneration.from_pretrained(str(model_path), use_safetensors=False)
             print("  ✅ Model loaded without safetensors")
-        
+
         # Test device placement
         device = "cuda" if torch.cuda.is_available() else "cpu"
         model = model.to(device)
         model.eval()
         print(f"  ✅ Model moved to {device}")
-        
+
         return True
-        
+
     except Exception as e:
         print(f"  ❌ Model loading failed: {e}")
         return False
 
+
 def main():
     print("SercueScribe Whisper Model Debug")
     print("=" * 50)
-    
+
     # Environment info
     print("📋 Environment:")
     print(f"  Python: {sys.version}")
     print(f"  PyTorch: {torch.__version__}")
     print(f"  Working directory: {os.getcwd()}")
-    
+
     # Check NVIDIA environment variables
-    nvidia_vars = [var for var in os.environ if var.startswith('NVIDIA')]
+    nvidia_vars = [var for var in os.environ if var.startswith("NVIDIA")]
     if nvidia_vars:
         print("  NVIDIA Environment Variables:")
         for var in nvidia_vars:
             print(f"    {var}={os.environ[var]}")
-    
+
     gpu_available = check_gpu()
     model_loaded = test_model_loading()
-    
+
     print(f"\n📊 Summary:")
     print(f"  GPU Available: {'✅' if gpu_available else '❌'}")
     print(f"  Model Loaded: {'✅' if model_loaded else '❌'}")
-    
+
     if gpu_available and model_loaded:
         print("\n🎉 All checks passed! Ready for GPU inference.")
     elif model_loaded:
         print("\n⚠️ Model loaded but using CPU. Check GPU configuration.")
     else:
         print("\n❌ Model loading failed. Check model files and dependencies.")
+
 
 if __name__ == "__main__":
     main()

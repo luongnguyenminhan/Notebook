@@ -136,69 +136,34 @@ async def websocket_audio_stream_existing(websocket: WebSocket, session_id: str,
     chunk_counter = session_info.total_chunks
 
     try:
-        while True:
-            # Receive data from client
-            data = await websocket.receive()
-
-            # Whisper inference and print is handled in audio_service.py for each chunk
-
-            if "bytes" in data:
-                # Handle binary audio data
-                audio_bytes = data["bytes"]
-                chunk_counter += 1
-
-                # Process audio chunk
-                success = await audio_stream_manager.add_audio_chunk(
-                    session_id=session_id,
-                    chunk_data=audio_bytes,
-                    chunk_id=chunk_counter,
-                    sample_rate=audio_config.DEFAULT_SAMPLE_RATE,
-                    channels=audio_config.DEFAULT_CHANNELS,
-                )
-
-                if success:
-                    # Send success response
-                    response = AudioStreamResponse(
-                        message="Chunk processed successfully",
-                        session_id=session_id,
-                        chunk_count=chunk_counter,
-                        status="active",
-                    )
-                    await websocket.send_text(response.model_dump_json())
-                    logger.debug(f"Processed audio chunk {chunk_counter} for session {session_id}")
+        # Use async iteration pattern for proper disconnect handling
+        async for message in websocket.iter_text():
+            try:
+                data = json.loads(message)
+                if data.get("type") == "control":
+                    if data.get("action") == "close_session":
+                        # Close session and cleanup
+                        audio_stream_manager.close_session(session_id)
+                        response = AudioStreamResponse(
+                            message="Session closed successfully",
+                            session_id=session_id,
+                            chunk_count=chunk_counter,
+                            status="completed",
+                        )
+                        await websocket.send_text(response.model_dump_json())
+                        break
                 else:
-                    # Send error response
-                    error_response = AudioStreamResponse(
-                        message="Failed to process chunk",
-                        session_id=session_id,
-                        chunk_count=chunk_counter,
-                        status="error",
+                    # Unknown message type
+                    await websocket.send_text(
+                        json.dumps(
+                            {
+                                "error": "Unknown message type",
+                                "received": data,
+                            }
+                        )
                     )
-                    await websocket.send_text(error_response.model_dump_json())
-
-            elif "text" in data:
-                # Handle JSON control messages
-                try:
-                    message = json.loads(data["text"])
-                    if message.get("type") == "control":
-                        if message.get("action") == "close_session":
-                            # Close session and cleanup
-                            audio_stream_manager.close_session(session_id)
-                            response = AudioStreamResponse(
-                                message="Session closed successfully",
-                                session_id=session_id,
-                                chunk_count=chunk_counter,
-                                status="completed",
-                            )
-                            await websocket.send_text(response.model_dump_json())
-                            break
-                    else:
-                        # Unknown message type
-                        await websocket.send_text(json.dumps({"error": "Unknown message type", "received": message}))
-
-                except json.JSONDecodeError:
-                    await websocket.send_text(json.dumps({"error": "Invalid JSON format"}))
-
+            except json.JSONDecodeError:
+                await websocket.send_text(json.dumps({"error": "Invalid JSON format"}))
     except WebSocketDisconnect:
         logger.info(f"WebSocket disconnected for audio session: {session_id}")
     except Exception as e:
@@ -323,66 +288,86 @@ async def websocket_audio_stream_new(
     chunk_counter = 0
 
     try:
+        # Handle both text and binary messages using proper message receiving
         while True:
-            # Receive data from client
-            data = await websocket.receive()
+            try:
+                # Try to receive binary data first
+                message = await websocket.receive()
 
-            if "bytes" in data:
-                # Handle binary audio data
-                audio_bytes = data["bytes"]
-                chunk_counter += 1
+                if message["type"] == "websocket.receive":
+                    if "bytes" in message:
+                        # Handle binary audio data
+                        binary_data = message["bytes"]
+                        chunk_counter += 1
 
-                # Process audio chunk with session parameters
-                success = await audio_stream_manager.add_audio_chunk(
-                    session_id=session_id,
-                    chunk_data=audio_bytes,
-                    chunk_id=chunk_counter,
-                    sample_rate=audio_params["sample_rate"],
-                    channels=audio_params["channels"],
-                )
+                        # Process audio chunk with session parameters
+                        success = await audio_stream_manager.add_audio_chunk(
+                            session_id=session_id,
+                            chunk_data=binary_data,
+                            chunk_id=chunk_counter,
+                            sample_rate=audio_params["sample_rate"],
+                            channels=audio_params["channels"],
+                        )
 
-                if success:
-                    # Send success response
-                    response = AudioStreamResponse(
-                        message="Chunk processed successfully",
-                        session_id=session_id,
-                        chunk_count=chunk_counter,
-                        status="active",
-                    )
-                    await websocket.send_text(response.model_dump_json())
-                    logger.debug(f"Processed audio chunk {chunk_counter} for session {session_id}")
-                else:
-                    # Send error response
-                    error_response = AudioStreamResponse(
-                        message="Failed to process chunk",
-                        session_id=session_id,
-                        chunk_count=chunk_counter,
-                        status="error",
-                    )
-                    await websocket.send_text(error_response.model_dump_json())
-
-            elif "text" in data:
-                # Handle JSON control messages
-                try:
-                    message = json.loads(data["text"])
-                    if message.get("type") == "control":
-                        if message.get("action") == "close_session":
-                            # Close session and cleanup
-                            audio_stream_manager.close_session(session_id)
+                        if success:
+                            # Send success response
                             response = AudioStreamResponse(
-                                message="Session closed successfully",
+                                message=f"WebM chunk processed successfully (chunk {chunk_counter})",
                                 session_id=session_id,
                                 chunk_count=chunk_counter,
-                                status="completed",
+                                status="active",
                             )
                             await websocket.send_text(response.model_dump_json())
-                            break
-                    else:
-                        # Unknown message type
-                        await websocket.send_text(json.dumps({"error": "Unknown message type", "received": message}))
+                            logger.debug(f"Processed WebM chunk {chunk_counter} for session {session_id}")
+                        else:
+                            # Send error response
+                            error_response = AudioStreamResponse(
+                                message=f"Failed to process WebM chunk (chunk {chunk_counter})",
+                                session_id=session_id,
+                                chunk_count=chunk_counter,
+                                status="error",
+                            )
+                            await websocket.send_text(error_response.model_dump_json())
 
-                except json.JSONDecodeError:
-                    await websocket.send_text(json.dumps({"error": "Invalid JSON format"}))
+                    elif "text" in message:
+                        # Handle text control messages
+                        text_data = message["text"]
+                        try:
+                            data = json.loads(text_data)
+                            if data.get("type") == "control":
+                                if data.get("action") == "close_session":
+                                    # Close session and cleanup
+                                    audio_stream_manager.close_session(session_id)
+                                    response = AudioStreamResponse(
+                                        message="Session closed successfully",
+                                        session_id=session_id,
+                                        chunk_count=chunk_counter,
+                                        status="completed",
+                                    )
+                                    await websocket.send_text(response.model_dump_json())
+                                    break
+                            else:
+                                # Unknown message type
+                                await websocket.send_text(
+                                    json.dumps(
+                                        {
+                                            "error": "Unknown message type",
+                                            "received": data,
+                                        }
+                                    )
+                                )
+                        except json.JSONDecodeError:
+                            await websocket.send_text(json.dumps({"error": "Invalid JSON format"}))
+                elif message["type"] == "websocket.disconnect":
+                    logger.info(f"WebSocket disconnected for audio session: {session_id}")
+                    break
+
+            except WebSocketDisconnect:
+                logger.info(f"WebSocket disconnected for audio session: {session_id}")
+                break
+            except Exception as e:
+                logger.error(f"Error processing message: {e}")
+                break
 
     except WebSocketDisconnect:
         logger.info(f"WebSocket disconnected for audio session: {session_id}")

@@ -6,7 +6,7 @@ class AudioConfig:
     """Configuration for audio processing settings"""
 
     # Storage configuration
-    AUDIO_STORAGE_PATH: str = os.getenv("AUDIO_STORAGE_PATH", "/tmp/audio_sessions")
+    AUDIO_STORAGE_PATH: str = os.getenv("AUDIO_STORAGE_PATH", "./audio_sessions")
 
     # Audio processing defaults
     DEFAULT_SAMPLE_RATE: int = int(os.getenv("DEFAULT_SAMPLE_RATE", "44100"))

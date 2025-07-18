@@ -20,5 +20,4 @@ else
     mkdir -p /app/audio_sessions
 fi
 
-# Execute the command passed to the container
 exec "$@"
