@@ -9,7 +9,7 @@ This folder contains core configuration, settings, database connections, and sec
 Application settings and environment configuration:
 
 **Settings:**
-- `database_url`: PostgreSQL connection string
+- `database_url`: MySQL connection string
 - `secret_key`: JWT signing key (change in production)
 - `access_token_expire_minutes`: JWT token lifetime
 - `allow_registration`: Toggle user registration
@@ -62,7 +62,7 @@ Authentication and authorization utilities:
 - Configurable token lifetime
 
 ## Database Architecture
-- PostgreSQL with SQLAlchemy 2.0+
+- MySQL with SQLAlchemy 2.0+
 - Connection pooling for performance
 - Session-per-request pattern
 - Automatic session cleanup

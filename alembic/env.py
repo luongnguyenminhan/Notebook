@@ -21,8 +21,10 @@ if config.config_file_name is not None:
     try:
         from app.core.config import settings
         database_url = settings.database_url
+        print(database_url)
     except ImportError:
         database_url = os.getenv("DATABASE_URL", "sqlite:///./sercuescribe.db")
+        print(database_url)
     config.set_main_option("sqlalchemy.url", database_url)
 
 # Interpret the config file for Python logging.

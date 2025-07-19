@@ -65,7 +65,7 @@ docker-compose down
 - Pytest for testing
 - Celery 5.3+ for background tasks
 - Redis 4.5+ for task queue and caching
-- PostgreSQL for primary database
+- MySQL for primary database
 
 ### Testing Structure
 - `tests/` mirrors `app/` structure
@@ -107,7 +107,7 @@ docker-compose down
 ## Docker Services
 - **app**: Main FastAPI application (port 8000)
 - **worker**: Celery worker for background tasks
-- **db**: PostgreSQL database (port 5432)
+- **db**: MySQL database (port 3306)
 - **redis**: Redis for task queue and caching (port 6379)
 - **flower**: Celery monitoring dashboard (port 5555)
 

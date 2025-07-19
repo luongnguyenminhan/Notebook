@@ -47,7 +47,7 @@ All models inherit from `BaseEntity` providing:
 
 ## Database Integration
 - Uses SQLAlchemy 2.0+ with declarative base
-- Configured for PostgreSQL with connection pooling
+- Configured for MySQL with connection pooling
 - Alembic migrations for schema management
 - Foreign key constraints and cascade deletes
 
