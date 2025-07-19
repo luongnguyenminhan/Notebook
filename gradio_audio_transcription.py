@@ -55,7 +55,9 @@ def transcribe_audio_chunk(audio_data):
         processed_audio = preprocess_audio(audio_data)
 
         # Convert to features
-        input_features = processor(processed_audio, sampling_rate=SAMPLE_RATE, return_tensors="pt").input_features.to(device)
+        input_features = processor(
+            processed_audio, sampling_rate=SAMPLE_RATE, return_tensors="pt"
+        ).input_features.to(device)
 
         # Generate transcription
         with torch.no_grad():
@@ -138,7 +140,9 @@ def stop_recording():
 
     # Compile all transcriptions
     if transcription_results:
-        final_text = "\n\n".join([f"Chunk {i + 1}: {text}" for i, text in enumerate(transcription_results)])
+        final_text = "\n\n".join(
+            [f"Chunk {i + 1}: {text}" for i, text in enumerate(transcription_results)]
+        )
         status = f"Recording stopped. Processed {len(transcription_results)} chunks."
     else:
         final_text = "No audio was processed."
@@ -157,7 +161,9 @@ def clear_transcription():
 def get_transcription_text():
     """Get current transcription text"""
     if transcription_results:
-        return "\n\n".join([f"Chunk {i + 1}: {text}" for i, text in enumerate(transcription_results)])
+        return "\n\n".join(
+            [f"Chunk {i + 1}: {text}" for i, text in enumerate(transcription_results)]
+        )
     return "No transcription available yet..."
 
 
@@ -170,13 +176,20 @@ with gr.Blocks(css=custom_css, title="Real-time Vietnamese Speech Recognition") 
     gr.HTML("<h1>Real-time Vietnamese Speech Recognition</h1>")
 
     # Status display
-    status_display = gr.Textbox(label="Status", value="Ready to record", interactive=False)
+    status_display = gr.Textbox(
+        label="Status", value="Ready to record", interactive=False
+    )
 
     # Main interface
     with gr.Row():
         with gr.Column(scale=1):
             # Audio input
-            audio_input = gr.Audio(label="Microphone Input", sources=["microphone"], type="numpy", streaming=True)
+            audio_input = gr.Audio(
+                label="Microphone Input",
+                sources=["microphone"],
+                type="numpy",
+                streaming=True,
+            )
 
             # Control buttons
             with gr.Row():
@@ -185,7 +198,8 @@ with gr.Blocks(css=custom_css, title="Real-time Vietnamese Speech Recognition") 
                 clear_btn = gr.Button("Clear", variant="secondary")
 
             # Settings display
-            gr.HTML("""
+            gr.HTML(
+                """
             <div>
                 <h3>Model Settings</h3>
                 <p><strong>Model:</strong> Fine-tuned Whisper</p>
@@ -194,21 +208,35 @@ with gr.Blocks(css=custom_css, title="Real-time Vietnamese Speech Recognition") 
                 <p><strong>Chunk Duration:</strong> 5 seconds</p>
                 <p><strong>Device:</strong> CPU</p>
             </div>
-            """)
+            """
+            )
 
         with gr.Column(scale=2):
             # Transcription output
-            transcription_output = gr.Textbox(label="Transcription Results", value="Click 'Start Recording' to begin...", lines=15, interactive=False)
+            transcription_output = gr.Textbox(
+                label="Transcription Results",
+                value="Click 'Start Recording' to begin...",
+                lines=15,
+                interactive=False,
+            )
 
     # Hidden state for audio history
     audio_history = gr.State(value=None)
 
     # Event handlers
-    start_btn.click(fn=start_recording, inputs=[], outputs=[status_display, transcription_output])
+    start_btn.click(
+        fn=start_recording, inputs=[], outputs=[status_display, transcription_output]
+    )
 
-    stop_btn.click(fn=stop_recording, inputs=[], outputs=[status_display, transcription_output])
+    stop_btn.click(
+        fn=stop_recording, inputs=[], outputs=[status_display, transcription_output]
+    )
 
-    clear_btn.click(fn=clear_transcription, inputs=[], outputs=[status_display, transcription_output])
+    clear_btn.click(
+        fn=clear_transcription,
+        inputs=[],
+        outputs=[status_display, transcription_output],
+    )
 
     # Audio streaming handler
     audio_input.stream(
@@ -224,12 +252,14 @@ with gr.Blocks(css=custom_css, title="Real-time Vietnamese Speech Recognition") 
         return get_transcription_text()
 
     # Footer
-    gr.HTML("""
+    gr.HTML(
+        """
     <div>
         <p><strong>Model:</strong> Fine-tuned Whisper for Vietnamese</p>
         <p><strong>Tips:</strong> Speak clearly and allow 5-second chunks for best results</p>
     </div>
-    """)
+    """
+    )
 
 # Launch the demo
 if __name__ == "__main__":
