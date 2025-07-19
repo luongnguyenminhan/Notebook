@@ -17,6 +17,11 @@
       "installDependencies": "Cài đặt các phụ thuộc:",
       "startDevServer": "Khởi động server phát triển:"
     },
+    "notFound": {
+      "title": "Ôi! Đã xảy ra sự cố.",
+      "description": "Chúng tôi xin lỗi, nhưng không thể tìm thấy trang bạn yêu cầu. Vui lòng kiểm tra lại đường dẫn hoặc quay về trang chủ.",
+      "goHome": "Quay về trang chủ"
+    },
     "contributeSteps": {
       "fork": "Fork kho mã",
       "createBranch": "Tạo nhánh mới:",
