@@ -7,7 +7,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=mysql+pymysql://root:11minhan@host.docker.internal:3306/sercuescribe?charset=utf8mb4
+      - DATABASE_URL=mysql+pymysql://root:11minhan@db:3306/sercuescribe?charset=utf8mb4
       - REDIS_URL=redis://redis:6379/0
       - ENVIRONMENT=development
     extra_hosts:
@@ -21,7 +21,7 @@ services:
   worker:
     image: app-base
     environment:
-      - DATABASE_URL=mysql+pymysql://root:11minhan@host.docker.internal:3306/sercuescribe?charset=utf8mb4
+      - DATABASE_URL=mysql+pymysql://root:11minhan@db:3306/sercuescribe?charset=utf8mb4
       - REDIS_URL=redis://redis:6379/0
       - ENVIRONMENT=development
     extra_hosts:
@@ -31,19 +31,19 @@ services:
       - app
     command: celery -A app.core.celery worker --loglevel=info
 
-  # db:
-  #   image: mysql:8.0
-  #   environment:
-  #     - MYSQL_ROOT_PASSWORD=rootpassword
-  #     - MYSQL_DATABASE=sercuescribe
-  #     - MYSQL_USER=sercue
-  #     - MYSQL_PASSWORD=sercue123
-  #   ports:
-  #     - "3306:3306"
-  #   volumes:
-  #     - mysql_data:/var/lib/mysql
-  #     - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
-  #   command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+  db:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=11minhan
+      - MYSQL_DATABASE=sercuescribe
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=11minhan
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
 
   redis:
     image: redis:7-alpine
@@ -64,15 +64,15 @@ services:
       - app
     command: celery -A app.core.celery flower --port=5555
 
-  # adminer:
-  #   image: adminer
-  #   restart: always
-  #   environment:
-  #     - ADMINER_DEFAULT_SERVER=db
-  #   ports:
-  #     - "8080:8080"
-  #   depends_on:
-  #     - db
+  adminer:
+    image: adminer
+    restart: always
+    environment:
+      - ADMINER_DEFAULT_SERVER=db
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
       
 volumes:
   mysql_data:
