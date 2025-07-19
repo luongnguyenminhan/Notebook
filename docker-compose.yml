@@ -60,6 +60,16 @@ services:
       - app
     command: celery -A app.core.celery flower --port=5555
 
+  adminer:
+    image: adminer
+    restart: always
+    environment:
+      - ADMINER_DEFAULT_SERVER=docker.host.internal
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      
 volumes:
   postgres_data:
   redis_data:

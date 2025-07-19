@@ -7,9 +7,12 @@ __pycache__/
 .vscode/
 .DS_Store
 venv/
+.venv/
+.ruff_cache/
 .pytest_cache/
 *.log
 
 # Docker
 .docker/
 docker-compose.override.yml
+finetuned_vivos_noisy

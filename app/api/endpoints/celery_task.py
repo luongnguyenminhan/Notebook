@@ -1,6 +1,7 @@
 from fastapi import APIRouter
+
 from app.schemas.celery_task import AddTaskRequest, AddTaskResult
-from app.services.celery_service import trigger_add_task, get_task_result
+from app.services.celery_service import get_task_result, trigger_add_task
 
 router = APIRouter()
 

@@ -1,6 +1,7 @@
 fastapi>=0.100.0
 uvicorn>=0.22.0
 pydantic>=2.0.0
+pydantic-settings>=2.0.0
 sqlalchemy>=2.0.0
 alembic>=1.11.0
 python-dotenv>=1.0.0
@@ -10,6 +11,11 @@ celery>=5.3.0
 redis>=4.5.0
 flower>=2.0.0
 psycopg2-binary>=2.9.0
+
+# Authentication dependencies
+passlib[bcrypt]>=1.7.4
+python-jose[cryptography]>=3.3.0
+python-multipart>=0.0.6
 
 # HuggingFace Transformers and dependencies for speech-to-text
 transformers>=4.40.0

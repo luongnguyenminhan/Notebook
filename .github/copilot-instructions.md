@@ -1,21 +1,28 @@
 # SercueScribe - AI Coding Instructions
 
 ## Project Overview
-This is **SercueScribe**, a FastAPI-based application following a clean architecture pattern with modular components. The project uses modern Python FastAPI conventions with clear separation of concerns.
+This is **SercueScribe**, a FastAPI-based application following a clean architecture pattern with modular components. The project uses modern Python FastAPI conventions with clear separation of concerns and includes a comprehensive authentication and admin system.
 
 ## Architecture & Structure
 
 ### Core Components
-- `app/main.py` - FastAPI application entry point with basic setup
+- `app/main.py` - FastAPI application entry point with CORS and router configuration
 - `app/api/` - API layer with endpoints and dependencies
-- `app/core/` - Core configuration, settings, and Celery setup
-- `app/db/` - Database models, connections, and migrations
-- `app/models/` - SQLAlchemy ORM models
-- `app/schemas/` - Pydantic request/response schemas
-- `app/services/` - Business logic and service layer
+- `app/core/` - Core configuration, database, security, and Celery setup
+- `app/db/` - Database base classes and model registration
+- `app/models/` - SQLAlchemy ORM models (User, Recording)
+- `app/schemas/` - Pydantic request/response schemas with validation
+- `app/services/` - Business logic and service layer (AuthService, AdminService)
 - `app/utils/` - Shared utilities and helpers
 - `docker-compose.yml` - Multi-service development environment
 - `Dockerfile` - Application containerization
+
+### Authentication System
+- **JWT Bearer Token Authentication**: Stateless authentication with configurable expiry
+- **User Management**: Registration, login, profile updates, password changes
+- **Admin System**: User administration, statistics dashboard, role management
+- **Security**: Bcrypt password hashing, OAuth2-compatible login, role-based access control
+- **Models**: User model with profile fields, Recording model with processing status
 
 ### Key Patterns
 - **Layered Architecture**: API → Services → Models → DB
