@@ -8,9 +8,9 @@ engine = create_engine(
     settings.database_url,
     echo=settings.environment == "development",
     pool_pre_ping=True,
-    pool_recycle=300,  # Recycle connections every 5 minutes to avoid MySQL timeout
-    pool_size=5,  # Connection pool size
-    max_overflow=10,  # Max overflow connections
+    pool_recycle=300,  
+    pool_size=5,
+    max_overflow=10,
 )
 
 # Create SessionLocal class

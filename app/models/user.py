@@ -7,7 +7,7 @@ from app.db import BaseEntity
 class User(BaseEntity):
     __tablename__ = "users"
 
-    username = Column(String(20), unique=True, nullable=False, index=True)
+    username = Column(String(20), unique=False, nullable=False, index=True)
     email = Column(String(120), unique=True, nullable=False, index=True)
     password = Column(String(60), nullable=False)
     is_admin = Column(Boolean, default=False)
