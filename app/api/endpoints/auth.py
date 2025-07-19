@@ -96,19 +96,17 @@ def change_password(
     return {"message": "Password updated successfully"}
 
 
-@router.get("/account")
-def get_account_info(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)) -> Any:
+@router.get("/account", response_model=dict)
+def get_account_info(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)) -> dict:
     """
     Get account information with settings.
     """
     stats = AuthService.get_user_stats(db, current_user)
 
-    default_summary_prompt = """Identify the key issues discussed. First, give me minutes. Then, give me the key issues discussed. Then, any key takeaways. Then, key next steps. Then, all important things that I didn't ask for but that need to be recorded. Make sure every important nuance is covered."""
 
     return {
-        "user": current_user,
+        "user": UserResponse.model_validate(current_user),
         "stats": stats,
-        "default_summary_prompt": default_summary_prompt,
         "use_asr_endpoint": settings.use_asr_endpoint,
         "asr_diarize_locked": settings.asr_diarize is not None,
         "asr_diarize_env_value": settings.asr_diarize,
