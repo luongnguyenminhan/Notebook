@@ -111,4 +111,39 @@ docker-compose down
 - **redis**: Redis for task queue and caching (port 6379)
 - **flower**: Celery monitoring dashboard (port 5555)
 
-The project is designed for scalability with clear boundaries between API, business logic, and data layers.
+
+## Frontend Guide
+
+The `frontend/` directory contains the Next.js-based frontend for SercueScribe. It follows modern React and Next.js conventions, with a focus on modularity, internationalization, and maintainability.
+
+- **src/app/**: Main Next.js app directory, including route handlers, layouts, and pages.
+- **src/components/**: Reusable React components for UI consistency.
+- **src/i18n/**: Internationalization (i18n) logic and locale resources.
+- **src/lib/**: Shared frontend utilities and API clients.
+- **src/middleware.ts**: Middleware for locale detection, authentication, etc.
+
+**Key Patterns:**
+- Uses TypeScript throughout for type safety.
+- Follows Next.js App Router structure.
+- Supports multiple locales with translation files in `dictionary/`.
+- Encourages component reuse and separation of concerns.
+- API integration and business logic are abstracted in `lib/`.
+
+**Development Workflow:**
+- Install dependencies: `npm install` or `bun install`
+- Run dev server: `npm run dev` or `bun dev`
+- Build: `npm run build`
+- Lint/format: `npm run lint` / `npm run format`
+
+**Best Practices:**
+- Keep components small and focused.
+- Use TypeScript types for props and data.
+- Organize files by feature/domain when possible.
+- Use environment variables for config.
+- Follow Next.js/React naming conventions.
+
+See `frontend/src/context.md` for a detailed summary of the frontend code context.
+
+---
+
+The project is designed for scalability with clear boundaries between API, business logic, data, and frontend layers.

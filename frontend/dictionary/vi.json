@@ -1,0 +1,44 @@
+{
+  "Index": {
+    "boilerplateName": "Mẫu Next.js i18n",
+    "title": "Template Next 15 với i18n và Shadcn UI",
+    "description": "Khởi đầu mạnh mẽ cho ứng dụng web đa ngôn ngữ, dễ tiếp cận của bạn.",
+    "cloneRepository": "Sao chép kho mã",
+    "leaveStar": "Đánh giá sao",
+    "howToUse": "Cách sử dụng",
+    "gettingStarted": "Bắt đầu",
+    "installation": "Cài đặt",
+    "howToContribute": "Cách đóng góp",
+    "omitrtlUsage": "Cách dùng OmitRTL",
+    "OmitRTLInstruction": "Để sử dụng OmitRTL, chỉ cần bọc component bạn muốn loại bỏ hỗ trợ RTL bằng component OmitRTL.",
+    "contribute": "Đóng góp",
+    "installationSteps": {
+      "cloneRepository": "Sao chép kho mã:",
+      "installDependencies": "Cài đặt các phụ thuộc:",
+      "startDevServer": "Khởi động server phát triển:"
+    },
+    "contributeSteps": {
+      "fork": "Fork kho mã",
+      "createBranch": "Tạo nhánh mới:",
+      "commit": "Commit thay đổi:",
+      "push": "Đẩy lên nhánh:",
+      "pullRequest": "Tạo Pull Request mới"
+    },
+    "error": {
+      "server": "Lỗi máy chủ nội bộ",
+      "sorry": "Xin lỗi, chúng tôi gặp sự cố bất ngờ trên máy chủ.",
+      "tryAgain": " Vui lòng thử lại sau.",
+      "returnHome": "Quay về trang chủ"
+    }
+  },
+
+  "Footer": {
+    "copyright": "© 2025 Mẫu Next.js i18n. Mã nguồn mở theo giấy phép MIT.",
+    "githubLink": "GitHub"
+  },
+  "Metadata": {
+    "title": "Mẫu Next.js i18n - Template khởi đầu đa ngôn ngữ",
+    "description": "Bộ khởi động Next.js i18n với hỗ trợ tiếng Anh và tiếng Việt. Bao gồm shadcn UI, chuyển đổi giao diện và hỗ trợ RTL.",
+    "keywords": "Next.js, i18n, quốc tế hóa, tiếng Anh, tiếng Việt, đa ngôn ngữ, template, khởi động, shadcn UI, hỗ trợ RTL"
+  }
+}
