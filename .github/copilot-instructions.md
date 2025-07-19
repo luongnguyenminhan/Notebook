@@ -36,6 +36,19 @@ This is **SercueScribe**, a FastAPI-based application following a clean architec
 - **Background Tasks**: Celery with Redis for async processing
 - **Containerization**: Docker Compose for development environment
 
+## First User Initialization Flow (2024-06)
+
+- On first launch (when no users exist), the app checks `/auth/is-first-user`.
+- If true, renders `InitSuperUserForm` (username, email, password, confirm password) using UI components and Tailwind/global styles.
+- Form validates password and confirm, handles loading, error, and success states.
+- On submit, calls `POST /auth/init-superuser`.
+- If not first user, app renders as normal.
+- Logic is handled in layout via a custom hook `useFirstUserCheck`.
+- All new UI is accessible and responsive, using variables from `globals.css`.
+
+## API Client
+- `authApi.ts` provides `checkIsFirstUser` and `initSuperUser` using `axiosInstance.ts`.
+
 ## Development Workflow
 
 ### Setup & Running

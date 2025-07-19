@@ -1,4 +1,34 @@
 {
+    "AuthPage": {
+    "switchToRegister": "Chưa có tài khoản? Đăng ký",
+    "switchToLogin": "Đã có tài khoản? Đăng nhập",
+    "loginSuccess": "Đăng nhập thành công!",
+    "registerSuccess": "Đăng ký thành công! Vui lòng đăng nhập."
+  },
+  "LoginForm": {
+    "title": "Đăng nhập",
+    "username": "Tên đăng nhập",
+    "password": "Mật khẩu",
+    "loginButton": "Đăng nhập",
+    "loggingIn": "Đang đăng nhập...",
+    "loginFailed": "Đăng nhập thất bại. Vui lòng kiểm tra thông tin.",
+    "noAccount": "Chưa có tài khoản? Đăng ký",
+    "haveAccount": "Đã có tài khoản? Đăng nhập"
+  },
+  "RegisterForm": {
+    "title": "Đăng ký",
+    "username": "Tên đăng nhập",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "registerButton": "Đăng ký",
+    "registering": "Đang đăng ký...",
+    "registerFailed": "Đăng ký thất bại.",
+    "passwordMinLength": "Mật khẩu phải có ít nhất 8 ký tự.",
+    "passwordsDoNotMatch": "Mật khẩu không khớp.",
+    "success": "Đăng ký thành công! Bạn có thể đăng nhập.",
+    "haveAccount":"Đã có tài khoản? Đăng nhập"
+  },
   "Index": {
     "boilerplateName": "Mẫu Next.js i18n",
     "title": "Template Next 15 với i18n và Shadcn UI",
@@ -37,6 +67,19 @@
     }
   },
 
+  "InitSuperUserForm": {
+    "title": "Khởi tạo tài khoản quản trị viên",
+    "username": "Tên đăng nhập",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "passwordMinLength": "Mật khẩu phải có ít nhất 8 ký tự.",
+    "passwordsDoNotMatch": "Mật khẩu không khớp.",
+    "createFailed": "Tạo tài khoản quản trị viên thất bại.",
+    "creating": "Đang tạo...",
+    "createButton": "Tạo quản trị viên",
+    "success": "Tạo tài khoản quản trị viên thành công! Vui lòng đăng nhập."
+  },
   "Footer": {
     "copyright": "© 2025 Mẫu Next.js i18n. Mã nguồn mở theo giấy phép MIT.",
     "githubLink": "GitHub"

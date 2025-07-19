@@ -10,6 +10,7 @@ from app.core.security import get_current_user
 from app.models.user import User
 from app.schemas.auth import (
     PasswordChange,
+    SuperUserCreate,
     Token,
     UserCreate,
     UserResponse,
@@ -36,7 +37,9 @@ def register(user: UserCreate, db: Session = Depends(get_db)) -> Any:
 
 
 @router.post("/login", response_model=Token)
-def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)) -> Any:
+def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
+) -> Any:
     """
     OAuth2 compatible token login, get an access token for future requests.
     """
@@ -96,13 +99,22 @@ def change_password(
     return {"message": "Password updated successfully"}
 
 
+@router.post("/init-superuser", response_model=UserResponse)
+def init_superuser(user_in: SuperUserCreate, db: Session = Depends(get_db)):
+    """
+    Initialize the first superuser. Only allowed if no users exist.
+    """
+    return AuthService.init_superuser(db, user_in)
+
+
 @router.get("/account", response_model=dict)
-def get_account_info(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)) -> dict:
+def get_account_info(
+    current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
+) -> dict:
     """
     Get account information with settings.
     """
     stats = AuthService.get_user_stats(db, current_user)
-
 
     return {
         "user": UserResponse.model_validate(current_user),
@@ -111,3 +123,14 @@ def get_account_info(current_user: User = Depends(get_current_user), db: Session
         "asr_diarize_locked": settings.asr_diarize is not None,
         "asr_diarize_env_value": settings.asr_diarize,
     }
+
+
+@router.get("/is-first-user", response_model=dict)
+def is_first_user(db: Session = Depends(get_db)):
+    """
+    Check if the database has no users (first user scenario).
+    """
+    from app.models.user import User
+
+    is_first = db.query(User).count() == 0
+    return {"is_first_user": is_first}

@@ -1,6 +1,6 @@
 import { use } from "react";
 import { setRequestLocale } from "next-intl/server";
-import HomeIndex from "@/components/pages/HomeIndex";
+import FirstUserGate from '@/components/FirstUserGate';
 
 export default function HomePage({
   params,
@@ -8,8 +8,6 @@ export default function HomePage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = use(params);
-  // Enable static rendering
   setRequestLocale(locale);
-
-  return <HomeIndex />;
+  return <FirstUserGate />;
 }

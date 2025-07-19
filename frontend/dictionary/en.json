@@ -1,4 +1,33 @@
 {
+    "AuthPage": {
+    "switchToRegister": "Don't have an account? Register",
+    "switchToLogin": "Already have an account? Login",
+    "loginSuccess": "Login successful!",
+    "registerSuccess": "Registration successful! Please login."
+  },
+  "LoginForm": {
+    "title": "Login",
+    "username": "Username",
+    "password": "Password",
+    "loginButton": "Login",
+    "loggingIn": "Logging in...",
+    "loginFailed": "Login failed. Please check your credentials.",
+    "noAccount": "Don't have an account? Register",
+    "haveAccount": "Already have an account? Login"
+  },
+  "RegisterForm": {
+    "title": "Register",
+    "username": "Username",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "registerButton": "Register",
+    "registering": "Registering...",
+    "registerFailed": "Registration failed.",
+    "passwordMinLength": "Password must be at least 8 characters long.",
+    "passwordsDoNotMatch": "Passwords do not match.",
+    "success": "Registration successful! You can now login."
+  },
   "Index": {
     "boilerplateName": "Next.js i18n Template",
     "title": "Next 15 Template with i18n and Shadcn UI",
@@ -37,6 +66,19 @@
     }
   },
 
+  "InitSuperUserForm": {
+    "title": "Initialize Superuser",
+    "username": "Username",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "passwordMinLength": "Password must be at least 8 characters long.",
+    "passwordsDoNotMatch": "Passwords do not match.",
+    "createFailed": "Failed to create superuser.",
+    "creating": "Creating...",
+    "createButton": "Create Superuser",
+    "success": "Superuser created successfully! Please login."
+  },
   "Footer": {
     "copyright": "© 2025 Next.js i18n Template. Open source under MIT license.",
     "githubLink": "GitHub"

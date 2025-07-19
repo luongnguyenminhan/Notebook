@@ -15,8 +15,10 @@
     "@radix-ui/react-tabs": "^1.1.12",
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",
+    "axios": "^1.10.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "js-cookie": "^3.0.5",
     "lucide-react": "^0.479.0",
     "motion": "^12.16.0",
     "next": "15.2.4",
@@ -32,6 +34,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@tailwindcss/postcss": "^4.1.8",
+    "@types/js-cookie": "^3.0.6",
     "@types/node": "^20.19.0",
     "@types/react": "19.0.12",
     "@types/react-dom": "19.0.4",

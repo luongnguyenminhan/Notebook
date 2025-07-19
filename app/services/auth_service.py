@@ -9,7 +9,7 @@ from app.core.config import settings
 from app.core.security import create_access_token, get_password_hash, verify_password
 from app.models.recording import Recording
 from app.models.user import User
-from app.schemas.auth import UserCreate, UserUpdate
+from app.schemas.auth import SuperUserCreate, UserCreate, UserUpdate
 
 
 class AuthService:
@@ -32,7 +32,9 @@ class AuthService:
 
         # Create user
         hashed_password = get_password_hash(user.password)
-        db_user = User(username=user.username, email=user.email, password=hashed_password)
+        db_user = User(
+            username=user.username, email=user.email, password=hashed_password
+        )
         db.add(db_user)
         db.commit()
         db.refresh(db_user)
@@ -44,7 +46,7 @@ class AuthService:
         user = db.query(User).filter(User.email == email).first()
         if not user:
             return None
-        if not verify_password(password, user.password):
+        if not verify_password(password, str(user.password)):
             return None
         return user
 
@@ -52,7 +54,9 @@ class AuthService:
     def create_access_token_for_user(user: User) -> str:
         """Create access token for authenticated user."""
         access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
-        return create_access_token(data={"sub": str(user.id)}, expires_delta=access_token_expires)
+        return create_access_token(
+            data={"sub": str(user.id)}, expires_delta=access_token_expires
+        )
 
     @staticmethod
     def update_user(db: Session, user: User, user_update: UserUpdate) -> User:
@@ -86,22 +90,51 @@ class AuthService:
         return user
 
     @staticmethod
-    def change_password(db: Session, user: User, current_password: str, new_password: str) -> bool:
+    def change_password(
+        db: Session, user: User, current_password: str, new_password: str
+    ) -> bool:
         """Change user password."""
-        if not verify_password(current_password, user.password):
+        if not verify_password(current_password, str(user.password)):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Current password is incorrect",
             )
 
-        user.password = get_password_hash(new_password)
+        user.password = get_password_hash(new_password)  # type: ignore
         db.commit()
         return True
 
     @staticmethod
     def get_user_stats(db: Session, user: User) -> dict:
         """Get user statistics."""
-        recordings_count = db.query(Recording).filter(Recording.user_id == user.id).count()
-        storage_used = db.query(func.sum(Recording.file_size)).filter(Recording.user_id == user.id).scalar() or 0
+        recordings_count = (
+            db.query(Recording).filter(Recording.user_id == user.id).count()
+        )
+        storage_used = (
+            db.query(func.sum(Recording.file_size))
+            .filter(Recording.user_id == user.id)
+            .scalar()
+            or 0
+        )
 
         return {"recordings_count": recordings_count, "storage_used": storage_used}
+
+    @staticmethod
+    def init_superuser(db: Session, user_in: SuperUserCreate) -> User:
+        """Initialize the first superuser if no users exist."""
+        if db.query(User).count() > 0:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Superuser can only be created when no users exist.",
+            )
+        hashed_password = get_password_hash(user_in.password)
+        db_user = User(
+            username=user_in.username,
+            email=user_in.email,
+            password=hashed_password,
+            is_admin=True,
+        )
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
+        return db_user

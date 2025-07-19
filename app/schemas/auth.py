@@ -20,6 +20,10 @@ class UserCreate(UserBase):
         return v
 
 
+class SuperUserCreate(UserCreate):
+    pass
+
+
 class UserUpdate(BaseModel):
     username: Optional[str] = None
     email: Optional[EmailStr] = None

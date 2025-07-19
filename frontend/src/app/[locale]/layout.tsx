@@ -92,7 +92,9 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <NextIntlClientProvider>{children}</NextIntlClientProvider>
+          <NextIntlClientProvider>
+            {children}
+          </NextIntlClientProvider>
         </ThemeProvider>
         <Analytics />
         <SpeedInsights />

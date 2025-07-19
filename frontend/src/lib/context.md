@@ -9,3 +9,8 @@ This directory contains shared frontend libraries, utilities, and helper functio
   - Organize by feature or utility type for maintainability
 
 Update this file as new utilities are added or existing ones are refactored.
+
+## useFirstUserCheck
+- Custom React hook for checking if the current user is the first user (i.e., no users exist in the system).
+- Calls `checkIsFirstUser` from `authApi.ts`.
+- Returns `{ isFirstUser, loading, error }` for use in conditional rendering (e.g., in layout).

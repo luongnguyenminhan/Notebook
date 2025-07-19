@@ -47,3 +47,23 @@ This document summarizes the code context for each file and subdirectory in the 
 ---
 
 This context should be updated as the frontend evolves. For backend and full-stack conventions, see the main copilot-instructions.md.
+
+## First User Initialization Flow
+
+- **API Integration**: Uses `/auth/is-first-user` (GET) and `/auth/init-superuser` (POST) via `authApi.ts`.
+- **InitSuperUserForm**: Located in `components/InitSuperUserForm.tsx`. Renders a form for username, email, password, confirm password. Uses UI components and Tailwind/global styles. Handles validation, loading, error, and success states.
+- **Custom Hook**: `useFirstUserCheck` in `lib/useFirstUserCheck.ts` calls the API and returns `{ isFirstUser, loading, error }`.
+- **Layout Integration**: In `[locale]/layout.tsx`, wraps app in a `FirstUserGate` that:
+  - Shows spinner while loading
+  - Renders only the superuser form if first user
+  - Otherwise renders the app as normal
+- **Styling**: All new UI uses variables and classes from `globals.css` for color, border, radius, and accessibility.
+
+## API Client
+- `authApi.ts` provides `checkIsFirstUser` and `initSuperUser` functions using `axiosInstance.ts`.
+
+## Accessibility
+- All form fields have labels, aria, and focus states for accessibility.
+
+---
+This ensures the app is secure and user-friendly on first launch, and visually consistent with the rest of the UI.
