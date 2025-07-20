@@ -1,0 +1,118 @@
+{
+  "HomePage": {
+    "title": "Hello world!",
+    "hero": {
+      "welcome": "Welcome to",
+      "title": "Next.js Starter",
+      "description": "Build faster with our powerful Next.js starter! Packed with essential tools like state management, React Query, I18n, CI/CD, and customizable UI components, it's everything you need to kickstart scalable, high-performance projects effortlessly.",
+      "buttons": {
+        "getStarted": "Get Started",
+        "viewGithub": "View on GitHub"
+      }
+    },
+    "features": {
+      "title": {
+        "prefix": "Why Choose",
+        "suffix": "This Starter?"
+      },
+      "description": "Boost your development process with a powerful, feature-rich Next.js starter designed for speed, scalability, and developer productivity. Here's what makes it stand out:",
+      "items": {
+        "openSource": {
+          "name": "Free and Open-Source",
+          "summary": "Build, customize, and innovate freely!",
+          "description": "Our Next.js starter is fully open-source, allowing you to contribute, adapt, and stay in sync with the latest industry standards—all without any cost."
+        },
+        "devStack": {
+          "name": "Modern Development Stack",
+          "summary": "Experience seamless development with Next.js, React, and TypeScript.",
+          "description": "Our starter is designed with scalability in mind, featuring React Query for data fetching, Redux for state management, and Tailwind CSS for rapid UI styling."
+        },
+        "stateManagement": {
+          "name": "Optimized State Management",
+          "summary": "Handle complex state easily with Redux and React Query.",
+          "description": "This combination ensures efficient data fetching, caching, and global state management, making your applications fast and responsive."
+        },
+        "i18n": {
+          "name": "Internationalization (i18n)",
+          "summary": "Expand your project's reach across the globe with built-in i18n support.",
+          "description": "Effortlessly localize your app to enhance user experience and attract a diverse audience with minimal setup."
+        },
+        "cicd": {
+          "name": "Robust CI/CD & Testing Setup",
+          "summary": "Focus on development while our GitHub Actions pipeline handles automated testing, linting, and deployment checks.",
+          "description": "Unit, integration, and end-to-end testing are integrated for a rock-solid foundation."
+        },
+        "devEnv": {
+          "name": "Developer-First Environment",
+          "summary": "Enjoy a clean, maintainable codebase with tools like ESLint, Prettier, and TypeScript.",
+          "description": "Our starter is optimized for productivity, including reusable UI components, hooks, and a modular architecture designed for fast, scalable development."
+        }
+      }
+    },
+    "stack": {
+      "title": "Tech Stack",
+      "overview": "Overview",
+      "description": "Boost your development process with a powerful, feature-rich Next.js starter designed for speed, scalability, and developer productivity. Here's what makes it stand out:",
+      "features": {
+        "nextjs": {
+          "title": "Next.js",
+          "description": "Fast by default, with config optimized for performance."
+        },
+        "tailwind": {
+          "title": "Tailwind CSS",
+          "description": "A utility-first CSS framework for rapid UI development."
+        },
+        "eslint": {
+          "title": "ESlint & Prettier",
+          "description": "For clean, consistent, and error-free code."
+        },
+        "typescript": {
+          "title": "Extremely strict TypeScript",
+          "description": "Leveraging TypeScript for unmatched type safety and robust application development."
+        },
+        "testing": {
+          "title": "Jest & React Testing Library",
+          "description": "For rock-solid unit and integration tests."
+        },
+        "cypress": {
+          "title": "Cypress",
+          "description": "Utilizing Cypress to ensure seamless user experiences through reliable and efficient testing workflows."
+        },
+        "storybook": {
+          "title": "Storybook",
+          "description": "Create, test, and showcase your components."
+        },
+        "git": {
+          "title": "Conventional commits git hook",
+          "description": "Keep your commit history neat and tidy."
+        },
+        "imports": {
+          "title": "Absolute imports",
+          "description": "No more spaghetti imports."
+        },
+        "chakra": {
+          "title": "Chakra UI",
+          "description": "Headless UI components for endless customization."
+        },
+        "cicd": {
+          "title": "Streamlined CI/CD Workflows",
+          "description": "Harnessing GitHub Actions to automate builds, tests, and deployments with precision and efficiency."
+        },
+        "redux": {
+          "title": "State Management Simplified",
+          "description": "Empowering applications with Redux for predictable and scalable state management solutions."
+        }
+      }
+    }
+  },
+  "Header": {
+    "navigation": {
+      "home": "Home",
+      "features": "Features",
+      "techStack": "Tech Stack"
+    }
+  },
+  "Footer": {
+    "copyright": "Copyright © {year} NextJS StarterKit. All rights reserved."
+  }
+}

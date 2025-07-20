@@ -1,0 +1,118 @@
+{
+  "HomePage": {
+    "title": "Xin chào thế giới!",
+    "hero": {
+      "welcome": "Chào mừng đến với",
+      "title": "Bộ Kit Next.js",
+      "description": "Xây dựng nhanh hơn với bộ khởi động Next.js mạnh mẽ của chúng tôi! Được trang bị các công cụ thiết yếu như quản lý trạng thái, React Query, I18n, CI/CD và các thành phần UI tùy chỉnh, đây là tất cả những gì bạn cần để bắt đầu các dự án mở rộng và hiệu suất cao một cách dễ dàng.",
+      "buttons": {
+        "getStarted": "Bắt đầu",
+        "viewGithub": "Xem trên GitHub"
+      }
+    },
+    "features": {
+      "title": {
+        "prefix": "Tại Sao Chọn",
+        "suffix": "Starter Này?"
+      },
+      "description": "Tăng tốc quá trình phát triển của bạn với một starter Next.js mạnh mẽ và giàu tính năng, được thiết kế cho tốc độ, khả năng mở rộng và năng suất của lập trình viên. Đây là những điểm nổi bật:",
+      "items": {
+        "openSource": {
+          "name": "Miễn phí & Mã nguồn mở",
+          "summary": "Xây dựng, tùy chỉnh và sáng tạo tự do!",
+          "description": "Starter Next.js của chúng tôi hoàn toàn mã nguồn mở, cho phép bạn đóng góp, điều chỉnh và luôn cập nhật các tiêu chuẩn mới nhất của ngành, tất cả đều miễn phí."
+        },
+        "devStack": {
+          "name": "Stack Phát Triển Hiện Đại",
+          "summary": "Trải nghiệm phát triển mượt mà với Next.js, React và TypeScript.",
+          "description": "Starter của chúng tôi được thiết kế với khả năng mở rộng, tích hợp React Query để lấy dữ liệu, Redux để quản lý trạng thái và Tailwind CSS cho giao diện nhanh chóng."
+        },
+        "stateManagement": {
+          "name": "Quản Lý Trạng Thái Tối Ưu",
+          "summary": "Dễ dàng quản lý trạng thái phức tạp với Redux và React Query.",
+          "description": "Sự kết hợp này đảm bảo việc lấy dữ liệu hiệu quả, lưu trữ và quản lý trạng thái toàn cục, giúp ứng dụng của bạn nhanh và phản hồi tốt."
+        },
+        "i18n": {
+          "name": "Đa ngôn ngữ (i18n)",
+          "summary": "Mở rộng dự án của bạn ra toàn cầu với hỗ trợ i18n tích hợp.",
+          "description": "Dễ dàng bản địa hóa ứng dụng để nâng cao trải nghiệm người dùng và thu hút nhiều đối tượng với cấu hình tối thiểu."
+        },
+        "cicd": {
+          "name": "Cấu Hình CI/CD & Kiểm Thử Vững Chắc",
+          "summary": "Tập trung phát triển trong khi pipeline GitHub Actions của chúng tôi xử lý kiểm thử tự động, linting và kiểm tra triển khai.",
+          "description": "Kiểm thử đơn vị, tích hợp và end-to-end đều được tích hợp cho nền tảng vững chắc."
+        },
+        "devEnv": {
+          "name": "Môi Trường Hướng Đến Lập Trình Viên",
+          "summary": "Tận hưởng codebase sạch sẽ, dễ bảo trì với các công cụ như ESLint, Prettier và TypeScript.",
+          "description": "Starter của chúng tôi tối ưu cho năng suất, bao gồm các thành phần UI tái sử dụng, hooks và kiến trúc module cho phát triển nhanh và mở rộng."
+        }
+      }
+    },
+    "stack": {
+      "title": "Stack Công Nghệ",
+      "overview": "Tổng quan",
+      "description": "Tăng tốc quá trình phát triển của bạn với một starter Next.js mạnh mẽ và giàu tính năng, được thiết kế cho tốc độ, khả năng mở rộng và năng suất của lập trình viên. Đây là những điểm nổi bật:",
+      "features": {
+        "nextjs": {
+          "title": "Next.js",
+          "description": "Nhanh mặc định, với cấu hình tối ưu cho hiệu suất."
+        },
+        "tailwind": {
+          "title": "Tailwind CSS",
+          "description": "Framework CSS tiện ích cho phát triển UI nhanh chóng."
+        },
+        "eslint": {
+          "title": "ESlint & Prettier",
+          "description": "Đảm bảo code sạch, nhất quán và không lỗi."
+        },
+        "typescript": {
+          "title": "TypeScript nghiêm ngặt",
+          "description": "Sử dụng TypeScript cho an toàn kiểu dữ liệu vượt trội và phát triển vững chắc."
+        },
+        "testing": {
+          "title": "Jest & React Testing Library",
+          "description": "Cho kiểm thử đơn vị và tích hợp vững chắc."
+        },
+        "cypress": {
+          "title": "Cypress",
+          "description": "Sử dụng Cypress để đảm bảo trải nghiệm người dùng mượt mà với quy trình kiểm thử đáng tin cậy và hiệu quả."
+        },
+        "storybook": {
+          "title": "Storybook",
+          "description": "Tạo, kiểm thử và trình diễn các thành phần của bạn."
+        },
+        "git": {
+          "title": "Commits quy chuẩn",
+          "description": "Giữ lịch sử commit của bạn sạch sẽ và có tổ chức."
+        },
+        "imports": {
+          "title": "Import tuyệt đối",
+          "description": "Không còn import lằng nhằng."
+        },
+        "chakra": {
+          "title": "Chakra UI",
+          "description": "Thành phần UI headless cho khả năng tùy chỉnh không giới hạn."
+        },
+        "cicd": {
+          "title": "Luồng CI/CD tối ưu",
+          "description": "Sử dụng GitHub Actions để tự động hóa build, kiểm thử và triển khai một cách chính xác và hiệu quả."
+        },
+        "redux": {
+          "title": "Quản Lý Trạng Thái Đơn Giản",
+          "description": "Ứng dụng tối ưu với Redux cho quản lý trạng thái dự đoán được và mở rộng."
+        }
+      }
+    }
+  },
+  "Header": {
+    "navigation": {
+      "home": "Trang chủ",
+      "features": "Tính năng",
+      "techStack": "Công nghệ"
+    }
+  },
+  "Footer": {
+    "copyright": "Bản quyền © {year} NextJS StarterKit. Đã đăng ký mọi quyền."
+  }
+}
