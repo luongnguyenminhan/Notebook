@@ -1,4 +1,19 @@
 import axiosInstance from './axiosInstance';
+import Cookies from 'js-cookie';
+
+const ACCESS_TOKEN_KEY = 'access_token';
+
+export function setAccessToken(token: string) {
+  Cookies.set(ACCESS_TOKEN_KEY, token, { expires: 7 }); // 7 days expiry
+}
+
+export function removeAccessToken() {
+  Cookies.remove(ACCESS_TOKEN_KEY);
+}
+
+export function getAccessToken() {
+  return Cookies.get(ACCESS_TOKEN_KEY) || null;
+}
 
 // Check if the current user is the first user (for superuser initialization)
 export async function checkIsFirstUser(): Promise<{ is_first_user: boolean }> {
@@ -38,9 +53,12 @@ export async function login(payload: LoginPayload) {
   const params = new URLSearchParams();
   params.append('username', payload.username);
   params.append('password', payload.password);
-  return axiosInstance.post('/auth/login', params, {
+  const res = await axiosInstance.post('/auth/login', params, {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-  }).then(res => res.data);
+  });
+  const { access_token } = res.data;
+  if (access_token) setAccessToken(access_token);
+  return res.data;
 }
 
 // Get current user profile

@@ -7,7 +7,7 @@
   },
   "LoginForm": {
     "title": "Đăng nhập",
-    "username": "Tên đăng nhập",
+    "username": "Email",
     "password": "Mật khẩu",
     "loginButton": "Đăng nhập",
     "loggingIn": "Đang đăng nhập...",
@@ -17,7 +17,7 @@
   },
   "RegisterForm": {
     "title": "Đăng ký",
-    "username": "Tên đăng nhập",
+    "username": "Tên người dùng",
     "email": "Email",
     "password": "Mật khẩu",
     "confirmPassword": "Xác nhận mật khẩu",

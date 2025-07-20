@@ -64,16 +64,19 @@ services:
       - app
     command: celery -A app.core.celery flower --port=5555
 
-  adminer:
-    image: adminer
-    restart: always
-    environment:
-      - ADMINER_DEFAULT_SERVER=db
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: sercuescribe-frontend
     ports:
-      - "8080:8080"
+      - "3000:3000"
+    working_dir: /app
+    environment:
+      - NODE_ENV=production
     depends_on:
-      - db
-      
+      - app
+    restart: unless-stopped
 volumes:
   mysql_data:
   redis_data:

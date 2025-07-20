@@ -8,6 +8,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Globe, Github, Copy, Check, Star } from "lucide-react";
 import { useEffect, useState, useMemo, useCallback, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '@/redux/store';
+import { logoutThunk } from '@/redux/authSlice';
 
 import { ModeToggle } from "../ModeToggle";
 import { useTranslations } from "next-intl";
@@ -286,6 +289,8 @@ export default function HomeIndex() {
   const t = useTranslations("Index");
   const f = useTranslations("Footer");
   const [isRTL, setIsRTL] = useState(false);
+  const user = useSelector((state: RootState) => state.auth.user);
+  const dispatch = useDispatch<AppDispatch>();
 
   // Translations object (no need for useMemo)
   const translations = {
@@ -346,6 +351,22 @@ export default function HomeIndex() {
 
   return (
     <div className="flex flex-col min-h-screen overflow-hidden">
+      {/* User Info Bar */}
+      {user && (
+        <div className="w-full bg-primary/10 border-b border-primary/20 py-2 px-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-primary">{user.username}</span>
+            <span className="text-xs text-muted-foreground">{user.email}</span>
+            {user.is_admin && <span className="ml-2 px-2 py-0.5 bg-primary text-white text-xs rounded">Admin</span>}
+          </div>
+          <button
+            className="text-sm text-primary underline hover:text-primary/80"
+            onClick={() => dispatch(logoutThunk())}
+          >
+            Logout
+          </button>
+        </div>
+      )}
       {/* Header */}
       <motion.header
         initial={{ opacity: 0, y: -10 }}
