@@ -1,9 +1,19 @@
-
 {
-    "Auth": {
+  "Auth": {
     "login": "Login",
+    "loginTitle": "Login to your account",
+    "loginSubtitle": "Welcome back! Please enter your credentials.",
+    "noAccount": "Don't have an account?",
+    "register": "Register",
+    "registerTitle": "Create your account",
+    "registerSubtitle": "Sign up to get started.",
+    "haveAccount": "Already have an account?",
+    "registering": "Registering...",
+    "confirmPassword": "Confirm Password",
+    "passwordMismatch": "Passwords do not match.",
     "email": "Email",
     "password": "Password",
+    "username": "Username",
     "loggingIn": "Logging in..."
   },
   "HomePage": {

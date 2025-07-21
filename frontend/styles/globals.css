@@ -18,14 +18,16 @@ body {
   }
 }
 
-input, textarea {
+input,
+textarea {
   color: var(--text-color-light);
   background: var(--input-bg-light);
   border-color: var(--input-border-light);
 }
 
 @media (prefers-color-scheme: dark) {
-  input, textarea {
+  input,
+  textarea {
     color: var(--text-color-dark);
     background: var(--input-bg-dark);
     border-color: var(--input-border-dark);

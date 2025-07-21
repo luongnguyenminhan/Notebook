@@ -1,10 +1,20 @@
-
 {
-    "Auth": {
+  "Auth": {
     "login": "Đăng nhập",
+    "loginTitle": "Đăng nhập vào tài khoản của bạn",
+    "loginSubtitle": "Chào mừng trở lại! Vui lòng nhập thông tin đăng nhập.",
+    "noAccount": "Chưa có tài khoản?",
+    "register": "Đăng ký",
+    "registerTitle": "Tạo tài khoản mới",
+    "registerSubtitle": "Đăng ký để bắt đầu sử dụng.",
+    "haveAccount": "Đã có tài khoản?",
+    "registering": "Đang đăng ký...",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "passwordMismatch": "Mật khẩu không khớp.",
     "email": "Email",
     "password": "Mật khẩu",
-    "loggingIn": "Đang đăng nhập..."
+    "loggingIn": "Đang đăng nhập...",
+    "username": "Tên người dùng"
   },
   "HomePage": {
     "title": "Xin chào thế giới!",

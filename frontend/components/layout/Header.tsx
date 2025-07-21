@@ -1,3 +1,8 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '@/store/index';
+import { logout } from '@/store/slices/authSlice';
 import {
   Box,
   Flex,
@@ -22,6 +27,7 @@ import { GiHamburgerMenu } from 'react-icons/gi';
 import ThemeToggle from './ThemeToggle';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useTranslations } from 'next-intl';
+import { getMeAsync } from '@/store/slices/authSlice';
 
 // interface NavItem {
 //   label: string;
@@ -197,6 +203,27 @@ const Header = () => {
   const textColorPrimary = useColorModeValue('#363636', '#FFFFFF');
   const textColorSecondary = useColorModeValue('#2563EB', '#60A5FA');
   const t = useTranslations();
+  const dispatch = useDispatch();
+  const { isAuthenticated, user } = useSelector(
+    (state: RootState) => state.auth,
+  );
+
+  // Read token from cookie and dispatch getMeAsync on mount
+  // Import getMeAsync directly
+
+  React.useEffect(() => {
+    function getCookie(name: string) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift();
+      return null;
+    }
+    const cookieToken = getCookie('token');
+    if (cookieToken && !user) {
+      dispatch({ type: 'auth/login/fulfilled', payload: cookieToken });
+      dispatch(getMeAsync(cookieToken) as any);
+    }
+  }, [dispatch, user]);
 
   return (
     <>
@@ -210,7 +237,6 @@ const Header = () => {
         {t('Header.navigation.home')}
       </Text>
       <Box height="60px" />
-
       <Box
         position="fixed"
         top="0"
@@ -340,14 +366,56 @@ const Header = () => {
           </Flex>
           <Spacer />
           <Stack
-            flex={{ base: 1, md: 0 }}
-            justify="flex-end"
             direction="row"
-            spacing={3}
+            align="center"
+            justify="flex-end"
+            spacing={6}
+            width="100%"
           >
-            <LanguageSwitcher />
-            <ThemeToggle />
-            <Spacer />
+            <Box textAlign="center">
+              {isAuthenticated ? (
+                <Flex align="center" justify="flex-start" gap={2}>
+                  <Box textAlign="left">
+                    <Text color="green.500" fontWeight="bold" display="inline">
+                      {user?.username ? `Username: ${user.username}` : ''}
+                    </Text>
+                    {user?.email && (
+                      <Text color="blue.500" fontSize="sm" display="block">
+                        {`Email: ${user.email}`}
+                      </Text>
+                    )}
+                  </Box>
+                  <IconButton
+                    aria-label="Logout"
+                    size="sm"
+                    ml={2}
+                    onClick={() => dispatch(logout())}
+                  >
+                    <AiOutlineClose />
+                  </IconButton>
+                </Flex>
+              ) : (
+                <Flex align="center" justify="flex-start" gap={2}>
+                  <IconButton
+                    as={NextLink}
+                    href="/auth"
+                    aria-label="Go to Login"
+                    size="sm"
+                    ml={2}
+                    colorScheme="blue"
+                    className="!p-3"
+                  >
+                    <Text>Login</Text>
+                  </IconButton>
+                </Flex>
+              )}
+            </Box>
+            <Box>
+              <LanguageSwitcher />
+            </Box>
+            <Box>
+              <ThemeToggle />
+            </Box>
             <Flex
               flex={{ base: 1, md: 'auto' }}
               ml={{ base: -2 }}

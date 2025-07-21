@@ -1,29 +1,38 @@
+// components/auth/RegisterForm.tsx
 'use client';
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
-import { RootState, AppDispatch } from '@/store/index';
-import { loginAsync } from '@/store/slices/authSlice';
+import { RootState } from '@/store/index';
+import { register } from '@/services/api/auth';
 import Button from '@/components/ui/Button';
 import { useTranslations } from 'next-intl';
 
-const LoginForm = () => {
+const RegisterForm = () => {
   const t = useTranslations('Auth');
-  const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const { loading, error, isAuthenticated } = useSelector(
     (state: RootState) => state.auth,
   );
 
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [localError, setLocalError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = await dispatch(loginAsync({ email, password }));
-    // Save token to cookie if login successful
-    if (result.type === 'auth/login/fulfilled' && result.payload) {
-      document.cookie = `token=${result.payload}; path=/; secure; samesite=strict`;
+    setLocalError(null);
+    if (password !== confirmPassword) {
+      setLocalError(t('passwordMismatch'));
+      return;
+    }
+    try {
+      await register({ username, email, password });
+      router.push('/');
+    } catch (err: any) {
+      setLocalError(err?.response?.data?.detail || 'Registration failed');
     }
   };
 
@@ -40,13 +49,29 @@ const LoginForm = () => {
           className="text-2xl font-bold"
           style={{ color: 'var(--text-color-light)' }}
         >
-          {t('loginTitle', { defaultValue: 'Login to your account' })}
+          {t('registerTitle')}
         </h1>
         <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-          {t('loginSubtitle', {
-            defaultValue: 'Welcome back! Please enter your credentials.',
-          })}
+          {t('registerSubtitle', { defaultValue: 'Sign up to get started.' })}
         </p>
+      </div>
+      <div>
+        <label htmlFor="username" className="block mb-1 font-medium">
+          {t('username')}
+        </label>
+        <input
+          id="username"
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          className="w-full px-3 py-2 border rounded"
+          style={{
+            color: 'var(--text-color-light)',
+            background: 'var(--input-bg-light)',
+            borderColor: 'var(--input-border-light)',
+          }}
+          required
+        />
       </div>
       <div>
         <label htmlFor="email" className="block mb-1 font-medium">
@@ -84,23 +109,45 @@ const LoginForm = () => {
           required
         />
       </div>
-      {error && <div className="text-error text-sm">{error}</div>}
+      <div>
+        <label htmlFor="confirmPassword" className="block mb-1 font-medium">
+          {t('confirmPassword', { defaultValue: 'Confirm Password' })}
+        </label>
+        <input
+          id="confirmPassword"
+          type="password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          className="w-full px-3 py-2 border rounded"
+          style={{
+            color: 'var(--text-color-light)',
+            background: 'var(--input-bg-light)',
+            borderColor: 'var(--input-border-light)',
+          }}
+          required
+        />
+      </div>
+      {(localError || error) && (
+        <div className="text-error text-sm">{localError || error}</div>
+      )}
       <Button type="submit" disabled={loading} className="w-full">
-        {loading ? t('loggingIn') : t('login')}
+        {loading
+          ? t('registering', { defaultValue: 'Registering...' })
+          : t('register', { defaultValue: 'Register' })}
       </Button>
       <div className="mt-4 text-center">
         <span className="text-sm text-gray-500 dark:text-gray-400">
-          {t('noAccount')}{' '}
+          {t('haveAccount', { defaultValue: 'Already have an account?' })}{' '}
         </span>
         <a
-          href="/auth/register"
+          href="/auth"
           className="text-blue-600 hover:underline dark:text-blue-400"
         >
-          {t('register')}
+          {t('login', { defaultValue: 'Login' })}
         </a>
       </div>
     </form>
   );
 };
 
-export default LoginForm;
+export default RegisterForm;
