@@ -60,7 +60,7 @@ const DashboardGate = () => {
       ) : user.is_admin ? (
         <AdminDashboard />
       ) : (
-        <UserDashboard/>
+        <UserDashboard />
       )}
     </DashboardRefreshContext.Provider>
   );

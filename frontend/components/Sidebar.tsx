@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
 import {
   Box,
@@ -16,30 +17,18 @@ import {
   SearchIcon,
   CalendarIcon,
   ArrowUpDownIcon,
-  StarIcon,
   ChevronDownIcon,
   ChevronUpIcon,
-  WarningIcon,
 } from '@chakra-ui/icons';
 import { useTranslations } from 'next-intl';
-import { FaInbox, FaMicrophoneAlt } from 'react-icons/fa';
-
-interface Recording {
-  id: number;
-  title: string;
-  status: string;
-  participants?: string;
-  created_at: string;
-  meeting_date: string;
-  is_highlighted?: boolean;
-  is_inbox?: boolean;
-}
+import { FaMicrophoneAlt } from 'react-icons/fa';
+import { RecordingResponse } from '@/services/api/recording';
 
 interface SidebarProps {
-  recordings: Recording[];
+  recordings: RecordingResponse[];
   loading: boolean;
   onUpload: () => void;
-  onSelect: (rec: Recording) => void;
+  onSelect: (rec: RecordingResponse) => void;
   selectedId?: number;
 }
 
@@ -57,14 +46,14 @@ const Sidebar: React.FC<SidebarProps> = ({
   );
   const [showTips, setShowTips] = useState(false);
 
-  // Filter + sort mock
+  // Filter + sort using backend fields
   const filtered = recordings.filter((r) =>
-    r.title.toLowerCase().includes(search.toLowerCase()),
+    r.filename.toLowerCase().includes(search.toLowerCase()),
   );
   const sorted = [...filtered].sort((a, b) =>
     sortBy === 'created_at'
       ? b.created_at.localeCompare(a.created_at)
-      : b.meeting_date.localeCompare(a.meeting_date),
+      : (b.created_at || '').localeCompare(a.created_at || ''),
   );
 
   return (
@@ -187,27 +176,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               </Button>
               <Collapse in={showTips} animateOpacity>
                 <Box pl={2} pt={1}>
-                  <div>
-                    •{' '}
-                    <code className="bg-[var(--bg-tertiary)] px-1 rounded">
-                      date:today
-                    </code>{' '}
-                    - {t('today', { defaultValue: "Today's recordings" })}
-                  </div>
-                  <div>
-                    •{' '}
-                    <code className="bg-[var(--bg-tertiary)] px-1 rounded">
-                      date:2025-01
-                    </code>{' '}
-                    - {t('january', { defaultValue: 'January 2025' })}
-                  </div>
-                  <div>
-                    •{' '}
-                    <code className="bg-[var(--bg-tertiary)] px-1 rounded">
-                      date:thisweek
-                    </code>{' '}
-                    - {t('thisweek', { defaultValue: 'This week' })}
-                  </div>
+                  {/* Add tips if needed */}
                 </Box>
               </Collapse>
             </Box>
@@ -244,47 +213,24 @@ const Sidebar: React.FC<SidebarProps> = ({
                   onClick={() => onSelect(r)}
                   transition="all 0.2s"
                 >
-                  <Flex align="start" justify="space-between">
-                    <Box flex="1" minW={0}>
-                      <Text
-                        fontWeight="medium"
-                        fontSize="sm"
-                        isTruncated
-                        color={
-                          selectedId === r.id
-                            ? 'var(--text-accent)'
-                            : 'var(--text-primary)'
-                        }
-                      >
-                        {r.title ||
-                          t('untitled', { defaultValue: 'Untitled Recording' })}
-                      </Text>
-                      <Text fontSize="xs" color="gray.500" mt={1}>
-                        {r.participants}
-                      </Text>
-                    </Box>
-                    <Flex align="center" gap={1} ml={2}>
-                      {r.status === 'FAILED' && (
-                        <Badge colorScheme="red">
-                          <WarningIcon mr={1} />
-                          {t('failed', { defaultValue: 'Failed' })}
-                        </Badge>
-                      )}
-                      {r.status !== 'COMPLETED' && r.status !== 'FAILED' && (
-                        <Badge colorScheme="yellow">
-                          {t(r.status.toLowerCase(), {
-                            defaultValue: r.status,
-                          })}
-                        </Badge>
-                      )}
-                      {r.status === 'COMPLETED' && (
-                        <>
-                          {r.is_highlighted && <StarIcon color="yellow.400" />}
-                          {r.is_inbox && <FaInbox color="blue.400" />}
-                        </>
-                      )}
-                    </Flex>
-                  </Flex>
+                  <Text fontWeight="bold">{r.filename}</Text>
+                  <Text fontSize="sm" color="gray.500">
+                    User: {r.user_id}
+                  </Text>
+                  <Text fontSize="xs" color="gray.400">
+                    {r.created_at}
+                  </Text>
+                  <Badge
+                    colorScheme={
+                      r.status === 'COMPLETED'
+                        ? 'green'
+                        : r.status === 'PROCESSING'
+                          ? 'yellow'
+                          : 'gray'
+                    }
+                  >
+                    {r.status}
+                  </Badge>
                 </Box>
               ))}
             </VStack>

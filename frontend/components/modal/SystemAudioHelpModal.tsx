@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import React from 'react';
 import {
   Modal,
@@ -73,13 +74,16 @@ const SystemAudioHelpModal: React.FC<SystemAudioHelpModalProps> = ({
             color="var(--text-secondary)"
             fontSize="sm"
           >
-            <li>Click &quot;Record System Audio&quot; or &quot;Record Both&quot;.</li>
+            <li>
+              Click &quot;Record System Audio&quot; or &quot;Record Both&quot;.
+            </li>
             <li>
               In the popup, choose <b>&quot;Entire Screen&quot;</b> or a{' '}
               <b>specific browser tab</b>.
             </li>
             <li>
-              Make sure to check the box that says <b>&quot;Share tab audio&quot;</b> or{' '}
+              Make sure to check the box that says{' '}
+              <b>&quot;Share tab audio&quot;</b> or{' '}
               <b>&quot;Share system audio&quot;</b>.
             </li>
           </Box>

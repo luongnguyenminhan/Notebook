@@ -46,8 +46,8 @@ const ResetStatusModal: React.FC<ResetStatusModalProps> = ({
           Reset Recording Status?
         </Text>
         <Text fontSize="sm" color="var(--text-muted)" mb={6}>
-          This will mark the recording as 'Failed'. This is useful if processing
-          is stuck. You will be able to reprocess it afterwards.
+          This will mark the recording as &#39;Failed&#39;. This is useful if
+          processing is stuck. You will be able to reprocess it afterwards.
         </Text>
         <Flex justify="end" gap={3}>
           <Button

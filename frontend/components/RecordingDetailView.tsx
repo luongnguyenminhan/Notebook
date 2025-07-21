@@ -69,6 +69,20 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
   const [notes, setNotes] = useState(selectedRecording?.notes || '');
   const [chatInput, setChatInput] = useState('');
   const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [copySuccess, setCopySuccess] = useState<string | null>(null);
+
+  const handleCopyTranscript = async () => {
+    try {
+      await navigator.clipboard.writeText(
+        selectedRecording.transcription || '',
+      );
+      setCopySuccess('Copied!');
+      setTimeout(() => setCopySuccess(null), 1500);
+    } catch {
+      setCopySuccess('Failed to copy');
+      setTimeout(() => setCopySuccess(null), 1500);
+    }
+  };
 
   if (!selectedRecording) return null;
 
@@ -93,10 +107,13 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                   color="var(--text-primary)"
                   isTruncated
                 >
-                  {selectedRecording.title || 'Untitled Recording'}
+                  {selectedRecording.title ||
+                    selectedRecording.filename ||
+                    'Untitled Recording'}
                 </Text>
                 <Text fontSize="sm" color="var(--text-muted)" isTruncated>
-                  {selectedRecording.participants || 'No participants'}
+                  {selectedRecording.original_filename ||
+                    'No original filename'}
                 </Text>
               </Box>
               <Box as={metaOpen ? FaChevronUp : FaChevronDown} fontSize="lg" />
@@ -111,12 +128,19 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                 fontSize="sm"
               >
                 <FaCalendar color="var(--text-accent)" />
-                <span>{selectedRecording.meeting_date || 'No date set'}</span>
+                <span>
+                  {selectedRecording.created_at
+                    ? new Date(selectedRecording.created_at).toLocaleString()
+                    : 'No date set'}
+                </span>
               </Flex>
               <Flex align="center" gap={2} mt={2}>
-                {selectedRecording.status !== 'COMPLETED' && (
-                  <Badge colorScheme="yellow">{selectedRecording.status}</Badge>
-                )}
+                {selectedRecording.status &&
+                  selectedRecording.status !== 'COMPLETED' && (
+                    <Badge colorScheme="yellow">
+                      {selectedRecording.status}
+                    </Badge>
+                  )}
               </Flex>
               {/* Action Buttons */}
               <Flex gap={2} mt={4} wrap="wrap">
@@ -185,11 +209,23 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
         >
           <audio
             controls
-            src={selectedRecording.audioUrl || ''}
+            src={selectedRecording.audio_path || ''}
             style={{ width: '100%' }}
           >
             <track kind="captions" src="" label="No captions" default />
           </audio>
+          <Flex mt={2} gap={4} color="var(--text-muted)" fontSize="sm">
+            {selectedRecording.duration !== undefined && (
+              <Box>
+                <strong>Duration:</strong> {selectedRecording.duration}s
+              </Box>
+            )}
+            {selectedRecording.file_size !== undefined && (
+              <Box>
+                <strong>Size:</strong> {selectedRecording.file_size} bytes
+              </Box>
+            )}
+          </Flex>
         </Box>
         {/* Tabs */}
         <Tabs
@@ -213,7 +249,11 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
           <TabPanels flex="1" overflowY="auto">
             <TabPanel p={4}>
               {/* Transcript Panel */}
-              <Text color="gray.400">Transcript content here...</Text>
+              <Text color="gray.400">
+                {selectedRecording.transcription
+                  ? selectedRecording.transcription
+                  : 'No transcription available.'}
+              </Text>
             </TabPanel>
             <TabPanel p={4}>
               {/* Summary Panel */}
@@ -365,7 +405,9 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
               color="var(--text-primary)"
               mb={2}
             >
-              {selectedRecording.title || 'Untitled Recording'}
+              {selectedRecording.title ||
+                selectedRecording.filename ||
+                'Untitled Recording'}
             </Text>
           </Box>
           <Flex gap={2} ml={4} wrap="wrap">
@@ -429,15 +471,18 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
         >
           <Flex align="center" gap={2}>
             <FaUsers color="var(--text-accent)" />
-            {selectedRecording.participants || 'No participants'}
+            {selectedRecording.original_filename || 'No original filename'}
           </Flex>
           <Flex align="center" gap={2}>
             <FaCalendar color="var(--text-accent)" />
-            {selectedRecording.meeting_date || 'No date set'}
+            {selectedRecording.created_at
+              ? new Date(selectedRecording.created_at).toLocaleString()
+              : 'No date set'}
           </Flex>
-          {selectedRecording.status !== 'COMPLETED' && (
-            <Badge colorScheme="yellow">{selectedRecording.status}</Badge>
-          )}
+          {selectedRecording.status &&
+            selectedRecording.status !== 'COMPLETED' && (
+              <Badge colorScheme="yellow">{selectedRecording.status}</Badge>
+            )}
         </Flex>
       </Box>
       {/* Main Content Split View */}
@@ -466,16 +511,33 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
               Transcript
             </Text>
             <Flex gap={2}>
-              <Button size="sm" leftIcon={<FaCopy />}>
+              <Button
+                size="sm"
+                leftIcon={<FaCopy />}
+                onClick={handleCopyTranscript}
+              >
                 Copy
               </Button>
+              {copySuccess && (
+                <Text
+                  fontSize="sm"
+                  color={copySuccess === 'Copied!' ? 'green.500' : 'red.500'}
+                  ml={2}
+                >
+                  {copySuccess}
+                </Text>
+              )}
               <Button size="sm" leftIcon={<FaEdit />}>
                 Edit
               </Button>
             </Flex>
           </Box>
           <Box flex="1" overflowY="auto" p={4}>
-            <Text color="gray.400">Transcript content here...</Text>
+            <Text color="gray.400">
+              {selectedRecording.transcription
+                ? selectedRecording.transcription
+                : 'No transcription available.'}
+            </Text>
           </Box>
         </Box>
         {/* Right Panel: Summary/Notes/Chat */}
@@ -489,11 +551,23 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
           >
             <audio
               controls
-              src={selectedRecording.audioUrl || ''}
+              src={selectedRecording.audio_path || ''}
               style={{ width: '100%' }}
             >
               <track kind="captions" src="" label="No captions" default />
             </audio>
+            <Flex mt={2} gap={4} color="var(--text-muted)" fontSize="sm">
+              {selectedRecording.duration !== undefined && (
+                <Box>
+                  <strong>Duration:</strong> {selectedRecording.duration}s
+                </Box>
+              )}
+              {selectedRecording.file_size !== undefined && (
+                <Box>
+                  <strong>Size:</strong> {selectedRecording.file_size} bytes
+                </Box>
+              )}
+            </Flex>
           </Box>
           {/* Tabs */}
           <Tabs variant="soft-rounded" colorScheme="blue" flex="1">

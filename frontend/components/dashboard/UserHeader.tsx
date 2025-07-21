@@ -1,3 +1,10 @@
+// ...existing code...
+
+interface UserHeaderProps {
+  user: { username: string; avatar: string; isAdmin?: boolean } | null;
+  onUpload: () => void;
+  onToggleSidebar?: () => void;
+}
 import React, { useState } from 'react';
 import {
   Flex,
@@ -24,12 +31,6 @@ import {
 } from 'react-icons/fa';
 import { useTranslations } from 'next-intl';
 
-interface UserHeaderProps {
-  user: { username: string; avatar: string; isAdmin?: boolean };
-  onUpload: () => void;
-  onToggleSidebar?: () => void;
-}
-
 const UserHeader: React.FC<UserHeaderProps> = ({
   user,
   onUpload,
@@ -43,6 +44,9 @@ const UserHeader: React.FC<UserHeaderProps> = ({
     'var(--border-primary)',
     'var(--border-primary)',
   );
+
+  // Render fallback header if user is null or missing username
+  const showUserMenu = user && typeof user === 'object' && user.username;
 
   return (
     <Flex
@@ -78,67 +82,72 @@ const UserHeader: React.FC<UserHeaderProps> = ({
         </Flex>
       </Flex>
       {/* Right: upload + user menu */}
-      <Flex align="center" gap={3}>
-        <Button
-          leftIcon={<AddIcon />}
-          colorScheme="blue"
-          size="sm"
-          px={3}
-          py={1.5}
-          bg="var(--bg-button)"
-          color="var(--text-button)"
-          rounded="lg"
-          _hover={{ bg: 'var(--bg-button-hover)' }}
-          fontSize="sm"
-          onClick={onUpload}
-        >
-          <Text display={{ base: 'none', sm: 'inline' }}>
-            {t('upload', { defaultValue: 'Tải lên mới' })}
-          </Text>
-        </Button>
-        <Menu isOpen={menuOpen} onClose={() => setMenuOpen(false)}>
-          <MenuButton
-            as={Button}
-            onClick={() => setMenuOpen((v) => !v)}
-            leftIcon={<FaUserCircle />}
-            rightIcon={<ChevronDownIcon fontSize="xs" />}
-            variant="outline"
+      {showUserMenu ? (
+        <Flex align="center" gap={3}>
+          <Button
+            leftIcon={<AddIcon />}
+            colorScheme="blue"
             size="sm"
-            px={2}
-            py={2}
+            px={3}
+            py={1.5}
+            bg="var(--bg-button)"
+            color="var(--text-button)"
             rounded="lg"
-            _hover={{ bg: 'var(--bg-tertiary)' }}
-            fontWeight="normal"
+            _hover={{ bg: 'var(--bg-button-hover)' }}
+            fontSize="sm"
+            onClick={onUpload}
           >
             <Text display={{ base: 'none', sm: 'inline' }}>
-              {user.username || 'User'}
+              {t('upload', { defaultValue: 'Tải lên mới' })}
             </Text>
-          </MenuButton>
-          <MenuList minW="220px" zIndex={100}>
-            <MenuItem icon={<FaCog />}>
-              {t('profile', { defaultValue: 'Hồ sơ' })}
-            </MenuItem>
-            {user.isAdmin && <MenuItem icon={<FaUserShield />}>Admin</MenuItem>}
-            <MenuItem icon={<FaShareAlt />}>
-              {t('shared', { defaultValue: 'Shared Transcripts' })}
-            </MenuItem>
-            <MenuItem
-              icon={colorMode === 'dark' ? <SunIcon /> : <MoonIcon />}
-              onClick={toggleColorMode}
+          </Button>
+          <Menu isOpen={menuOpen} onClose={() => setMenuOpen(false)}>
+            <MenuButton
+              as={Button}
+              onClick={() => setMenuOpen((v) => !v)}
+              leftIcon={<FaUserCircle />}
+              rightIcon={<ChevronDownIcon fontSize="xs" />}
+              variant="outline"
+              size="sm"
+              px={2}
+              py={2}
+              rounded="lg"
+              _hover={{ bg: 'var(--bg-tertiary)' }}
+              fontWeight="normal"
             >
-              {colorMode === 'dark' ? 'Light Mode' : 'Dark Mode'}
-            </MenuItem>
-            <MenuItem icon={<FaPalette />}>
-              {t('color', { defaultValue: 'Color Scheme' })}
-            </MenuItem>
-            <MenuItem icon={<FaSignOutAlt />}>
-              {t('logout', { defaultValue: 'Đăng xuất' })}
-            </MenuItem>
-          </MenuList>
-        </Menu>
-      </Flex>
+              <Text display={{ base: 'none', sm: 'inline' }}>
+                {user.username || 'User'}
+              </Text>
+            </MenuButton>
+            <MenuList minW="220px" zIndex={100}>
+              <MenuItem icon={<FaCog />}>
+                {t('profile', { defaultValue: 'Hồ sơ' })}
+              </MenuItem>
+              {user && user.isAdmin && (
+                <MenuItem icon={<FaUserShield />}>Admin</MenuItem>
+              )}
+              <MenuItem icon={<FaShareAlt />}>
+                {t('shared', { defaultValue: 'Shared Transcripts' })}
+              </MenuItem>
+              <MenuItem
+                icon={colorMode === 'dark' ? <SunIcon /> : <MoonIcon />}
+                onClick={toggleColorMode}
+              >
+                {colorMode === 'dark' ? 'Light Mode' : 'Dark Mode'}
+              </MenuItem>
+              <MenuItem icon={<FaPalette />}>
+                {t('color', { defaultValue: 'Color Scheme' })}
+              </MenuItem>
+              <MenuItem icon={<FaSignOutAlt />}>
+                {t('logout', { defaultValue: 'Đăng xuất' })}
+              </MenuItem>
+            </MenuList>
+          </Menu>
+        </Flex>
+      ) : null}
     </Flex>
   );
+  // ...existing code...
 };
 
 export default UserHeader;

@@ -1,17 +1,12 @@
+/* eslint-disable no-unused-vars */
 import React from 'react';
 import { VStack, Box, Text, Badge } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
-
-export interface Recording {
-  id: string | number;
-  title: string;
-  participants: string;
-  status: 'COMPLETED' | 'PROCESSING' | string;
-}
+import { RecordingResponse } from '@/services/api/recording';
 
 interface RecordingListProps {
-  recordings: Recording[];
-  onSelect: (recording: Recording) => void;
+  recordings: RecordingResponse[];
+  onSelect: (recording: RecordingResponse) => void;
   selectedId?: string | number;
 }
 
@@ -44,9 +39,9 @@ const RecordingList: React.FC<RecordingListProps> = ({
           cursor="pointer"
           onClick={() => onSelect(r)}
         >
-          <Text fontWeight="bold">{r.title}</Text>
+          <Text fontWeight="bold">{r.filename}</Text>
           <Text fontSize="sm" color="gray.500">
-            {r.participants}
+            User: {r.user_id}
           </Text>
           <Badge
             colorScheme={
