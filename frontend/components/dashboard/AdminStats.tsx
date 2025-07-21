@@ -103,7 +103,7 @@ const AdminStats = () => {
         <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={4}>
           <StatusCard
             label={t('completed', { defaultValue: 'Completed' })}
-            value={stats.completed_recordings}
+            value={JSON.stringify(stats.completed_recordings)}
             total={statusTotal}
             color="green.400"
           />
