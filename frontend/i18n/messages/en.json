@@ -214,5 +214,40 @@
     "save": "Save",
     "updateSuccess": "Update successful",
     "updateFail": "Update failed"
+  },
+  "UserDashboard": {
+    "title": "User Dashboard"
+  },
+  "UserHeader": {
+    "upload": "New Upload",
+    "profile": "Profile",
+    "logout": "Logout"
+  },
+  "UserSidebar": {
+    "upload": "New Upload",
+    "search": "Search...",
+    "sort": "Sort",
+    "tips": "Tip: date:today, date:thisweek"
+  },
+  "RecordingList": {
+    "noData": "No recordings",
+    "completed": "Completed",
+    "processing": "Processing",
+    "pending": "Pending",
+    "failed": "Failed"
+  },
+  "RecordingDetail": {
+    "close": "Close",
+    "participants": "Participants:",
+    "date": "Date:",
+    "completed": "Completed",
+    "processing": "Processing",
+    "pending": "Pending",
+    "failed": "Failed"
+  },
+  "UploadModal": {
+    "uploadTitle": "Upload new recording",
+    "close": "Close",
+    "upload": "Upload"
   }
 }

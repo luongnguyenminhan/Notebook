@@ -214,5 +214,40 @@
     "save": "Lưu",
     "updateSuccess": "Cập nhật thành công",
     "updateFail": "Cập nhật thất bại"
+  },
+  "UserDashboard": {
+    "title": "Bảng người dùng"
+  },
+  "UserHeader": {
+    "upload": "Tải lên mới",
+    "profile": "Hồ sơ",
+    "logout": "Đăng xuất"
+  },
+  "UserSidebar": {
+    "upload": "Tải lên mới",
+    "search": "Tìm kiếm...",
+    "sort": "Sắp xếp",
+    "tips": "Gợi ý: date:today, date:thisweek"
+  },
+  "RecordingList": {
+    "noData": "Không có bản ghi",
+    "completed": "Hoàn thành",
+    "processing": "Đang xử lý",
+    "pending": "Chờ xử lý",
+    "failed": "Thất bại"
+  },
+  "RecordingDetail": {
+    "close": "Đóng",
+    "participants": "Tham gia:",
+    "date": "Ngày:",
+    "completed": "Hoàn thành",
+    "processing": "Đang xử lý",
+    "pending": "Chờ xử lý",
+    "failed": "Thất bại"
+  },
+  "UploadModal": {
+    "uploadTitle": "Tải lên bản ghi mới",
+    "close": "Đóng",
+    "upload": "Tải lên"
   }
 }
