@@ -131,5 +131,17 @@
   },
   "Footer": {
     "copyright": "Bản quyền © {year} NextJS StarterKit. Đã đăng ký mọi quyền."
+  },
+  "InitSuperUser": {
+    "title": "Khởi tạo Quản trị viên đầu tiên",
+    "username": "Tên người dùng",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "createAdmin": "Tạo quản trị viên",
+    "creating": "Đang tạo...",
+    "passwordsNoMatch": "Mật khẩu không khớp.",
+    "createFailed": "Tạo quản trị viên thất bại",
+    "success": "Tạo quản trị viên thành công!"
   }
 }

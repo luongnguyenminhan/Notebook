@@ -6,6 +6,7 @@ import { RootState, AppDispatch } from '@/store/index';
 import { loginAsync } from '@/store/slices/authSlice';
 import Button from '@/components/ui/Button';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 
 const LoginForm = () => {
   const t = useTranslations('Auth');
@@ -92,12 +93,12 @@ const LoginForm = () => {
         <span className="text-sm text-gray-500 dark:text-gray-400">
           {t('noAccount')}{' '}
         </span>
-        <a
+        <Link
           href="/auth/register"
           className="text-blue-600 hover:underline dark:text-blue-400"
         >
           {t('register')}
-        </a>
+        </Link>
       </div>
     </form>
   );

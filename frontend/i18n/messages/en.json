@@ -131,5 +131,17 @@
   },
   "Footer": {
     "copyright": "Copyright © {year} NextJS StarterKit. All rights reserved."
+  },
+  "InitSuperUser": {
+    "title": "Initialize First Admin",
+    "username": "Username",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "createAdmin": "Create Admin",
+    "creating": "Creating...",
+    "passwordsNoMatch": "Passwords do not match.",
+    "createFailed": "Failed to create superuser",
+    "success": "Superuser created successfully!"
   }
 }

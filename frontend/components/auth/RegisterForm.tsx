@@ -7,6 +7,7 @@ import { RootState } from '@/store/index';
 import { register } from '@/services/api/auth';
 import Button from '@/components/ui/Button';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 
 const RegisterForm = () => {
   const t = useTranslations('Auth');
@@ -139,12 +140,12 @@ const RegisterForm = () => {
         <span className="text-sm text-gray-500 dark:text-gray-400">
           {t('haveAccount', { defaultValue: 'Already have an account?' })}{' '}
         </span>
-        <a
+        <Link
           href="/auth"
           className="text-blue-600 hover:underline dark:text-blue-400"
         >
           {t('login', { defaultValue: 'Login' })}
-        </a>
+        </Link>
       </div>
     </form>
   );

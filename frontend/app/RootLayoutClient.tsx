@@ -5,11 +5,9 @@ import { NextIntlClientProvider } from 'next-intl';
 import { ReactQueryProvider } from '@/context/ReactQueryProvider';
 import { Provider } from 'react-redux';
 import store from '@/store/index';
-import Header from '@/components/layout/Header';
 import { ChakraProvider } from '@chakra-ui/react';
 import '@/styles/globals.css';
 import Fonts from '@/styles/Fonts';
-import Footer from '@/components/layout/Footer';
 
 export default function RootLayoutClient({
   children,
@@ -32,9 +30,9 @@ export default function RootLayoutClient({
             >
               <ChakraProvider>
                 <Fonts />
-                <Header />
-                <main>{children}</main>
-                <Footer />
+                <main className="w-full h-screen flex items-center justify-center">
+                  {children}
+                </main>
               </ChakraProvider>
             </NextIntlClientProvider>
           </ReactQueryProvider>

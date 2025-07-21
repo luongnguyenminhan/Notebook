@@ -1,5 +1,7 @@
+import React from 'react';
 import { Metadata } from 'next';
 import RootLayoutServer from '../RootLayoutServer';
+import FirstUserGate from '@/components/FirstUserGate';
 
 export const metadata: Metadata = {
   icons: {
@@ -9,4 +11,16 @@ export const metadata: Metadata = {
     ],
   },
 };
-export default RootLayoutServer;
+export default function LocaleLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: any;
+}) {
+  return (
+    <RootLayoutServer params={params}>
+      <FirstUserGate params={params}>{children}</FirstUserGate>
+    </RootLayoutServer>
+  );
+}
