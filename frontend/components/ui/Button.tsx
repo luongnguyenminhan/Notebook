@@ -15,6 +15,9 @@ interface ButtonProps {
   style?: React.CSSProperties;
   leftIcon?: React.ReactElement;
   rightIcon?: React.ReactElement;
+  type?: 'button' | 'submit' | 'reset';
+  disabled?: boolean;
+  className?: string;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -30,6 +33,9 @@ const Button: React.FC<ButtonProps> = ({
   style,
   leftIcon,
   rightIcon,
+  type,
+  disabled,
+  className,
 }) => {
   // Default colors with dark mode support
   const defaultSolidBg = useColorModeValue('#2563eb', '#60A5FA');
@@ -65,14 +71,28 @@ const Button: React.FC<ButtonProps> = ({
 
   if (href) {
     return (
-      <ChakraButton as={NextLink} href={href} {...buttonStyles}>
+      <ChakraButton
+        as={NextLink}
+        href={href}
+        type={type}
+        disabled={disabled}
+        className={className}
+        onClick={onClick}
+        {...buttonStyles}
+      >
         {children}
       </ChakraButton>
     );
   }
 
   return (
-    <ChakraButton onClick={onClick} {...buttonStyles}>
+    <ChakraButton
+      type={type}
+      disabled={disabled}
+      className={className}
+      onClick={onClick}
+      {...buttonStyles}
+    >
       {children}
     </ChakraButton>
   );

@@ -1,4 +1,11 @@
+
 {
+    "Auth": {
+    "login": "Login",
+    "email": "Email",
+    "password": "Password",
+    "loggingIn": "Logging in..."
+  },
   "HomePage": {
     "title": "Hello world!",
     "hero": {

@@ -7,6 +7,7 @@ const AuthContext = createContext({
   logout: () => {},
 });
 
+// eslint-disable-next-line no-undef
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 

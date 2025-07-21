@@ -7,4 +7,31 @@
 @tailwind utilities;
 body {
   font-family: Arial, sans-serif;
+  color: var(--text-color-light);
+  background: var(--input-bg-light);
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    color: var(--text-color-dark);
+    background: var(--input-bg-dark);
+  }
+}
+
+input, textarea {
+  color: var(--text-color-light);
+  background: var(--input-bg-light);
+  border-color: var(--input-border-light);
+}
+
+@media (prefers-color-scheme: dark) {
+  input, textarea {
+    color: var(--text-color-dark);
+    background: var(--input-bg-dark);
+    border-color: var(--input-border-dark);
+  }
+}
+
+.text-error {
+  color: var(--error-color);
 }

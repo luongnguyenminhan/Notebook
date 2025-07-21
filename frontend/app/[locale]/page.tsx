@@ -5,6 +5,10 @@ import React from 'react';
 import HeroSection from './landing/sections/HeroSection';
 import FeaturesSection from './landing/sections/FeaturesSection';
 import StackSection from './landing/sections/StackSection';
+import ComponentsSection from './landing/sections/ComponentsSection';
+import FooterSection from './landing/sections/FooterSection';
+import InstallationSection from './landing/sections/InstallationSection';
+import DocsSection from './landing/sections/DocsSection';
 // import { getIntl } from '@/i18n/request';
 
 export default async function HomePage() {
@@ -15,8 +19,13 @@ export default async function HomePage() {
     <>
       <main>
         <HeroSection id="hero" />
+        <InstallationSection id="install" />
+        <DocsSection id="docs" />
         <FeaturesSection id="features" />
         <StackSection id="stack" />
+        <ComponentsSection id="component" />
+        <FeaturesSection id="feature" />
+        <FooterSection id="footer" />
       </main>
     </>
   );

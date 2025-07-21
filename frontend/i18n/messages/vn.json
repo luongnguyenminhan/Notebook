@@ -1,4 +1,11 @@
+
 {
+    "Auth": {
+    "login": "Đăng nhập",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "loggingIn": "Đang đăng nhập..."
+  },
   "HomePage": {
     "title": "Xin chào thế giới!",
     "hero": {

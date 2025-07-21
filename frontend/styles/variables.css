@@ -1,5 +1,12 @@
 /* styles/variables.css */
 :root {
-    --primary-color: #0070f3;
-  }
+  --primary-color: #0070f3;
+  --text-color-light: #1a202c;
+  --text-color-dark: #f7fafc;
+  --input-bg-light: #fff;
+  --input-bg-dark: #1a202c;
+  --input-border-light: #cbd5e1;
+  --input-border-dark: #374151;
+  --error-color: #ef4444;
+}
   
