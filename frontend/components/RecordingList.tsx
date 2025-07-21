@@ -2,7 +2,24 @@ import React from 'react';
 import { VStack, Box, Text, Badge } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 
-const RecordingList = ({ recordings, onSelect, selectedId }) => {
+export interface Recording {
+  id: string | number;
+  title: string;
+  participants: string;
+  status: 'COMPLETED' | 'PROCESSING' | string;
+}
+
+interface RecordingListProps {
+  recordings: Recording[];
+  onSelect: (recording: Recording) => void;
+  selectedId?: string | number;
+}
+
+const RecordingList: React.FC<RecordingListProps> = ({
+  recordings,
+  onSelect,
+  selectedId,
+}) => {
   const t = useTranslations('RecordingList');
   if (!recordings || recordings.length === 0)
     return (
@@ -47,4 +64,5 @@ const RecordingList = ({ recordings, onSelect, selectedId }) => {
     </VStack>
   );
 };
+
 export default RecordingList;

@@ -8,8 +8,6 @@ import ColorSchemeModal from '../modal/ColorSchemeModal';
 import ConfirmDeleteRecordingModal from '../modal/ConfirmDeleteRecordingModal';
 import ReprocessModal from '../modal/ReprocessModal';
 import ResetStatusModal from '../modal/ResetStatusModal';
-import ShareRecordingModal from '../modal/ShareRecordingModal';
-import SharesListModal from '../modal/SharesListModal';
 import SystemAudioHelpModal from '../modal/SystemAudioHelpModal';
 import GlobalErrorToast from '../GlobalErrorToast';
 import UploadProgressPopup from '../UploadProgressPopup';
@@ -115,21 +113,6 @@ const UserDashboard = () => {
         isOpen={showResetModal}
         onClose={() => setShowResetModal(false)}
         onReset={handleReset}
-      />
-      <ShareRecordingModal
-        isOpen={showShareModal}
-        onClose={() => setShowShareModal(false)}
-        onCreate={() => {}}
-        onCopy={() => {}}
-        shareOptions={{ share_summary: false, share_notes: false }}
-        setShareOptions={() => {}}
-      />
-      <SharesListModal
-        isOpen={showSharesListModal}
-        onClose={() => setShowSharesListModal(false)}
-        userShares={[]}
-        onDeleteShare={() => {}}
-        onUpdateShare={() => {}}
       />
       <SystemAudioHelpModal
         isOpen={showSystemAudioHelp}

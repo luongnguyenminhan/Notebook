@@ -2,7 +2,23 @@ import React from 'react';
 import { Box, Text, Badge, Button, Flex } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 
-const RecordingDetail = ({ recording, onClose }) => {
+export interface Recording {
+  id: string | number;
+  title: string;
+  participants: string;
+  status: 'COMPLETED' | 'PROCESSING' | string;
+  meeting_date?: string;
+}
+
+interface RecordingDetailProps {
+  recording: Recording | null;
+  onClose: () => void;
+}
+
+const RecordingDetail: React.FC<RecordingDetailProps> = ({
+  recording,
+  onClose,
+}) => {
   const t = useTranslations('RecordingDetail');
   if (!recording) return null;
   return (
@@ -45,4 +61,5 @@ const RecordingDetail = ({ recording, onClose }) => {
     </Box>
   );
 };
+
 export default RecordingDetail;
