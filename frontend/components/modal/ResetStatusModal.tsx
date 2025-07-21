@@ -3,11 +3,8 @@ import {
   Modal,
   ModalOverlay,
   ModalContent,
-  ModalHeader,
   ModalBody,
-  ModalFooter,
   Button,
-  Box,
   Text,
   Flex,
 } from '@chakra-ui/react';

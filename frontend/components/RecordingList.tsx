@@ -1,6 +1,6 @@
 import React from 'react';
 import { VStack, Box, Text, Badge } from '@chakra-ui/react';
-import { useTranslations } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 
 const RecordingList = ({ recordings, onSelect, selectedId }) => {
   const t = useTranslations('RecordingList');

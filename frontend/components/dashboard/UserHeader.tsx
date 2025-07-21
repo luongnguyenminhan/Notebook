@@ -8,7 +8,6 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
-  Avatar,
   Text,
   useColorMode,
   useColorModeValue,

@@ -12,9 +12,7 @@ import {
   TabPanel,
   useBreakpointValue,
   Badge,
-  Input,
   Textarea,
-  Divider,
 } from '@chakra-ui/react';
 import {
   FaInbox,
@@ -71,7 +69,6 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
   const [notes, setNotes] = useState(selectedRecording?.notes || '');
   const [chatInput, setChatInput] = useState('');
   const [chatMessages, setChatMessages] = useState<any[]>([]);
-  const [showChat, setShowChat] = useState(false);
 
   if (!selectedRecording) return null;
 
@@ -190,7 +187,9 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
             controls
             src={selectedRecording.audioUrl || ''}
             style={{ width: '100%' }}
-          />
+          >
+            <track kind="captions" src="" label="No captions" default />
+          </audio>
         </Box>
         {/* Tabs */}
         <Tabs
@@ -492,7 +491,9 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
               controls
               src={selectedRecording.audioUrl || ''}
               style={{ width: '100%' }}
-            />
+            >
+              <track kind="captions" src="" label="No captions" default />
+            </audio>
           </Box>
           {/* Tabs */}
           <Tabs variant="soft-rounded" colorScheme="blue" flex="1">

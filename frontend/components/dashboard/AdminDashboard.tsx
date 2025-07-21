@@ -19,18 +19,19 @@ const AdminDashboard = () => {
 
   return (
     <Box
-      w="100vw"
-      minH="100vh"
+      h="80vh"
+      w="100%"
       display="flex"
       justifyContent="center"
       alignItems="center"
-      bg="gray.100"
-      _dark={{ bg: 'gray.900' }}
+      bg="var(--input-bg-light)"
+      _dark={{ bg: 'var(--input-bg-dark)' }}
     >
       <Box
         width={{ base: '100%', md: '800px', lg: '1200px' }}
         minH={{ base: '600px', md: '700px', lg: '800px' }}
-        bg="white"
+        bg="var(--input-bg-light)"
+        _dark={{ bg: 'var(--input-bg-dark)' }}
         borderRadius="2xl"
         boxShadow="2xl"
         p={{ base: 4, md: 8, lg: 12 }}

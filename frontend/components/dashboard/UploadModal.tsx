@@ -11,7 +11,13 @@ import {
 } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 
-const UploadModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+const UploadModal = ({
+  isOpen,
+  onClose,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+}) => {
   const t = useTranslations('UploadModal');
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>

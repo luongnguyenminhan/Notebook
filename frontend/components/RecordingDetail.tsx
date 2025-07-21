@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Text, Badge, Button, Flex } from '@chakra-ui/react';
-import { useTranslations } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 
 const RecordingDetail = ({ recording, onClose }) => {
   const t = useTranslations('RecordingDetail');

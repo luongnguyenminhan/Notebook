@@ -6,8 +6,6 @@ import {
   Button,
   Input,
   Divider,
-  useColorModeValue,
-  IconButton,
   VStack,
 } from '@chakra-ui/react';
 import { FaMicrophone, FaCloudUploadAlt, FaDesktop, FaExclamationTriangle } from 'react-icons/fa';

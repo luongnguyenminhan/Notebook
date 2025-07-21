@@ -72,7 +72,10 @@ const Sidebar: React.FC<SidebarProps> = ({
       as="aside"
       w={{ base: '64', md: '72' }}
       bg="var(--input-bg-light)"
-      _dark={{ bg: 'var(--input-bg-dark)', borderColor: 'var(--input-border-dark)' }}
+      _dark={{
+        bg: 'var(--input-bg-dark)',
+        borderColor: 'var(--input-border-dark)',
+      }}
       h="100vh"
       display="flex"
       flexDirection="column"
@@ -276,12 +279,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                       )}
                       {r.status === 'COMPLETED' && (
                         <>
-                          {r.is_highlighted && (
-                            <StarIcon color="yellow.400" />
-                          )}
-                          {r.is_inbox && (
-                            <FaInbox color="blue.400" />
-                          )}
+                          {r.is_highlighted && <StarIcon color="yellow.400" />}
+                          {r.is_inbox && <FaInbox color="blue.400" />}
                         </>
                       )}
                     </Flex>
