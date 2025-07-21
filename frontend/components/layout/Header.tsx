@@ -26,8 +26,9 @@ import { GiHamburgerMenu } from 'react-icons/gi';
 
 import ThemeToggle from './ThemeToggle';
 import LanguageSwitcher from './LanguageSwitcher';
-import { useTranslations } from 'next-intl';
 import { getMeAsync } from '@/store/slices/authSlice';
+import { useContext } from 'react';
+import { DashboardRefreshContext } from '@/context/DashboardRefreshContext';
 
 // interface NavItem {
 //   label: string;
@@ -202,11 +203,11 @@ const Header = () => {
   const { isOpen, onToggle } = useDisclosure();
   const textColorPrimary = useColorModeValue('#363636', '#FFFFFF');
   const textColorSecondary = useColorModeValue('#2563EB', '#60A5FA');
-  const t = useTranslations();
   const dispatch = useDispatch();
   const { isAuthenticated, user } = useSelector(
     (state: RootState) => state.auth,
   );
+  const { refreshDashboard } = useContext(DashboardRefreshContext);
 
   // Read token from cookie and dispatch getMeAsync on mount
   // Import getMeAsync directly
@@ -225,17 +226,15 @@ const Header = () => {
     }
   }, [dispatch, user]);
 
+  const handleLogout = () => {
+    // Xoá token khỏi cookie
+    document.cookie = 'token=; Max-Age=0; path=/;';
+    dispatch(logout());
+    refreshDashboard();
+  };
+
   return (
     <>
-      <Text
-        id="atafin"
-        fontSize="xl"
-        fontWeight="bold"
-        textAlign="center"
-        color={useColorModeValue('gray.600', 'gray.200')}
-      >
-        {t('Header.navigation.home')}
-      </Text>
       <Box height="60px" />
       <Box
         position="fixed"
@@ -389,7 +388,7 @@ const Header = () => {
                     aria-label="Logout"
                     size="sm"
                     ml={2}
-                    onClick={() => dispatch(logout())}
+                    onClick={handleLogout}
                   >
                     <AiOutlineClose />
                   </IconButton>

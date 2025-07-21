@@ -1,5 +1,7 @@
 'use client';
 import React, { useState } from 'react';
+import Button from '@/components/ui/Button';
+import { Alert } from '@/components/ui/Alert';
 import { initSuperUser } from '@/services/api/auth';
 import { useTranslations } from 'next-intl';
 
@@ -41,6 +43,9 @@ const InitSuperUserForm: React.FC<InitSuperUserFormProps> = ({ onSuccess }) => {
         password: form.password,
       });
       setSuccess(true);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1200); // Đợi 1 chút cho user thấy success
       if (onSuccess) onSuccess();
     } catch (err: any) {
       setError(
@@ -54,21 +59,17 @@ const InitSuperUserForm: React.FC<InitSuperUserFormProps> = ({ onSuccess }) => {
 
   return (
     <form
-      className="max-w-md mx-auto mt-10 p-6 rounded shadow"
-      style={{
-        background: 'var(--input-bg-light)',
-        color: 'var(--text-color-light)',
-      }}
+      className="max-w-lg min-w-md mx-auto mt-10 p-8 rounded-2xl shadow-lg border border-[var(--input-border-light)] bg-[var(--input-bg-light)] text-[var(--text-color-light)] relative"
       onSubmit={handleSubmit}
     >
       <h2
-        className="text-2xl font-bold mb-4 text-center"
+        className="text-3xl font-extrabold mb-6 text-center tracking-tight"
         style={{ color: 'var(--primary-color)' }}
       >
-        {t('title', { defaultValue: 'Initialize First Admin' })}
+        {t('title')}
       </h2>
-      <div className="mb-4">
-        <label className="block mb-1 font-medium" htmlFor="username">
+      <div className="mb-5">
+        <label className="block mb-2 font-semibold" htmlFor="username">
           {t('username', { defaultValue: 'Username' })}
         </label>
         <input
@@ -78,7 +79,7 @@ const InitSuperUserForm: React.FC<InitSuperUserFormProps> = ({ onSuccess }) => {
           value={form.username}
           onChange={handleChange}
           required
-          className="w-full px-3 py-2 border rounded focus:outline-none focus:ring"
+          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] transition"
           style={{
             background: 'var(--input-bg-light)',
             color: 'var(--text-color-light)',
@@ -86,8 +87,8 @@ const InitSuperUserForm: React.FC<InitSuperUserFormProps> = ({ onSuccess }) => {
           }}
         />
       </div>
-      <div className="mb-4">
-        <label className="block mb-1 font-medium" htmlFor="email">
+      <div className="mb-5">
+        <label className="block mb-2 font-semibold" htmlFor="email">
           {t('email', { defaultValue: 'Email' })}
         </label>
         <input
@@ -97,7 +98,7 @@ const InitSuperUserForm: React.FC<InitSuperUserFormProps> = ({ onSuccess }) => {
           value={form.email}
           onChange={handleChange}
           required
-          className="w-full px-3 py-2 border rounded focus:outline-none focus:ring"
+          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] transition"
           style={{
             background: 'var(--input-bg-light)',
             color: 'var(--text-color-light)',
@@ -105,8 +106,8 @@ const InitSuperUserForm: React.FC<InitSuperUserFormProps> = ({ onSuccess }) => {
           }}
         />
       </div>
-      <div className="mb-4">
-        <label className="block mb-1 font-medium" htmlFor="password">
+      <div className="mb-5">
+        <label className="block mb-2 font-semibold" htmlFor="password">
           {t('password', { defaultValue: 'Password' })}
         </label>
         <input
@@ -116,7 +117,7 @@ const InitSuperUserForm: React.FC<InitSuperUserFormProps> = ({ onSuccess }) => {
           value={form.password}
           onChange={handleChange}
           required
-          className="w-full px-3 py-2 border rounded focus:outline-none focus:ring"
+          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] transition"
           style={{
             background: 'var(--input-bg-light)',
             color: 'var(--text-color-light)',
@@ -124,8 +125,8 @@ const InitSuperUserForm: React.FC<InitSuperUserFormProps> = ({ onSuccess }) => {
           }}
         />
       </div>
-      <div className="mb-4">
-        <label className="block mb-1 font-medium" htmlFor="confirmPassword">
+      <div className="mb-6">
+        <label className="block mb-2 font-semibold" htmlFor="confirmPassword">
           {t('confirmPassword', { defaultValue: 'Confirm Password' })}
         </label>
         <input
@@ -135,7 +136,7 @@ const InitSuperUserForm: React.FC<InitSuperUserFormProps> = ({ onSuccess }) => {
           value={form.confirmPassword}
           onChange={handleChange}
           required
-          className="w-full px-3 py-2 border rounded focus:outline-none focus:ring"
+          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] transition"
           style={{
             background: 'var(--input-bg-light)',
             color: 'var(--text-color-light)',
@@ -144,40 +145,27 @@ const InitSuperUserForm: React.FC<InitSuperUserFormProps> = ({ onSuccess }) => {
         />
       </div>
       {error && (
-        <div
-          className="text-error mb-2 text-center"
-          style={{ color: 'var(--error-color)' }}
-        >
-          {error}
+        <div className="mb-4 animate-pulse text-center">
+          <Alert status="error" title={error} />
         </div>
       )}
       {success && (
-        <div className="mb-2 text-center" style={{ color: 'green' }}>
-          {t('success')}
+        <div className="mb-4 animate-bounce text-center">
+          <Alert status="success" title={t('success')} />
         </div>
       )}
-      <button
+      <Button
         type="submit"
-        className="w-full py-2 px-4 rounded hover:bg-blue-700 transition disabled:opacity-50"
-        style={{
-          background: 'var(--primary-color)',
-          color: '#fff',
-        }}
+        className="w-full py-3 px-4 rounded-xl font-bold text-lg shadow-md"
         disabled={loading}
       >
-        {loading ? t('creating') : t('createAdmin')}
-      </button>
+        {loading
+          ? t('creating')
+          : t('createAdmin', { defaultValue: 'Tạo Admin & Xác nhận' })}
+      </Button>
       <footer
-        className="w-full text-center mt-6"
-        style={{
-          position: 'fixed',
-          left: 0,
-          bottom: 0,
-          background: 'var(--input-bg-light)',
-          color: 'var(--text-color-light)',
-          borderTop: '1px solid var(--input-border-light)',
-          padding: '1rem 0',
-        }}
+        className="w-full text-center mt-8 text-xs opacity-70 border-t border-[var(--input-border-light)] pt-4"
+        style={{ background: 'transparent', color: 'var(--text-color-light)' }}
       >
         &copy; {new Date().getFullYear()} SercueScribe
       </footer>

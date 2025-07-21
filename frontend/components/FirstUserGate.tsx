@@ -13,7 +13,7 @@ export default function FirstUserGate({
   if (loading) return null;
   if (error) return null;
   if (isFirstUser) {
-    return <InitSuperUserForm />;
+    return <InitSuperUserForm onSuccess={() => window.location.reload()} />;
   }
   return <>{children}</>;
 }
