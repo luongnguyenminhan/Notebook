@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import {
   Box,
@@ -7,20 +8,19 @@ import {
   StatNumber,
   Heading,
   Spinner,
-  Text,
   Table,
   Thead,
   Tbody,
   Tr,
   Th,
   Td,
-  Progress,
   Flex,
   Card,
   CardBody,
 } from '@chakra-ui/react';
 import { getAdminStats } from '@/services/api/user';
 import { useTranslations } from 'next-intl';
+import StatusCard from './StatusCard';
 
 const AdminStats = () => {
   const [stats, setStats] = useState<any>(null);
@@ -103,7 +103,7 @@ const AdminStats = () => {
         <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={4}>
           <StatusCard
             label={t('completed', { defaultValue: 'Completed' })}
-            value={JSON.stringify(stats.completed_recordings)}
+            value={stats.completed_recordings}
             total={statusTotal}
             color="green.400"
           />
@@ -181,45 +181,6 @@ function StatCard({ label, value, color }: any) {
       </CardBody>
     </Card>
   );
-}
-
-function StatusCard({ label, value, total, color }: any) {
-  const percent = total ? Math.round((value / total) * 100) : 0;
-  return (
-    <Card
-      boxShadow="md"
-      borderRadius="xl"
-      bg="white"
-      _dark={{ bg: 'gray.800' }}
-    >
-      <CardBody>
-        <Text fontWeight="bold" mb={2}>
-          {label}
-        </Text>
-        <StatNumber color={color}>{value}</StatNumber>
-        <Progress
-          value={percent}
-          colorScheme={colorToScheme(color)}
-          size="sm"
-          borderRadius="md"
-          mt={2}
-        />
-        <Text fontSize="sm" color="gray.500" mt={1}>
-          {percent}%
-        </Text>
-      </CardBody>
-    </Card>
-  );
-}
-
-function colorToScheme(color: string) {
-  if (color.includes('green')) return 'green';
-  if (color.includes('yellow')) return 'yellow';
-  if (color.includes('blue')) return 'blue';
-  if (color.includes('red')) return 'red';
-  if (color.includes('purple')) return 'purple';
-  if (color.includes('orange')) return 'orange';
-  return 'gray';
 }
 
 function formatFileSize(bytes: number) {
