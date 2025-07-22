@@ -1,3 +1,4 @@
+import logging
 from typing import Generator
 
 from sqlalchemy import create_engine
@@ -5,10 +6,12 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from .config import settings
 
+logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
+
 # Create engine
 engine = create_engine(
     settings.database_url,
-    echo=settings.environment == "development",
+    echo=False,
     pool_pre_ping=True,
     pool_recycle=300,
     pool_size=5,

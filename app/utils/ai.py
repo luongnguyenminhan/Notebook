@@ -3,15 +3,15 @@ AI services for transcription and summarization
 """
 
 import json
+import logging
 import os
+import re
 from typing import Any, Dict, List, Optional
 
 import aiohttp
 import httpx
-import logging
 
 from app.core.config import settings
-import re
 from app.services.chat_service import chat_service
 
 logger = logging.getLogger(__name__)
@@ -192,14 +192,9 @@ class SummarizationService:
         """Chat with transcription content"""
         if not transcription.strip():
             return "No transcription available to chat with."
-
+        
         # Build conversation history
-        messages = [
-            {
-                "role": "system",
-                "content": f"You are an AI assistant helping to analyze and discuss the following transcription. Answer questions based on the content provided.\n\nTranscription:\n{transcription}",
-            }
-        ]
+        messages = []
 
         # Add message history if provided
         if message_history:
@@ -207,10 +202,10 @@ class SummarizationService:
 
         # Add current message
         messages.append({"role": "user", "content": message})
-
+        print(transcription)
         try:
             # Gọi chat_service (Ollama)
-            return chat_service.chat(message, messages)
+            return chat_service.chat(message=message, history=messages, context=transcription)
 
         except Exception as e:
             raise Exception(f"Chat failed: {str(e)}")

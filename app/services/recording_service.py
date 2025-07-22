@@ -1,3 +1,4 @@
+import json
 import os
 import subprocess
 from datetime import datetime
@@ -14,7 +15,27 @@ from app.utils.ai import summarization_service
 from app.utils.recording_utils import apply_recording_update
 from app.utils.text import md_to_html
 
-
+SYSTEM_PROMPT_GUIDELINE = (
+    "Bạn là một trợ lý AI chuyên nghiệp, thân thiện, tận tâm hỗ trợ người dùng phân tích nội dung cuộc họp. "
+    "Nhiệm vụ của bạn là trả lời các câu hỏi một cách NGẮN GỌN, RÕ RÀNG, ĐÚNG TRỌNG TÂM, và chỉ dựa trên thông tin có trong transcript hoặc dữ liệu được cung cấp.\n"
+    "\n"
+    "QUY TẮC TRẢ LỜI:\n"
+    "- Luôn trả lời bằng tiếng Việt, văn phong tự nhiên, dễ hiểu.\n"
+    "- Không bịa đặt, không suy diễn, không đưa ra thông tin ngoài transcript.\n"
+    "- Nếu không đủ dữ liệu để trả lời, hãy nói rõ: 'Không đủ thông tin trong transcript để trả lời câu hỏi này.'\n"
+    "- Nếu câu hỏi không liên quan đến nội dung transcript, hãy lịch sự từ chối.\n"
+    "- Nếu transcript có nhiều người nói, hãy cố gắng xác định ai nói nếu có thể, nhưng không tự gán tên nếu không rõ.\n"
+    "- Tránh lặp lại toàn bộ transcript trong câu trả lời.\n"
+    "\n"
+    "VÍ DỤ:\n"
+    "Q: Ai là người giao nhiệm vụ trong cuộc họp này?\n"
+    "A: Theo transcript, không đủ thông tin để xác định ai là người giao nhiệm vụ.\n"
+    "\n"
+    "Q: Có bao nhiêu nhiệm vụ được đề cập?\n"
+    "A: Trong transcript có 2 nhiệm vụ được nhắc đến: ... (liệt kê ngắn gọn nếu có).\n"
+    "\n"
+    "Hãy luôn tuân thủ các quy tắc trên trong mọi câu trả lời."
+)
 class RecordingChatResponse(BaseModel):
     response: str
 
@@ -37,7 +58,9 @@ async def chat_with_recording_transcription(
         .first()
     )
     if not recording or not recording.transcription:
-        raise HTTPException(status_code=404, detail="Recording or transcription not found")
+        raise HTTPException(
+            status_code=404, detail="Recording or transcription not found"
+        )
 
     # Logging input
     print("[CHAT] Incoming chat request:")
@@ -45,18 +68,23 @@ async def chat_with_recording_transcription(
     print(f"  user_id: {user_id}")
     print(f"  message: {message}")
     print(f"  history: {history}")
-
-    # Prompt engineering
-    system_prompt = f"Bạn là trợ lý AI, hãy trả lời dựa trên nội dung transcript sau.\n\nTranscript:\n{recording.transcription}"
-    # Build messages
-    messages = [{"role": "system", "content": system_prompt}]
-    if history:
-        messages.extend(history)
-    messages.append({"role": "user", "content": message})
+    transcription = recording.transcription
+    try:
+        transcription_json = json.loads(transcription.replace("'",'"'))
+        formatted_transcript_for_llm = f"{transcription_json[0]['speaker']}:{transcription_json[0]['sentence']}"
+        for i, turn in enumerate(transcription_json[1:]):
+            if turn['speaker'] == transcription_json[i-1]['speaker']:
+                formatted_transcript_for_llm +=" "+ turn['sentence']
+            else:
+                formatted_transcript_for_llm += f"\n\n{turn['speaker']}:{turn['sentence']}"
+    except Exception as e:
+        print("==="*100)
+        print("Error parsing transcription JSON:", e)
+        formatted_transcript_for_llm = transcription
 
     # Gọi chat model (dùng ai.py)
     response = await summarization_service.chat_with_transcription(
-        transcription=recording.transcription,
+        transcription=formatted_transcript_for_llm,
         message=message,
         message_history=history or [],
     )
@@ -68,7 +96,9 @@ async def chat_with_recording_transcription(
     return RecordingChatResponse(response=response)
 
 
-async def save_uploaded_file(db: Session, file: UploadFile, user_id: int) -> RecordingResponse:
+async def save_uploaded_file(
+    db: Session, file: UploadFile, user_id: int
+) -> RecordingResponse:
     from app.core.config import settings
     from app.utils.minio import minio_client
 
@@ -91,7 +121,9 @@ async def save_uploaded_file(db: Session, file: UploadFile, user_id: int) -> Rec
         minio_client.upload_file(file_path, bucket_name, object_name)
     except Exception as e:
         os.remove(file_path)
-        raise HTTPException(status_code=500, detail=f"Failed to upload file to MinIO: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to upload file to MinIO: {str(e)}"
+        )
 
     # Use ffmpeg to get duration
     try:
@@ -143,12 +175,24 @@ async def save_uploaded_file(db: Session, file: UploadFile, user_id: int) -> Rec
     return RecordingResponse.model_validate(recording, from_attributes=True)
 
 
-def get_recordings(db: Session, user_id: int, skip: int = 0, limit: int = 100) -> List[RecordingResponse]:
-    recordings = db.query(Recording).filter(Recording.user_id == user_id, ~Recording.is_deleted).offset(skip).limit(limit).all()
-    return [RecordingResponse.model_validate(r, from_attributes=True) for r in recordings]
+def get_recordings(
+    db: Session, user_id: int, skip: int = 0, limit: int = 100
+) -> List[RecordingResponse]:
+    recordings = (
+        db.query(Recording)
+        .filter(Recording.user_id == user_id, ~Recording.is_deleted)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+    return [
+        RecordingResponse.model_validate(r, from_attributes=True) for r in recordings
+    ]
 
 
-def get_recording(db: Session, recording_id: int, user_id: int) -> Optional[RecordingResponse]:
+def get_recording(
+    db: Session, recording_id: int, user_id: int
+) -> Optional[RecordingResponse]:
     recording = (
         db.query(Recording)
         .filter(
@@ -163,7 +207,9 @@ def get_recording(db: Session, recording_id: int, user_id: int) -> Optional[Reco
     return RecordingResponse.model_validate(recording, from_attributes=True)
 
 
-def update_recording(db: Session, recording_id: int, recording_in: RecordingUpdate, user_id: int) -> Optional[RecordingResponse]:
+def update_recording(
+    db: Session, recording_id: int, recording_in: RecordingUpdate, user_id: int
+) -> Optional[RecordingResponse]:
     recording = (
         db.query(Recording)
         .filter(

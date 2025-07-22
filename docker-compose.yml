@@ -10,7 +10,7 @@ services:
       - DATABASE_URL=mysql+pymysql://root:11minhan@db:3306/sercuescribe?charset=utf8mb4
       - REDIS_URL=redis://redis:6379/0
       - ENVIRONMENT=development
-      - OLLAMA_URL=${OLLAMA_URL:-http://ollama:11434}
+      - OLLAMA_API_BASE=${OLLAMA_API_BASE:-http://ollama:11434}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -25,7 +25,7 @@ services:
       - DATABASE_URL=mysql+pymysql://root:11minhan@db:3306/sercuescribe?charset=utf8mb4
       - REDIS_URL=redis://redis:6379/0
       - ENVIRONMENT=development
-      - OLLAMA_URL=${OLLAMA_URL:-http://ollama:11434}
+      - OLLAMA_API_BASE=${OLLAMA_API_BASE:-http://ollama:11434}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:

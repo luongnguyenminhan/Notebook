@@ -79,7 +79,34 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
         message: chatInput,
         history: newHistory,
       });
-      setChatMessages([...newHistory, { role: 'bot', content: res.reply }]);
+      console.log(`bot response: ${res}`);
+      // API luôn trả về { response: string }
+      // Support both { response: string } and { reply: string }
+      const botContent = (res as any).response || (res as any).reply;
+      // Nếu là JSON array, parse và push từng câu
+      try {
+        const parsed = JSON.parse(botContent);
+        if (Array.isArray(parsed)) {
+          setChatMessages([
+            ...newHistory,
+            ...parsed.map((item) => ({
+              role: 'bot',
+              content:
+                item.response ||
+                item.sentence ||
+                item.statement ||
+                JSON.stringify(item),
+            })),
+          ]);
+        } else {
+          setChatMessages([
+            ...newHistory,
+            { role: 'bot', content: botContent },
+          ]);
+        }
+      } catch {
+        setChatMessages([...newHistory, { role: 'bot', content: botContent }]);
+      }
     } catch {
       setChatMessages([...newHistory, { role: 'bot', content: 'Bot error.' }]);
     }
