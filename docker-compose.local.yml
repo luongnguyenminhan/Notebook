@@ -92,5 +92,5 @@ services:
   #     - db
       
 volumes:
-  mysql_data:
+  minio_data:
   redis_data:

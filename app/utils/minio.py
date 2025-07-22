@@ -1,15 +1,17 @@
+
 from minio import Minio
 from minio.error import S3Error
-import os
+
 from app.core.config import settings
+
 
 class MinIOClient:
     def __init__(self):
         self.client = Minio(
-            settings.MINIO_ENDPOINT,
-            access_key=settings.MINIO_ACCESS_KEY,
-            secret_key=settings.MINIO_SECRET_KEY,
-            secure=settings.MINIO_SECURE
+            settings.minio_endpoint,
+            access_key=settings.minio_access_key,
+            secret_key=settings.minio_secret_key,
+            secure=settings.minio_secure
         )
 
     def ensure_bucket_exists(self, bucket_name: str):
