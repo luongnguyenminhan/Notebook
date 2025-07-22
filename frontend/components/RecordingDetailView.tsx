@@ -63,6 +63,7 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
     if (selectedRecording) {
       setSummary(selectedRecording.summary || '');
       setNotes(selectedRecording.notes || '');
+      setChatMessages([]);
     }
   }, [selectedRecording]);
 

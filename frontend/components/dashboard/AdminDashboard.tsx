@@ -1,3 +1,4 @@
+'use client';
 import React, { useState } from 'react';
 import {
   Box,
@@ -28,12 +29,12 @@ const AdminDashboard = () => {
       _dark={{ bg: 'var(--input-bg-dark)' }}
     >
       <Box
-        width={{ base: '100%', md: '800px', lg: '1200px' }}
+        width={'100%'}
         minH={{ base: '600px', md: '700px', lg: '800px' }}
         bg="var(--input-bg-light)"
         _dark={{ bg: 'var(--input-bg-dark)' }}
-        borderRadius="2xl"
-        boxShadow="2xl"
+        // borderRadius="2xl"
+        // boxShadow="2xl"
         p={{ base: 4, md: 8, lg: 12 }}
         mb={8}
         overflow="auto"
