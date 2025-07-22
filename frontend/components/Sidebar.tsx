@@ -9,9 +9,7 @@ import {
   VStack,
   Badge,
 } from '@chakra-ui/react';
-import {
-  AddIcon
-} from '@chakra-ui/icons';
+import { AddIcon } from '@chakra-ui/icons';
 import { useTranslations } from 'next-intl';
 import { FaMicrophoneAlt } from 'react-icons/fa';
 import { RecordingResponse } from '@/services/api/recording';

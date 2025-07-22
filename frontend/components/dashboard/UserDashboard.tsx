@@ -18,7 +18,7 @@ import { getMe } from '@/services/api/auth';
 
 const UserDashboard = () => {
   // State quản lý
-  const [user, setUser] = useState<any>(null);
+  const [, setUser] = useState<any>(null);
   const [recordings, setRecordings] = useState<any[]>([]);
   const [selectedRecording, setSelectedRecording] = useState<any>(null);
   const [showUpload, setShowUpload] = useState(false);
