@@ -1,6 +1,25 @@
+from langchain_community.chat_models import ChatOllama
+from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
+from typing import List, Dict, Any
 import os
-from typing import List, Dict
-from litellm import completion
+
+
+def prepare_messages_for_ai(history: List[Dict[str, str]], message: str) -> List:
+    messages = []
+    if history:
+        for item in history:
+            if not isinstance(item, dict) or "content" not in item:
+                continue
+            role = item.get("role", "user")
+            if role == "system":
+                messages.append(SystemMessage(content=item["content"]))
+            elif role in ("bot", "assistant", "ai"):
+                messages.append(AIMessage(content=item["content"]))
+            else:
+                messages.append(HumanMessage(content=item["content"]))
+    messages.append(HumanMessage(content=message))
+    return messages
+
 
 class ChatService:
     def __init__(self, base_url: str = None, model: str = "ollama/llama2"):
@@ -10,24 +29,9 @@ class ChatService:
         self.model = model
 
     def chat(self, message: str, history: List[Dict[str, str]] = None) -> str:
-        # Compose messages for litellm
-        messages = []
-        if history:
-            for item in history:
-                # Defensive: skip if missing keys
-                if not isinstance(item, dict):
-                    continue
-                role = item.get("role")
-                content = item.get("content")
-                if role and content:
-                    messages.append({"role": role, "content": content})
-        # Add current user message
-        messages.append({"role": "user", "content": message})
-        response = completion(
-            model=self.model,
-            messages=messages,
-            api_base=self.base_url
-        )
-        return response.choices[0].message.content
+        messages = prepare_messages_for_ai(history or [], message)
+        response = self.llm.invoke(messages)
+        return response.content
+
 
 chat_service = ChatService()
