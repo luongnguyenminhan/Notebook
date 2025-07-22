@@ -14,6 +14,14 @@ import httpx
 from app.core.config import settings
 from app.services.chat_service import chat_service
 
+# === Qdrant VectorStore cho transcript meeting ===
+from langchain_qdrant import QdrantVectorStore
+from qdrant_client import QdrantClient
+from qdrant_client.http.models import Distance, VectorParams
+from langchain_core.documents import Document
+from langchain_community.embeddings import OllamaEmbeddings
+import uuid
+
 logger = logging.getLogger(__name__)
 
 
@@ -134,7 +142,9 @@ class ASRService:
                     if max_speakers is not None:
                         data["max_speakers"] = str(max_speakers)
 
-                    response = await client.post(f"{self.base_url}/transcribe", files=files, data=data)
+                    response = await client.post(
+                        f"{self.base_url}/transcribe", files=files, data=data
+                    )
                     response.raise_for_status()
 
                     return response.json()
@@ -154,7 +164,9 @@ class SummarizationService:
             "x-header-checksum": "fixed-checksum-that-never-changes-123456789",
         }
 
-    async def generate_summary(self, transcription: str, email: str | None = None) -> str:
+    async def generate_summary(
+        self, transcription: str, email: str | None = None
+    ) -> str:
         """
         Gửi transcript tới endpoint post_message để lấy summary
         Args:
@@ -171,7 +183,9 @@ class SummarizationService:
             else:
                 payload["email"] = ""
             async with aiohttp.ClientSession() as session:
-                async with session.post(endpoint, headers=self.headers, json=payload) as response:
+                async with session.post(
+                    endpoint, headers=self.headers, json=payload
+                ) as response:
                     response.raise_for_status()
                     result = await response.json()
                     # Giả sử API trả về summary trong trường 'summary'
@@ -192,7 +206,7 @@ class SummarizationService:
         """Chat with transcription content"""
         if not transcription.strip():
             return "No transcription available to chat with."
-        
+
         # Build conversation history
         messages = []
 
@@ -205,12 +219,16 @@ class SummarizationService:
         print(transcription)
         try:
             # Gọi chat_service (Ollama)
-            return chat_service.chat(message=message, history=messages, context=transcription)
+            return chat_service.chat(
+                message=message, history=messages, context=transcription
+            )
 
         except Exception as e:
             raise Exception(f"Chat failed: {str(e)}")
 
-    async def identify_speakers_from_text(self, transcription: str, current_speaker_map: Optional[Dict[str, Any]] = None) -> Dict[str, str]:
+    async def identify_speakers_from_text(
+        self, transcription: str, current_speaker_map: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, str]:
         """Identify speakers from transcription text using LLM"""
         if not transcription.strip():
             return {}
@@ -252,3 +270,61 @@ class SummarizationService:
 transcription_service = TranscriptionService()
 asr_service = ASRService()
 summarization_service = SummarizationService()
+
+
+# === Qdrant VectorStore cho transcript meeting ===
+class QdrantMeetingVectorStore:
+    def __init__(self, url="http://localhost:6333", embedding_model="nomic-embed-text"):
+        self.url = url
+        self.embedding_model = embedding_model
+        self.client = QdrantClient(url=url)
+        self.embedding = OllamaEmbeddings(
+            model=embedding_model,
+            base_url=os.environ.get("OLLAMA_URL", "http://host.docker.internal:11434"),
+        )
+
+    def ensure_indexed(self, recording_id: int, transcript: str):
+        collection_name = f"meeting_{recording_id}"
+        # Check collection exists, if not create
+        if collection_name not in [
+            c.name for c in self.client.get_collections().collections
+        ]:
+            # Tạm lấy size embedding 768 (nomic-embed-text), có thể chỉnh lại nếu model khác
+            self.client.create_collection(
+                collection_name=collection_name,
+                vectors_config=VectorParams(size=768, distance=Distance.COSINE),
+            )
+        # Check đã có docs chưa
+        vectorstore = QdrantVectorStore(
+            client=self.client,
+            collection_name=collection_name,
+            embedding=self.embedding,
+        )
+        # Nếu đã có docs thì thôi
+        if vectorstore.client.count(collection_name=collection_name).count > 0:
+            return
+        # Chunk transcript theo dòng
+        chunks = [line.strip() for line in transcript.split("\n") if line.strip()]
+        docs = [
+            Document(
+                page_content=chunk,
+                metadata={"recording_id": recording_id, "chunk_id": i},
+            )
+            for i, chunk in enumerate(chunks)
+        ]
+        uuids = [str(uuid.uuid4()) for _ in docs]
+        vectorstore.add_documents(documents=docs, ids=uuids)
+
+    def retrieve_context(self, recording_id: int, query: str, k: int = 4):
+        collection_name = f"meeting_{recording_id}"
+        vectorstore = QdrantVectorStore(
+            client=self.client,
+            collection_name=collection_name,
+            embedding=self.embedding,
+        )
+        docs = vectorstore.similarity_search(query, k=k)
+        return "\n".join([doc.page_content for doc in docs])
+
+
+# Khởi tạo instance dùng chung
+meeting_vectorstore = QdrantMeetingVectorStore()

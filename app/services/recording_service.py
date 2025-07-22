@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from app.models import Recording
 from app.schemas import RecordingResponse, RecordingUpdate
 from app.utils.ai import summarization_service
+from app.utils.ai import meeting_vectorstore
 from app.utils.recording_utils import apply_recording_update
 from app.utils.text import md_to_html
 
@@ -36,6 +37,8 @@ SYSTEM_PROMPT_GUIDELINE = (
     "\n"
     "Hãy luôn tuân thủ các quy tắc trên trong mọi câu trả lời."
 )
+
+
 class RecordingChatResponse(BaseModel):
     response: str
 
@@ -70,21 +73,30 @@ async def chat_with_recording_transcription(
     print(f"  history: {history}")
     transcription = recording.transcription
     try:
-        transcription_json = json.loads(transcription.replace("'",'"'))
-        formatted_transcript_for_llm = f"{transcription_json[0]['speaker']}:{transcription_json[0]['sentence']}"
+        transcription_json = json.loads(transcription.replace("'", '"'))
+        formatted_transcript_for_llm = (
+            f"{transcription_json[0]['speaker']}:{transcription_json[0]['sentence']}"
+        )
         for i, turn in enumerate(transcription_json[1:]):
-            if turn['speaker'] == transcription_json[i-1]['speaker']:
-                formatted_transcript_for_llm +=" "+ turn['sentence']
+            if turn["speaker"] == transcription_json[i - 1]["speaker"]:
+                formatted_transcript_for_llm += " " + turn["sentence"]
             else:
-                formatted_transcript_for_llm += f"\n\n{turn['speaker']}:{turn['sentence']}"
+                formatted_transcript_for_llm += (
+                    f"\n\n{turn['speaker']}:{turn['sentence']}"
+                )
     except Exception as e:
-        print("==="*100)
+        print("===" * 100)
         print("Error parsing transcription JSON:", e)
         formatted_transcript_for_llm = transcription
 
+    # Đảm bảo transcript đã được index vào Qdrant
+    meeting_vectorstore.ensure_indexed(recording_id, formatted_transcript_for_llm)
+    # Lấy context phù hợp từ Qdrant retriever
+    context = meeting_vectorstore.retrieve_context(recording_id, message)
+
     # Gọi chat model (dùng ai.py)
     response = await summarization_service.chat_with_transcription(
-        transcription=formatted_transcript_for_llm,
+        transcription=context,
         message=message,
         message_history=history or [],
     )
