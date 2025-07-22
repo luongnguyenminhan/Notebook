@@ -39,6 +39,13 @@ async def chat_with_recording_transcription(
     if not recording or not recording.transcription:
         raise HTTPException(status_code=404, detail="Recording or transcription not found")
 
+    # Logging input
+    print("[CHAT] Incoming chat request:")
+    print(f"  recording_id: {recording_id}")
+    print(f"  user_id: {user_id}")
+    print(f"  message: {message}")
+    print(f"  history: {history}")
+
     # Prompt engineering
     system_prompt = f"Bạn là trợ lý AI, hãy trả lời dựa trên nội dung transcript sau.\n\nTranscript:\n{recording.transcription}"
     # Build messages
@@ -53,6 +60,11 @@ async def chat_with_recording_transcription(
         message=message,
         message_history=history or [],
     )
+
+    # Logging output
+    print("[CHAT] Model response:")
+    print(f" response: {response}")
+
     return RecordingChatResponse(response=response)
 
 

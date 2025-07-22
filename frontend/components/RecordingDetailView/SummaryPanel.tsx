@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React from 'react';
 import { Box, Button, Flex } from '@chakra-ui/react';
 import SimpleMarkDownEditor from '../SimpleMarkDownEditor';

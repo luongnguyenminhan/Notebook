@@ -21,6 +21,7 @@ import MobileHeader from './RecordingDetailView/MobileHeader';
 import NotesPanel from './RecordingDetailView/NotesPanel';
 import SummaryPanel from './RecordingDetailView/SummaryPanel';
 import TranscriptPanel from './RecordingDetailView/TranscriptPanel';
+import { chatWithRecording } from '@/services/api/recording';
 
 interface RecordingDetailViewProps {
   selectedRecording: any;
@@ -68,17 +69,21 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
   }, [selectedRecording]);
 
   const handleSendChat = async () => {
-    if (!chatInput.trim() || isWaitingBot) return;
-    setChatMessages((msgs) => [...msgs, { role: 'user', content: chatInput }]);
+    if (!chatInput.trim() || isWaitingBot || !selectedRecording?.id) return;
+    const newHistory = [...chatMessages, { role: 'user', content: chatInput }];
+    setChatMessages(newHistory);
     setChatInput('');
     setIsWaitingBot(true);
-    setTimeout(() => {
-      setChatMessages((msgs) => [
-        ...msgs,
-        { role: 'bot', content: 'Đây là phản hồi từ bot.' },
-      ]);
-      setIsWaitingBot(false);
-    }, 500);
+    try {
+      const res = await chatWithRecording(selectedRecording.id, {
+        message: chatInput,
+        history: newHistory,
+      });
+      setChatMessages([...newHistory, { role: 'bot', content: res.reply }]);
+    } catch {
+      setChatMessages([...newHistory, { role: 'bot', content: 'Bot error.' }]);
+    }
+    setIsWaitingBot(false);
   };
 
   const handleCopyTranscript = async () => {

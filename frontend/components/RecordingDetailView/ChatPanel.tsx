@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { RefObject } from 'react';
 import { Box, Flex, Text, Textarea, Button } from '@chakra-ui/react';
 import { FaRobot, FaPaperPlane } from 'react-icons/fa';

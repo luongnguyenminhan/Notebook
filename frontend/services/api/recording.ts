@@ -103,3 +103,32 @@ export const deleteRecording = async (id: number): Promise<void> => {
     headers: { Authorization: `Bearer ${token}` },
   });
 };
+
+// Chat with recording
+export interface RecordingChatRequest {
+  message: string;
+  history: Array<{ role: string; content: string }>;
+}
+
+export interface RecordingChatResponse {
+  reply: string;
+  history: Array<{ role: string; content: string }>;
+}
+
+export const chatWithRecording = async (
+  id: number,
+  data: RecordingChatRequest,
+): Promise<RecordingChatResponse> => {
+  const token = getToken();
+  const res = await axiosInstance.post<RecordingChatResponse>(
+    `/recordings/${id}/chat`,
+    data,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    },
+  );
+  return res.data;
+};

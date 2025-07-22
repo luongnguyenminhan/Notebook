@@ -31,3 +31,4 @@ werkzeug>=2.3.0
 langchain
 langgraph
 langchain_community
+litellm
