@@ -236,6 +236,7 @@
     "processing": "Đang xử lý",
     "pending": "Chờ xử lý",
     "failed": "Thất bại"
+   ,"summarizing": "Đang tóm tắt"
   },
   "RecordingList": {
     "noData": "Không có bản ghi",

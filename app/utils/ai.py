@@ -274,21 +274,30 @@ summarization_service = SummarizationService()
 
 # === Qdrant VectorStore cho transcript meeting ===
 class QdrantMeetingVectorStore:
-    def __init__(self, url="http://localhost:6333", embedding_model="nomic-embed-text"):
+    def __init__(self, url=None, embedding_model="nomic-embed-text"):
+        # Lấy host từ biến môi trường hoặc mặc định
+        if url is None:
+            url = os.environ.get("QDRANT_HOST", "http://qdrant:6333")
         self.url = url
         self.embedding_model = embedding_model
         self.client = QdrantClient(url=url)
         self.embedding = OllamaEmbeddings(
             model=embedding_model,
-            base_url=os.environ.get("OLLAMA_URL", "http://host.docker.internal:11434"),
+            base_url=os.environ.get(
+                "OLLAMA_API_BASE", "http://host.docker.internal:11434"
+            ),
         )
 
     def ensure_indexed(self, recording_id: int, transcript: str):
         collection_name = f"meeting_{recording_id}"
+        print(f"Ensuring indexing for collection: {collection_name}")
         # Check collection exists, if not create
         if collection_name not in [
             c.name for c in self.client.get_collections().collections
         ]:
+            print(
+                f"Collection {collection_name} does not exist. Creating new collection."
+            )
             # Tạm lấy size embedding 768 (nomic-embed-text), có thể chỉnh lại nếu model khác
             self.client.create_collection(
                 collection_name=collection_name,
@@ -301,10 +310,14 @@ class QdrantMeetingVectorStore:
             embedding=self.embedding,
         )
         # Nếu đã có docs thì thôi
-        if vectorstore.client.count(collection_name=collection_name).count > 0:
+        doc_count = vectorstore.client.count(collection_name=collection_name).count
+        print(f"Document count in collection {collection_name}: {doc_count}")
+        if doc_count > 0:
+            print("Documents already indexed. Skipping indexing.")
             return
         # Chunk transcript theo dòng
         chunks = [line.strip() for line in transcript.split("\n") if line.strip()]
+        print(f"Transcript will be chunked into {len(chunks)} pieces.")
         docs = [
             Document(
                 page_content=chunk,
@@ -313,16 +326,21 @@ class QdrantMeetingVectorStore:
             for i, chunk in enumerate(chunks)
         ]
         uuids = [str(uuid.uuid4()) for _ in docs]
+        print(f"Adding {len(docs)} documents to vectorstore.")
         vectorstore.add_documents(documents=docs, ids=uuids)
 
     def retrieve_context(self, recording_id: int, query: str, k: int = 4):
         collection_name = f"meeting_{recording_id}"
+        print(
+            f"Retrieving context from collection: {collection_name} with query: '{query}' (top {k})"
+        )
         vectorstore = QdrantVectorStore(
             client=self.client,
             collection_name=collection_name,
             embedding=self.embedding,
         )
         docs = vectorstore.similarity_search(query, k=k)
+        print(f"Retrieved {len(docs)} documents for context.")
         return "\n".join([doc.page_content for doc in docs])
 
 

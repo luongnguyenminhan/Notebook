@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
     gcc \
     curl \
     default-libmysqlclient-dev \
+    ffmpeg \
     pkg-config \
     && rm -rf /var/lib/apt/lists/*
 

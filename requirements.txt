@@ -32,3 +32,4 @@ langchain
 langgraph
 langchain_community
 litellm
+langchain_qdrant

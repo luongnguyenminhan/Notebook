@@ -130,5 +130,5 @@ services:
 volumes:
   minio_data:
   redis_data:
-  ollama_data:
+  # ollama_data:
   qdrant_data:
