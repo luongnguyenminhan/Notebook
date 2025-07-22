@@ -99,7 +99,7 @@ const UserDashboard = () => {
         onClose={() => setShowUpload(false)}
         onUploaded={handleUploaded}
       />
-      {/* <ColorSchemeModal
+      <ColorSchemeModal
         isOpen={showColorScheme}
         onClose={() => setShowColorScheme(false)}
         colorSchemes={{ light: [], dark: [] }}
@@ -138,7 +138,7 @@ const UserDashboard = () => {
         finishedFilesInQueue={[]}
         completedInQueue={0}
         totalInQueue={0}
-      /> */}
+      />
     </Flex>
   );
 };

@@ -1,39 +1,26 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Box,
   Flex,
   Text,
   Button,
-  IconButton,
   Tabs,
   TabList,
   TabPanels,
   Tab,
   TabPanel,
   useBreakpointValue,
-  Badge,
-  Textarea,
   useColorModeValue,
 } from '@chakra-ui/react';
-import {
-  FaInbox,
-  FaStar,
-  FaEdit,
-  FaRedoAlt,
-  FaSyncAlt,
-  FaUndo,
-  FaUserTag,
-  FaShareAlt,
-  FaTrash,
-  FaChevronDown,
-  FaChevronUp,
-  FaUsers,
-  FaCalendar,
-  FaCopy,
-  FaRobot,
-  FaPaperPlane,
-} from 'react-icons/fa';
-import SimpleMarkDownEditor from './SimpleMarkDownEditor';
+import { FaEdit, FaCopy } from 'react-icons/fa';
+import Header from './RecordingDetailView/Header';
+import AudioPlayer from './RecordingDetailView/AudioPlayer';
+import TranscriptPanel from './RecordingDetailView/TranscriptPanel';
+import SummaryPanel from './RecordingDetailView/SummaryPanel';
+import NotesPanel from './RecordingDetailView/NotesPanel';
+import ChatPanel from './RecordingDetailView/ChatPanel';
+import MobileHeader from './RecordingDetailView/MobileHeader';
 
 interface RecordingDetailViewProps {
   selectedRecording: any;
@@ -42,22 +29,15 @@ interface RecordingDetailViewProps {
   onEdit?: () => void;
   onReprocessTranscription?: () => void;
   onReprocessSummary?: () => void;
-  onReset?: () => void;
-  onSpeakerModal?: () => void;
-  onShare?: () => void;
   onDelete?: () => void;
 }
 
 const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
   selectedRecording,
-  onToggleInbox,
   onToggleHighlight,
   onEdit,
   onReprocessTranscription,
   onReprocessSummary,
-  onReset,
-  onSpeakerModal,
-  onShare,
   onDelete,
 }) => {
   const isMobile = useBreakpointValue({ base: true, md: false });
@@ -158,12 +138,13 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
   const chatInputBorder = chatPanelBorder;
   const chatInputColor = chatText;
 
-  /**
-   * Formats meeting note markdown for display
-   * @param noteText Raw meeting note markdown text
-   * @returns HTML string with styled markdown
-   */
-  const formatMeetingNoteForDisplay = (noteText: string): string => {
+  const formatMeetingNoteForDisplay = (
+    noteText: string,
+    headingColor: string,
+    subHeadingColor: string,
+    textColor: string,
+    borderColor: string,
+  ): string => {
     if (!noteText) {
       return `<div class="p-4 text-center" style="color:${textColor}">Không có nội dung ghi chú.</div>`;
     }
@@ -209,11 +190,11 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
         const text = processBoldText(trimmedLine.substring(2));
         const indentLevel = line.length - line.trimStart().length;
         // Determine list style based on indentation
-        let bullet =
+        const bullet =
           '<span style="display:inline-block;width:6px;height:6px;margin-right:8px;margin-top:6px;background:' +
           borderColor +
           ';border-radius:50%"></span>';
-        let margin = indentLevel >= 6 ? 40 : indentLevel >= 4 ? 28 : 20;
+        const margin = indentLevel >= 6 ? 40 : indentLevel >= 4 ? 28 : 20;
         html += `<div style="margin-left:${margin}px;margin-bottom:4px;display:flex;align-items:flex-start;color:${textColor}">${bullet}<span>${text}</span></div>`;
       }
       // Sub-list items with + marker
@@ -242,132 +223,15 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
         minH="calc(100vh - 100px)"
         maxH="calc(100vh - 100px)"
       >
-        {/* Mobile Header */}
-        <Box
-          bg="var(--input-bg-light)"
-          _dark={{ bg: 'var(--input-bg-dark)', borderColor: '#444' }}
-          borderBottom="1px solid"
-          borderColor="gray.200"
-          p={4}
-          flexShrink={0}
-          borderRadius="0 0 1.5rem 1.5rem"
-          boxShadow="0 2px 8px 0 rgba(0,0,0,0.04)"
-        >
-          <Box onClick={() => setMetaOpen((v) => !v)} cursor="pointer">
-            <Flex align="start" justify="space-between">
-              <Box flex="1" minW={0}>
-                <Text
-                  fontSize="lg"
-                  fontWeight="bold"
-                  color="var(--text-color-light)"
-                  _dark={{ color: 'var(--text-color-dark)' }}
-                  isTruncated
-                >
-                  {selectedRecording.title ||
-                    selectedRecording.filename ||
-                    'Untitled Recording'}
-                </Text>
-                <Text
-                  fontSize="sm"
-                  color="var(--text-color-light)"
-                  _dark={{ color: 'var(--text-color-dark)' }}
-                  isTruncated
-                >
-                  {selectedRecording.original_filename ||
-                    'No original filename'}
-                </Text>
-              </Box>
-              <Box as={metaOpen ? FaChevronUp : FaChevronDown} fontSize="lg" />
-            </Flex>
-          </Box>
-          {metaOpen && (
-            <Box mt={4}>
-              <Flex
-                align="center"
-                gap={2}
-                color="var(--text-color-light)"
-                _dark={{ color: 'var(--text-color-dark)' }}
-                fontSize="sm"
-              >
-                <FaCalendar color="#0070f3" />
-                <span>
-                  {selectedRecording.created_at
-                    ? new Date(selectedRecording.created_at).toLocaleString()
-                    : 'No date set'}
-                </span>
-              </Flex>
-              <Flex align="center" gap={2} mt={2}>
-                {selectedRecording.status &&
-                  selectedRecording.status !== 'COMPLETED' && (
-                    <Badge
-                      colorScheme="yellow"
-                      borderRadius="xl"
-                      px={2}
-                      py={1}
-                      fontSize="xs"
-                    >
-                      {selectedRecording.status}
-                    </Badge>
-                  )}
-              </Flex>
-              {/* Action Buttons */}
-              <Flex gap={2} mt={4} wrap="wrap">
-                <IconButton
-                  aria-label="Inbox"
-                  icon={<FaInbox />}
-                  onClick={onToggleInbox}
-                  color={selectedRecording.is_inbox ? '#0070f3' : undefined}
-                />
-                <IconButton
-                  aria-label="Star"
-                  icon={<FaStar />}
-                  onClick={onToggleHighlight}
-                  color={
-                    selectedRecording.is_highlighted ? '#ffd600' : undefined
-                  }
-                />
-                <IconButton
-                  aria-label="Edit"
-                  icon={<FaEdit />}
-                  onClick={onEdit}
-                />
-                <IconButton
-                  aria-label="Reprocess"
-                  icon={<FaRedoAlt />}
-                  onClick={onReprocessTranscription}
-                />
-                <IconButton
-                  aria-label="Summary"
-                  icon={<FaSyncAlt />}
-                  onClick={onReprocessSummary}
-                />
-                <IconButton
-                  aria-label="Reset"
-                  icon={<FaUndo />}
-                  onClick={onReset}
-                  color="#ff9800"
-                />
-                <IconButton
-                  aria-label="Speaker"
-                  icon={<FaUserTag />}
-                  onClick={onSpeakerModal}
-                />
-                <IconButton
-                  aria-label="Share"
-                  icon={<FaShareAlt />}
-                  onClick={onShare}
-                />
-                <IconButton
-                  aria-label="Delete"
-                  icon={<FaTrash />}
-                  onClick={onDelete}
-                  color="#f44336"
-                />
-              </Flex>
-            </Box>
-          )}
-        </Box>
-        {/* Main Content Mobile: Audio + Tabs */}
+        <MobileHeader
+          selectedRecording={selectedRecording}
+          metaOpen={metaOpen}
+          setMetaOpen={setMetaOpen}
+          onToggleHighlight={onToggleHighlight}
+          onReprocessTranscription={onReprocessTranscription}
+          onReprocessSummary={onReprocessSummary}
+          onDelete={onDelete}
+        />
         <Box
           height="calc(100vh - 100px)"
           minH={0}
@@ -377,40 +241,11 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
           bg="var(--input-bg-light)"
           _dark={{ bg: 'var(--input-bg-dark)' }}
         >
-          <Box
-            bg="var(--input-bg-light)"
-            _dark={{ bg: 'var(--input-bg-dark)', borderColor: '#444' }}
-            p={4}
-            borderBottom="1px solid"
-            borderColor="#aaa"
-            flexShrink={0}
-          >
-            <audio
-              controls
-              src={selectedRecording.audio_path || ''}
-              style={{ width: '100%' }}
-            >
-              <track kind="captions" src="" label="No captions" default />
-            </audio>
-            <Flex
-              mt={2}
-              gap={4}
-              color="var(--text-color-light)"
-              _dark={{ color: 'var(--text-color-dark)' }}
-              fontSize="sm"
-            >
-              {selectedRecording.duration !== undefined && (
-                <Box>
-                  <strong>Duration:</strong> {selectedRecording.duration}s
-                </Box>
-              )}
-              {selectedRecording.file_size !== undefined && (
-                <Box>
-                  <strong>Size:</strong> {selectedRecording.file_size} bytes
-                </Box>
-              )}
-            </Flex>
-          </Box>
+          <AudioPlayer
+            audio_path={selectedRecording.audio_path}
+            duration={selectedRecording.duration}
+            file_size={selectedRecording.file_size}
+          />
           <Tabs
             variant="soft-rounded"
             colorScheme="blue"
@@ -475,55 +310,13 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                   color: 'var(--text-color-dark)',
                 }}
               >
-                {/* Transcript Panel */}
-                {(() => {
-                  const t = selectedRecording.transcription;
-                  if (Array.isArray(t)) {
-                    return (
-                      <ParseTranscriptToHtml
-                        transcriptArr={t}
-                        textColor={textColor}
-                        borderColor={borderColor}
-                      />
-                    );
-                  }
-                  if (typeof t === 'string') {
-                    let arr = null;
-                    let cleaned = t
-                      .replace(/\n/g, ' ')
-                      .replace(/\s+/g, ' ')
-                      .trim();
-                    if (!cleaned.startsWith('[')) cleaned = '[' + cleaned;
-                    if (!cleaned.endsWith(']')) cleaned = cleaned + ']';
-                    cleaned = cleaned.replace(/'/g, '"');
-                    arr = JSON.parse(cleaned);
-                    if (Array.isArray(arr)) {
-                      return (
-                        <ParseTranscriptToHtml
-                          transcriptArr={arr}
-                          textColor={textColor}
-                          borderColor={borderColor}
-                        />
-                      );
-                    }
-                    return (
-                      <Text
-                        color="var(--text-color-light)"
-                        _dark={{ color: 'var(--text-color-dark)' }}
-                      >
-                        {'No transcription available.'}
-                      </Text>
-                    );
-                  }
-                  return (
-                    <Text
-                      color="var(--text-color-light)"
-                      _dark={{ color: 'var(--text-color-dark)' }}
-                    >
-                      No transcription available.
-                    </Text>
-                  );
-                })()}
+                <TranscriptPanel
+                  transcript={selectedRecording.transcription}
+                  textColor={textColor}
+                  borderColor={borderColor}
+                  handleCopyTranscript={handleCopyTranscript}
+                  copySuccess={copySuccess}
+                />
               </TabPanel>
               <TabPanel
                 p={4}
@@ -533,59 +326,21 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                   color: 'var(--text-color-dark)',
                 }}
               >
-                {/* Summary Panel */}
-                {editingSummary ? (
-                  <Box>
-                    <SimpleMarkDownEditor
-                      initialValue={summary}
-                      onChange={setSummary}
-                      mode="edit"
-                      height="45vh"
-                      placeholder="Nhập tóm tắt dạng markdown..."
-                    />
-                    <Flex justify="end" gap={2} mt={2}>
-                      <Button
-                        size="sm"
-                        onClick={() => setEditingSummary(false)}
-                        bg="#eee"
-                        color="#1a202c"
-                        borderRadius="xl"
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        size="sm"
-                        bg="#0070f3"
-                        color="#fff"
-                        borderRadius="xl"
-                        onClick={() => setEditingSummary(false)}
-                        _hover={{ bg: '#339dff' }}
-                      >
-                        Save
-                      </Button>
-                    </Flex>
-                  </Box>
-                ) : (
-                  <Box>
-                    <Button
-                      size="sm"
-                      leftIcon={<FaEdit />}
-                      onClick={() => setEditingSummary(true)}
-                      mb={2}
-                      bg="#0070f3"
-                      color="#fff"
-                      borderRadius="xl"
-                      _hover={{ bg: '#339dff' }}
-                    >
-                      Edit
-                    </Button>
-                    <Box
-                      dangerouslySetInnerHTML={{
-                        __html: formatMeetingNoteForDisplay(summary),
-                      }}
-                    />
-                  </Box>
-                )}
+                <SummaryPanel
+                  summary={summary}
+                  editingSummary={editingSummary}
+                  setEditingSummary={setEditingSummary}
+                  setSummary={setSummary}
+                  formatMeetingNoteForDisplay={(noteText) =>
+                    formatMeetingNoteForDisplay(
+                      noteText,
+                      headingColor,
+                      subHeadingColor,
+                      textColor,
+                      borderColor,
+                    )
+                  }
+                />
               </TabPanel>
               <TabPanel
                 p={4}
@@ -595,155 +350,32 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                   color: 'var(--text-color-dark)',
                 }}
               >
-                {/* Notes Panel */}
-                {editingNotes ? (
-                  <Box>
-                    <SimpleMarkDownEditor
-                      initialValue={notes}
-                      onChange={setNotes}
-                      mode="edit"
-                      height="200px"
-                      placeholder="Nhập ghi chú dạng markdown..."
-                    />
-                    <Flex justify="end" gap={2} mt={2}>
-                      <Button
-                        size="sm"
-                        onClick={() => setEditingNotes(false)}
-                        bg="#eee"
-                        color="#1a202c"
-                        borderRadius="xl"
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        size="sm"
-                        bg="#0070f3"
-                        color="#fff"
-                        borderRadius="xl"
-                        onClick={() => setEditingNotes(false)}
-                        _hover={{ bg: '#339dff' }}
-                      >
-                        Save
-                      </Button>
-                    </Flex>
-                  </Box>
-                ) : (
-                  <Box>
-                    <Button
-                      size="sm"
-                      leftIcon={<FaEdit />}
-                      onClick={() => setEditingNotes(true)}
-                      mb={2}
-                      bg="#0070f3"
-                      color="#fff"
-                      borderRadius="xl"
-                      _hover={{ bg: '#339dff' }}
-                    >
-                      Edit
-                    </Button>
-                    <Box>
-                      {notes || (
-                        <Text
-                          color="var(--text-color-light)"
-                          _dark={{ color: 'var(--text-color-dark)' }}
-                        >
-                          No notes available
-                        </Text>
-                      )}
-                    </Box>
-                  </Box>
-                )}
+                <NotesPanel
+                  notes={notes}
+                  editingNotes={editingNotes}
+                  setEditingNotes={setEditingNotes}
+                  setNotes={setNotes}
+                />
               </TabPanel>
               <TabPanel p={4}>
-                <Flex
-                  direction="column"
-                  h="55vh"
-                  bg={chatBg}
-                  borderRadius="xl"
-                  boxShadow="sm"
-                  overflow="hidden"
-                  borderWidth="1px"
-                  borderColor={chatPanelBorder}
-                >
-                  <Box flex="1" overflowY="auto" p={4} bg={chatBg}>
-                    {chatMessages.length === 0 ? (
-                      <Flex
-                        direction="column"
-                        align="center"
-                        justify="center"
-                        h="100%"
-                        color={chatText}
-                      >
-                        <FaRobot size={32} />
-                        <Text mt={2}>
-                          Ask questions about this transcription
-                        </Text>
-                      </Flex>
-                    ) : (
-                      <>
-                        {chatMessages.map((msg, idx) => (
-                          <Box
-                            key={idx}
-                            mb={3}
-                            p={2}
-                            bg={msg.role === 'user' ? chatUserBg : chatBotBg}
-                            color={
-                              msg.role === 'user' ? chatUserColor : chatBotColor
-                            }
-                            alignSelf={
-                              msg.role === 'user' ? 'flex-end' : 'flex-start'
-                            }
-                            borderRadius="lg"
-                            maxW="80%"
-                            textAlign={msg.role === 'user' ? 'right' : 'left'}
-                            fontSize="md"
-                            boxShadow="xs"
-                          >
-                            {msg.content}
-                          </Box>
-                        ))}
-                        <div ref={chatEndRef} />
-                      </>
-                    )}
-                  </Box>
-                  <Flex
-                    p={4}
-                    gap={2}
-                    borderTop="1px solid"
-                    borderColor={chatPanelBorder}
-                  >
-                    <Textarea
-                      value={chatInput}
-                      onChange={(e) => setChatInput(e.target.value)}
-                      placeholder="Ask about this transcription..."
-                      flex="1"
-                      rows={1}
-                      resize="none"
-                      borderRadius="xl"
-                      bg={chatInputBg}
-                      color={chatInputColor}
-                      borderColor={chatInputBorder}
-                      _focus={{ borderColor: '#0070f3', bg: chatInputBg }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          handleSendChat();
-                        }
-                      }}
-                    />
-                    <Button
-                      onClick={handleSendChat}
-                      leftIcon={<FaPaperPlane />}
-                      bg="#0070f3"
-                      color="white"
-                      borderRadius="xl"
-                      _hover={{ bg: '#339dff' }}
-                      disabled={isWaitingBot}
-                    >
-                      Send
-                    </Button>
-                  </Flex>
-                </Flex>
+                <ChatPanel
+                  chatMessages={chatMessages}
+                  chatInput={chatInput}
+                  setChatInput={setChatInput}
+                  handleSendChat={handleSendChat}
+                  isWaitingBot={isWaitingBot}
+                  chatEndRef={chatEndRef}
+                  chatBg={chatBg}
+                  chatPanelBorder={chatPanelBorder}
+                  chatText={chatText}
+                  chatUserBg={chatUserBg}
+                  chatUserColor={chatUserColor}
+                  chatBotBg={chatBotBg}
+                  chatBotColor={chatBotColor}
+                  chatInputBg={chatInputBg}
+                  chatInputBorder={chatInputBorder}
+                  chatInputColor={chatInputColor}
+                />
               </TabPanel>
             </TabPanels>
           </Tabs>
@@ -762,114 +394,14 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
       _dark={{ bg: 'var(--input-bg-dark)' }}
       minH="100vh - 120px"
     >
-      {/* Header */}
-      <Box
-        bg="var(--input-bg-light)"
-        _dark={{ bg: 'var(--input-bg-dark)', borderColor: '#444' }}
-        borderBottom="1px solid"
-        borderColor="gray.200"
-        p={6}
-        flexShrink={0}
-        borderRadius="0 0 1.5rem 1.5rem"
-        boxShadow="0 2px 8px 0 rgba(0,0,0,0.04)"
-      >
-        <Flex align="start" justify="space-between">
-          <Box flex="1" minW={0}>
-            <Text
-              fontSize="2xl"
-              fontWeight="bold"
-              color="var(--text-color-light)"
-              _dark={{ color: 'var(--text-color-dark)' }}
-              mb={2}
-            >
-              {selectedRecording.title ||
-                selectedRecording.filename ||
-                'Untitled Recording'}
-            </Text>
-          </Box>
-          <Flex gap={2} ml={4} wrap="wrap">
-            <IconButton
-              aria-label="Inbox"
-              icon={<FaInbox />}
-              onClick={onToggleInbox}
-              color={selectedRecording.is_inbox ? '#0070f3' : undefined}
-            />
-            <IconButton
-              aria-label="Star"
-              icon={<FaStar />}
-              onClick={onToggleHighlight}
-              color={selectedRecording.is_highlighted ? '#ffd600' : undefined}
-            />
-            <IconButton aria-label="Edit" icon={<FaEdit />} onClick={onEdit} />
-            <IconButton
-              aria-label="Reprocess"
-              icon={<FaRedoAlt />}
-              onClick={onReprocessTranscription}
-            />
-            <IconButton
-              aria-label="Summary"
-              icon={<FaSyncAlt />}
-              onClick={onReprocessSummary}
-            />
-            <IconButton
-              aria-label="Reset"
-              icon={<FaUndo />}
-              onClick={onReset}
-              color="#ff9800"
-            />
-            <IconButton
-              aria-label="Speaker"
-              icon={<FaUserTag />}
-              onClick={onSpeakerModal}
-            />
-            <IconButton
-              aria-label="Share"
-              icon={<FaShareAlt />}
-              onClick={onShare}
-            />
-            <IconButton
-              aria-label="Delete"
-              icon={<FaTrash />}
-              onClick={onDelete}
-              color="#f44336"
-            />
-          </Flex>
-        </Flex>
-        {/* Metadata Row */}
-        <Flex
-          flexWrap="wrap"
-          align="center"
-          gap={6}
-          fontSize="sm"
-          color="var(--text-color-light)"
-          _dark={{ color: 'var(--text-color-dark)' }}
-          mt={2}
-        >
-          <Flex align="center" gap={2}>
-            <FaUsers color="#0070f3" />
-            {selectedRecording.original_filename || 'No original filename'}
-          </Flex>
-          <Flex align="center" gap={2}>
-            <FaCalendar color="#0070f3" />
-            {selectedRecording.created_at
-              ? new Date(selectedRecording.created_at).toLocaleString()
-              : 'No date set'}
-          </Flex>
-          {selectedRecording.status &&
-            selectedRecording.status !== 'COMPLETED' && (
-              <Badge
-                colorScheme="yellow"
-                borderRadius="xl"
-                px={2}
-                py={1}
-                fontSize="xs"
-              >
-                {selectedRecording.status}
-              </Badge>
-            )}
-        </Flex>
-      </Box>
-      {/* Main Content Split View */}
+      <Header
+        selectedRecording={selectedRecording}
+        onToggleHighlight={onToggleHighlight}
+        onEdit={onEdit}
+        onReprocessTranscription={onReprocessTranscription}
+        onReprocessSummary={onReprocessSummary}
+        onDelete={onDelete}
+      />
       <Box
         height="calc(100vh - 230px)"
         minH={0}
@@ -902,38 +434,36 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
               alignItems="center"
               justifyContent="space-between"
             >
-              <Flex gap={2}>
-                <Button
-                  size="sm"
-                  leftIcon={<FaCopy />}
-                  onClick={handleCopyTranscript}
-                  bg="#0070f3"
-                  color="#fff"
-                  borderRadius="xl"
-                  _hover={{ bg: '#339dff' }}
+              <Button
+                size="sm"
+                leftIcon={<FaCopy />}
+                onClick={handleCopyTranscript}
+                bg="#0070f3"
+                color="#fff"
+                borderRadius="xl"
+                _hover={{ bg: '#339dff' }}
+              >
+                Copy
+              </Button>
+              {copySuccess && (
+                <Text
+                  fontSize="sm"
+                  color={copySuccess === 'Copied!' ? 'green.500' : 'red.500'}
+                  ml={2}
                 >
-                  Copy
-                </Button>
-                {copySuccess && (
-                  <Text
-                    fontSize="sm"
-                    color={copySuccess === 'Copied!' ? 'green.500' : 'red.500'}
-                    ml={2}
-                  >
-                    {copySuccess}
-                  </Text>
-                )}
-                <Button
-                  size="sm"
-                  leftIcon={<FaEdit />}
-                  bg="#0070f3"
-                  color="#fff"
-                  borderRadius="xl"
-                  _hover={{ bg: '#339dff' }}
-                >
-                  Edit
-                </Button>
-              </Flex>
+                  {copySuccess}
+                </Text>
+              )}
+              <Button
+                size="sm"
+                leftIcon={<FaEdit />}
+                bg="#0070f3"
+                color="#fff"
+                borderRadius="xl"
+                _hover={{ bg: '#339dff' }}
+              >
+                Edit
+              </Button>
             </Box>
             <Box
               flex="1"
@@ -943,54 +473,13 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
               bg="var(--input-bg-light)"
               _dark={{ bg: 'var(--input-bg-dark)' }}
             >
-              {(() => {
-                const t = selectedRecording.transcription;
-                if (Array.isArray(t)) {
-                  return (
-                    <ParseTranscriptToHtml
-                      transcriptArr={t}
-                      textColor={textColor}
-                      borderColor={borderColor}
-                    />
-                  );
-                }
-                if (typeof t === 'string') {
-                  let arr = null;
-                  let cleaned = t
-                    .replace(/\n/g, ' ')
-                    .replace(/\s+/g, ' ')
-                    .trim();
-                  if (!cleaned.startsWith('[')) cleaned = '[' + cleaned;
-                  if (!cleaned.endsWith(']')) cleaned = cleaned + ']';
-                  cleaned = cleaned.replace(/'/g, '"');
-                  arr = JSON.parse(cleaned);
-                  if (Array.isArray(arr)) {
-                    return (
-                      <ParseTranscriptToHtml
-                        transcriptArr={arr}
-                        textColor={textColor}
-                        borderColor={borderColor}
-                      />
-                    );
-                  }
-                  return (
-                    <Text
-                      color="var(--text-color-light)"
-                      _dark={{ color: 'var(--text-color-dark)' }}
-                    >
-                      {'No transcription available.'}
-                    </Text>
-                  );
-                }
-                return (
-                  <Text
-                    color="var(--text-color-light)"
-                    _dark={{ color: 'var(--text-color-dark)' }}
-                  >
-                    No transcription available.
-                  </Text>
-                );
-              })()}
+              <TranscriptPanel
+                transcript={selectedRecording.transcription}
+                textColor={textColor}
+                borderColor={borderColor}
+                handleCopyTranscript={handleCopyTranscript}
+                copySuccess={copySuccess}
+              />
             </Box>
           </Box>
           {/* Right Panel: Summary/Notes/Chat */}
@@ -1004,41 +493,11 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
             bg="var(--input-bg-light)"
             _dark={{ bg: 'var(--input-bg-dark)' }}
           >
-            {/* Audio Player */}
-            <Box
-              bg="var(--input-bg-light)"
-              _dark={{ bg: 'var(--input-bg-dark)', borderColor: '#444' }}
-              p={4}
-              borderBottom="1px solid"
-              borderColor="#eee"
-            >
-              <audio
-                controls
-                src={selectedRecording.audio_path || ''}
-                style={{ width: '100%' }}
-              >
-                <track kind="captions" src="" label="No captions" default />
-              </audio>
-              <Flex
-                mt={2}
-                gap={4}
-                color="var(--text-color-light)"
-                _dark={{ color: 'var(--text-color-dark)' }}
-                fontSize="sm"
-              >
-                {selectedRecording.duration !== undefined && (
-                  <Box>
-                    <strong>Duration:</strong> {selectedRecording.duration}s
-                  </Box>
-                )}
-                {selectedRecording.file_size !== undefined && (
-                  <Box>
-                    <strong>Size:</strong> {selectedRecording.file_size} bytes
-                  </Box>
-                )}
-              </Flex>
-            </Box>
-            {/* Tabs */}
+            <AudioPlayer
+              audio_path={selectedRecording.audio_path}
+              duration={selectedRecording.duration}
+              file_size={selectedRecording.file_size}
+            />
             <Tabs
               variant="soft-rounded"
               colorScheme="blue"
@@ -1091,59 +550,21 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                     color: 'var(--text-color-dark)',
                   }}
                 >
-                  {/* Summary Panel */}
-                  {editingSummary ? (
-                    <Box>
-                      <SimpleMarkDownEditor
-                        initialValue={summary}
-                        onChange={setSummary}
-                        mode="edit"
-                        height="50vh"
-                        placeholder="Nhập tóm tắt dạng markdown..."
-                      />
-                      <Flex justify="end" gap={2} mt={2}>
-                        <Button
-                          size="sm"
-                          onClick={() => setEditingSummary(false)}
-                          bg="#eee"
-                          color="#1a202c"
-                          borderRadius="xl"
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          size="sm"
-                          bg="#0070f3"
-                          color="#fff"
-                          borderRadius="xl"
-                          onClick={() => setEditingSummary(false)}
-                          _hover={{ bg: '#339dff' }}
-                        >
-                          Save
-                        </Button>
-                      </Flex>
-                    </Box>
-                  ) : (
-                    <Box>
-                      <Button
-                        size="sm"
-                        leftIcon={<FaEdit />}
-                        onClick={() => setEditingSummary(true)}
-                        mb={2}
-                        bg="#0070f3"
-                        color="#fff"
-                        borderRadius="xl"
-                        _hover={{ bg: '#339dff' }}
-                      >
-                        Edit
-                      </Button>
-                      <Box
-                        dangerouslySetInnerHTML={{
-                          __html: formatMeetingNoteForDisplay(summary),
-                        }}
-                      />
-                    </Box>
-                  )}
+                  <SummaryPanel
+                    summary={summary}
+                    editingSummary={editingSummary}
+                    setEditingSummary={setEditingSummary}
+                    setSummary={setSummary}
+                    formatMeetingNoteForDisplay={(noteText) =>
+                      formatMeetingNoteForDisplay(
+                        noteText,
+                        headingColor,
+                        subHeadingColor,
+                        textColor,
+                        borderColor,
+                      )
+                    }
+                  />
                 </TabPanel>
                 <TabPanel
                   p={4}
@@ -1153,164 +574,32 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                     color: 'var(--text-color-dark)',
                   }}
                 >
-                  {/* Notes Panel */}
-                  {editingNotes ? (
-                    <Box>
-                      <SimpleMarkDownEditor
-                        initialValue={notes}
-                        onChange={setNotes}
-                        mode="edit"
-                        height="200px"
-                        placeholder="Nhập ghi chú dạng markdown..."
-                      />
-                      <Flex justify="end" gap={2} mt={2}>
-                        <Button
-                          size="sm"
-                          onClick={() => setEditingNotes(false)}
-                          bg="#eee"
-                          color="#1a202c"
-                          borderRadius="xl"
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          size="sm"
-                          bg="#0070f3"
-                          color="#fff"
-                          borderRadius="xl"
-                          onClick={() => setEditingNotes(false)}
-                          _hover={{ bg: '#339dff' }}
-                        >
-                          Save
-                        </Button>
-                      </Flex>
-                    </Box>
-                  ) : (
-                    <Box>
-                      <Button
-                        size="sm"
-                        leftIcon={<FaEdit />}
-                        onClick={() => setEditingNotes(true)}
-                        mb={2}
-                        bg="#0070f3"
-                        color="#fff"
-                        borderRadius="xl"
-                        _hover={{ bg: '#339dff' }}
-                      >
-                        Edit
-                      </Button>
-                      <Box>
-                        {notes || (
-                          <Text
-                            color="var(--text-color-light)"
-                            _dark={{ color: 'var(--text-color-dark)' }}
-                          >
-                            No notes available
-                          </Text>
-                        )}
-                      </Box>
-                    </Box>
-                  )}
+                  <NotesPanel
+                    notes={notes}
+                    editingNotes={editingNotes}
+                    setEditingNotes={setEditingNotes}
+                    setNotes={setNotes}
+                  />
                 </TabPanel>
                 <TabPanel p={4}>
-                  <Flex
-                    direction="column"
-                    h="60vh"
-                    bg={chatBg}
-                    borderRadius="xl"
-                    boxShadow="sm"
-                    overflow="hidden"
-                    borderWidth="1px"
-                    borderColor={chatPanelBorder}
-                  >
-                    <Box flex="1" overflowY="auto" p={4} bg={chatBg}>
-                      {chatMessages.length === 0 ? (
-                        <Flex
-                          direction="column"
-                          align="center"
-                          justify="center"
-                          h="100%"
-                          color={chatText}
-                        >
-                          <FaRobot size={32} />
-                          <Text mt={2}>
-                            Ask questions about this transcription
-                          </Text>
-                        </Flex>
-                      ) : (
-                        <>
-                          {chatMessages.map((msg, idx) => (
-                            <Flex
-                              key={idx}
-                              justify={
-                                msg.role === 'user' ? 'flex-end' : 'flex-start'
-                              }
-                            >
-                              <Box
-                                mb={3}
-                                p={2}
-                                bg={
-                                  msg.role === 'user' ? chatUserBg : chatBotBg
-                                }
-                                color={
-                                  msg.role === 'user'
-                                    ? chatUserColor
-                                    : chatBotColor
-                                }
-                                borderRadius="lg"
-                                maxW="80%"
-                                textAlign={
-                                  msg.role === 'user' ? 'right' : 'left'
-                                }
-                                fontSize="md"
-                                boxShadow="xs"
-                              >
-                                {msg.content}
-                              </Box>
-                            </Flex>
-                          ))}
-                          <div ref={chatEndRef} />
-                        </>
-                      )}
-                    </Box>
-                    <Flex
-                      p={4}
-                      gap={2}
-                      borderTop="1px solid"
-                      borderColor={chatPanelBorder}
-                    >
-                      <Textarea
-                        value={chatInput}
-                        onChange={(e) => setChatInput(e.target.value)}
-                        placeholder="Ask about this transcription..."
-                        flex="1"
-                        rows={1}
-                        resize="none"
-                        borderRadius="xl"
-                        bg={chatInputBg}
-                        color={chatInputColor}
-                        borderColor={chatInputBorder}
-                        _focus={{ borderColor: '#0070f3', bg: chatInputBg }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            handleSendChat();
-                          }
-                        }}
-                      />
-                      <Button
-                        onClick={handleSendChat}
-                        leftIcon={<FaPaperPlane />}
-                        bg="#0070f3"
-                        color="white"
-                        borderRadius="xl"
-                        _hover={{ bg: '#339dff' }}
-                        disabled={isWaitingBot}
-                      >
-                        Send
-                      </Button>
-                    </Flex>
-                  </Flex>
+                  <ChatPanel
+                    chatMessages={chatMessages}
+                    chatInput={chatInput}
+                    setChatInput={setChatInput}
+                    handleSendChat={handleSendChat}
+                    isWaitingBot={isWaitingBot}
+                    chatEndRef={chatEndRef}
+                    chatBg={chatBg}
+                    chatPanelBorder={chatPanelBorder}
+                    chatText={chatText}
+                    chatUserBg={chatUserBg}
+                    chatUserColor={chatUserColor}
+                    chatBotBg={chatBotBg}
+                    chatBotColor={chatBotColor}
+                    chatInputBg={chatInputBg}
+                    chatInputBorder={chatInputBorder}
+                    chatInputColor={chatInputColor}
+                  />
                 </TabPanel>
               </TabPanels>
             </Tabs>
@@ -1320,67 +609,5 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
     </Flex>
   );
 };
-
-// Parse transcript array to HTML
-function ParseTranscriptToHtml({
-  transcriptArr,
-  textColor,
-  borderColor,
-}: {
-  transcriptArr: any[];
-  textColor: string;
-  borderColor: string;
-}) {
-  if (!Array.isArray(transcriptArr)) return null;
-  // Tạo màu cho từng speaker
-  const speakerColors = [
-    '#0070f3',
-    '#ff9800',
-    '#43a047',
-    '#d81b60',
-    '#6d4cff',
-    '#00897b',
-  ];
-  const speakerMap: Record<string, string> = {};
-  let colorIdx = 0;
-  transcriptArr.forEach((item) => {
-    if (!speakerMap[item.speaker]) {
-      speakerMap[item.speaker] = speakerColors[colorIdx % speakerColors.length];
-      colorIdx++;
-    }
-  });
-  return (
-    <div style={{ lineHeight: 1.8 }}>
-      {transcriptArr.map((item, idx) => (
-        <div
-          key={idx}
-          style={{
-            marginBottom: 4,
-            padding: '6px 0',
-            borderBottom: `1px solid ${borderColor}`,
-            display: 'flex',
-            alignItems: 'flex-start',
-            color: textColor,
-          }}
-        >
-          <span
-            style={{
-              fontWeight: 700,
-              color: speakerMap[item.speaker],
-              marginRight: 12,
-              minWidth: 110,
-              display: 'inline-block',
-            }}
-          >
-            {item.speaker}:
-          </span>
-          <span style={{ color: textColor, fontSize: 16 }}>
-            {item.sentence}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-}
 
 export default RecordingDetailView;

@@ -9,6 +9,7 @@ import {
   Button,
   Input,
   useToast,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { uploadRecordingFile } from '@/services/api/recording';
@@ -28,6 +29,18 @@ const UploadModal: React.FC<UploadModalProps> = ({
   const toast = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+
+  // Màu Chakra UI
+  const modalBg = useColorModeValue('white', 'gray.800');
+  const modalColor = useColorModeValue('gray.900', 'gray.100');
+  const headerColor = useColorModeValue('blue.600', 'blue.300');
+  const inputBg = useColorModeValue('gray.50', 'gray.700');
+  const inputColor = useColorModeValue('gray.900', 'gray.100');
+  const closeBtnBg = useColorModeValue('gray.100', 'gray.700');
+  const closeBtnColor = useColorModeValue('gray.800', 'gray.100');
+  const uploadBtnBg = useColorModeValue('#0070f3', 'blue.400');
+  const uploadBtnHover = useColorModeValue('#339dff', 'blue.500');
+  const uploadBtnActive = useColorModeValue('#0070f3', 'blue.600');
 
   const handleUpload = async () => {
     const files = fileInputRef.current?.files;
@@ -61,24 +74,16 @@ const UploadModal: React.FC<UploadModalProps> = ({
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
       <ModalContent
-        style={{
-          borderRadius: '1.5rem',
-          background: '#fff',
-          color: 'var(--text-color-light)',
-          boxShadow: '0 8px 32px 0 var(--shadow-color)',
-        }}
-        _dark={{
-          background: '#fff',
-          color: 'var(--text-color-dark)',
-        }}
+        borderRadius="1.5rem"
+        bg={modalBg}
+        color={modalColor}
+        boxShadow="0 8px 32px 0 rgba(0,0,0,0.12)"
       >
         <ModalHeader
-          style={{
-            fontWeight: 700,
-            color: 'var(--primary-color)',
-            borderRadius: '1.5rem 1.5rem 0 0',
-            textAlign: 'center',
-          }}
+          fontWeight={700}
+          color={headerColor}
+          borderRadius="1.5rem 1.5rem 0 0"
+          textAlign="center"
         >
           {t('uploadTitle', { defaultValue: 'Tải lên bản ghi mới' })}
         </ModalHeader>
@@ -89,17 +94,14 @@ const UploadModal: React.FC<UploadModalProps> = ({
             accept="audio/*"
             borderRadius="xl"
             boxShadow="sm"
-            bg="var(--input-bg-light)"
-            color="var(--text-color-light)"
-            _dark={{
-              bg: 'var(--input-bg-dark)',
-              color: 'var(--text-color-dark)',
-            }}
+            bg={inputBg}
+            color={inputColor}
             border="none"
             p={3}
             _focus={{
               boxShadow: '0 0 0 3px var(--primary-color)',
               transform: 'scale(1.03)',
+              bg: inputBg,
             }}
             transition="all 0.2s"
           />
@@ -109,12 +111,8 @@ const UploadModal: React.FC<UploadModalProps> = ({
             onClick={onClose}
             isDisabled={uploading}
             borderRadius="xl"
-            bg="var(--input-bg-light)"
-            color="var(--text-color-light)"
-            _dark={{
-              bg: 'var(--input-bg-dark)',
-              color: 'var(--text-color-dark)',
-            }}
+            bg={closeBtnBg}
+            color={closeBtnColor}
             boxShadow="sm"
             border="none"
             _hover={{ filter: 'brightness(1.05)', transform: 'scale(1.02)' }}
@@ -127,21 +125,12 @@ const UploadModal: React.FC<UploadModalProps> = ({
             onClick={handleUpload}
             isLoading={uploading}
             borderRadius="xl"
-            style={{
-              background: '#0070f3',
-              color: '#fff',
-              fontWeight: 600,
-              boxShadow: '0 2px 8px 0 rgba(0,112,243,0.10)',
-            }}
-            _hover={{
-              filter: 'brightness(1.1)',
-              transform: 'scale(1.04)',
-              background: 'var(--primary-color)',
-            }}
-            _active={{
-              filter: 'brightness(0.95)',
-              background: 'var(--primary-color)',
-            }}
+            bg={uploadBtnBg}
+            color="white"
+            fontWeight={600}
+            boxShadow="0 2px 8px 0 rgba(0,112,243,0.10)"
+            _hover={{ bg: uploadBtnHover, filter: 'brightness(1.08)' }}
+            _active={{ bg: uploadBtnActive }}
             transition="all 0.2s"
           >
             {t('upload', { defaultValue: 'Tải lên' })}
