@@ -18,6 +18,7 @@ import {
   useColorModeValue,
   useDisclosure,
   Spacer,
+  Tooltip,
 } from '@chakra-ui/react';
 import NextLink from 'next/link';
 import { AiOutlineClose } from 'react-icons/ai';
@@ -347,7 +348,9 @@ const Header = () => {
                     ml={2}
                     onClick={handleLogout}
                   >
-                    <AiOutlineClose />
+                    <Tooltip label="Logout" placement="right">
+                      <AiOutlineClose />
+                    </Tooltip>
                   </IconButton>
                 </Flex>
               ) : (

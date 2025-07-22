@@ -1,17 +1,15 @@
-import React from 'react';
 import {
-  Card as ChakraCard,
-  CardHeader,
-  Flex,
   Avatar,
   Box,
-  Heading,
-  Text,
   CardBody,
+  CardHeader,
+  Card as ChakraCard,
+  Flex,
+  Heading,
   Image,
-  CardFooter,
+  Text,
 } from '@chakra-ui/react';
-import Button from './Button';
+import React from 'react';
 
 interface CardProps {
   avatarSrc: string;
@@ -21,8 +19,6 @@ interface CardProps {
   bodyText: string;
   imageSrc: string;
   imageAlt: string;
-  onCommentClick?: () => void;
-  onShareClick?: () => void;
 }
 
 const Card: React.FC<CardProps> = ({
@@ -33,14 +29,18 @@ const Card: React.FC<CardProps> = ({
   bodyText,
   imageSrc,
   imageAlt,
-  onCommentClick,
-  onShareClick,
 }) => {
   return (
     <ChakraCard maxW="md">
       <CardHeader>
         <Flex gap="4">
-          <Flex flex="1" gap="4" alignItems="center" flexWrap="wrap">
+          <Flex
+            flex="1"
+            gap="4"
+            alignItems="center"
+            justifyContent={'center'}
+            flexWrap="wrap"
+          >
             <Avatar name={avatarName} src={avatarSrc} />
             <Box>
               <Heading size="sm">{heading}</Heading>
@@ -53,10 +53,6 @@ const Card: React.FC<CardProps> = ({
         <Text>{bodyText}</Text>
       </CardBody>
       <Image objectFit="cover" src={imageSrc} alt={imageAlt} />
-      <CardFooter justify="space-between" flexWrap="wrap">
-        <Button onClick={onCommentClick}>Comment</Button>
-        <Button onClick={onShareClick}>Share</Button>
-      </CardFooter>
     </ChakraCard>
   );
 };
