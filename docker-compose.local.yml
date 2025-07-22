@@ -16,6 +16,7 @@ services:
       - MINIO_SECURE=false
       - MINIO_BUCKET_PREFIX=sercuescribe
       - ENVIRONMENT=development
+      - HUGGINGFACE_TOKEN=${HUGGINGFACE_TOKEN}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -36,6 +37,7 @@ services:
       - MINIO_SECURE=false
       - MINIO_BUCKET_PREFIX=sercuescribe
       - ENVIRONMENT=development
+      - HUGGINGFACE_TOKEN=${HUGGINGFACE_TOKEN}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -69,6 +71,7 @@ services:
     image: app-base
     environment:
       - REDIS_URL=redis://redis:6379/0
+      - HUGGINGFACE_TOKEN=${HUGGINGFACE_TOKEN}
     ports:
       - "5555:5555"
     depends_on:
