@@ -56,6 +56,7 @@ def transcribe_audio_task(
         # Get recording
         def get_recording(session):
             return session.query(Recording).filter(Recording.id == recording_id).first()
+
         recording = safe_db_operation(db, get_recording)
         if not recording:
             raise Exception("Recording not found")
@@ -76,21 +77,13 @@ def transcribe_audio_task(
 
         if settings.use_asr_endpoint and diarize:
             # Use ASR service for diarization
-            result = asyncio.run(
-                asr_service.transcribe_audio_asr(
-                    audio_file_path, diarize, min_speakers, max_speakers
-                )
-            )
+            result = asyncio.run(asr_service.transcribe_audio_asr(audio_file_path, diarize, min_speakers, max_speakers))
             transcription = result.get("transcript", "")
         else:
             # Use OpenAI Whisper
-            result = asyncio.run(
-                transcription_service.process_audio(
-                    audio_file_path
-                )
-            )
+            result = asyncio.run(transcription_service.process_audio(audio_file_path))
             transcription = result.get("transcript", "")
-            print("====="*100)
+            print("=====" * 100)
             print(transcription)
 
         # Update task status
@@ -127,13 +120,12 @@ def transcribe_audio_task(
         # Update recording with error
         def get_recording(session):
             return session.query(Recording).filter(Recording.id == recording_id).first()
+
         recording = safe_db_operation(db, get_recording)
         if recording:
             recording.status = "FAILED"
             recording.error_message = str(e)
-            recording.processing_completed_at = datetime.now(
-                timezone("Asia/Ho_Chi_Minh")
-            )
+            recording.processing_completed_at = datetime.now(timezone("Asia/Ho_Chi_Minh"))
             db.commit()
 
         raise Exception(f"Transcription failed: {str(e)}")
@@ -163,6 +155,7 @@ def generate_summary_task(
         # Get recording
         def get_recording(session):
             return session.query(Recording).filter(Recording.id == recording_id).first()
+
         recording = safe_db_operation(db, get_recording)
         if not recording:
             raise Exception("Recording not found")
@@ -179,12 +172,8 @@ def generate_summary_task(
         #         transcription, custom_prompt, output_language or "English"
         #     )
         # )
-        summary = asyncio.run(
-            summarization_service.generate_summary(
-                transcription
-            )
-        )
-        print("====--===-=-=-=-="*100)
+        summary = asyncio.run(summarization_service.generate_summary(transcription))
+        print("====--===-=-=-=-=" * 100)
         print("summary hererererer", summary)
         # Update task status
         current_task.update_state(
@@ -209,13 +198,12 @@ def generate_summary_task(
         # Update recording with error
         def get_recording(session):
             return session.query(Recording).filter(Recording.id == recording_id).first()
+
         recording = safe_db_operation(db, get_recording)
         if recording:
             recording.status = "FAILED"
             recording.error_message = str(e)
-            recording.processing_completed_at = datetime.now(
-                timezone("Asia/Ho_Chi_Minh")
-            )
+            recording.processing_completed_at = datetime.now(timezone("Asia/Ho_Chi_Minh"))
             db.commit()
 
         raise Exception(f"Summarization failed: {str(e)}")
@@ -264,6 +252,7 @@ def transcribe_audio_asr_task(
         # Get recording
         def get_recording(session):
             return session.query(Recording).filter(Recording.id == recording_id).first()
+
         recording = safe_db_operation(db, get_recording)
         if not recording:
             raise Exception("Recording not found")
@@ -280,11 +269,7 @@ def transcribe_audio_asr_task(
         )
 
         # Use ASR service
-        result = asyncio.run(
-            asr_service.transcribe_audio_asr(
-                audio_file_path, diarize, min_speakers, max_speakers
-            )
-        )
+        result = asyncio.run(asr_service.transcribe_audio_asr(audio_file_path, diarize, min_speakers, max_speakers))
         transcription = result.get("transcript", "")
 
         # Update task status
@@ -295,6 +280,7 @@ def transcribe_audio_asr_task(
 
         # Update recording with transcription
         import json
+
         if isinstance(transcription, dict) or isinstance(transcription, list):
             recording.transcription = json.dumps(transcription, ensure_ascii=False)
         else:
@@ -329,13 +315,12 @@ def transcribe_audio_asr_task(
         # Update recording with error
         def get_recording(session):
             return session.query(Recording).filter(Recording.id == recording_id).first()
+
         recording = safe_db_operation(db, get_recording)
         if recording:
             recording.status = "FAILED"
             recording.error_message = str(e)
-            recording.processing_completed_at = datetime.now(
-                timezone("Asia/Ho_Chi_Minh")
-            )
+            recording.processing_completed_at = datetime.now(timezone("Asia/Ho_Chi_Minh"))
             db.commit()
 
         raise Exception(f"ASR transcription failed: {str(e)}")

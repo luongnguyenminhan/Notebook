@@ -1,4 +1,3 @@
-
 from minio import Minio
 from minio.error import S3Error
 
@@ -7,12 +6,7 @@ from app.core.config import settings
 
 class MinIOClient:
     def __init__(self):
-        self.client = Minio(
-            settings.minio_endpoint,
-            access_key=settings.minio_access_key,
-            secret_key=settings.minio_secret_key,
-            secure=settings.minio_secure
-        )
+        self.client = Minio(settings.minio_endpoint, access_key=settings.minio_access_key, secret_key=settings.minio_secret_key, secure=settings.minio_secure)
 
     def ensure_bucket_exists(self, bucket_name: str):
         """Create bucket if it doesn't exist"""
@@ -24,17 +18,8 @@ class MinIOClient:
         """Upload a file to MinIO"""
         try:
             self.ensure_bucket_exists(bucket_name)
-            result = self.client.fput_object(
-                bucket_name,
-                object_name,
-                file_path
-            )
-            return {
-                "bucket_name": bucket_name,
-                "object_name": object_name,
-                "etag": result.etag,
-                "version_id": result.version_id
-            }
+            result = self.client.fput_object(bucket_name, object_name, file_path)
+            return {"bucket_name": bucket_name, "object_name": object_name, "etag": result.etag, "version_id": result.version_id}
         except S3Error as e:
             print(f"Error uploading to MinIO: {e}")
             raise
@@ -47,6 +32,7 @@ class MinIOClient:
         except S3Error as e:
             print(f"Error downloading from MinIO: {e}")
             raise
+
 
 # Initialize MinIO client
 minio_client = MinIOClient()

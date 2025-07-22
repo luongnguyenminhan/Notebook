@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status, Body
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -15,8 +15,11 @@ from app.services.recording_service import (
     get_recordings,
     save_uploaded_file,
     update_recording,
+    chat_with_recording_transcription,
 )
 from ...utils.text import md_to_html
+from pydantic import BaseModel
+from typing import Dict
 
 router = APIRouter(prefix="/recordings", tags=["recordings"])
 
@@ -77,3 +80,28 @@ async def delete(
 ):
     delete_recording(db=db, recording_id=recording_id, user_id=current_user.id)
     return None
+
+
+class RecordingChatRequest(BaseModel):
+    message: str
+    history: list = []
+
+
+class RecordingChatResponse(BaseModel):
+    response: str
+
+
+@router.post("/{recording_id}/chat", response_model=RecordingChatResponse)
+async def chat_with_recording(
+    recording_id: int,
+    payload: RecordingChatRequest = Body(...),
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    return await chat_with_recording_transcription(
+        db=db,
+        recording_id=recording_id,
+        user_id=current_user.id,
+        message=payload.message,
+        history=payload.history,
+    )

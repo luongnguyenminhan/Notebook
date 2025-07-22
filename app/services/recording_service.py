@@ -1,28 +1,71 @@
 import os
 import subprocess
 from datetime import datetime
-from typing import List, Optional
+from typing import Dict, List, Optional
 
-from fastapi import UploadFile, HTTPException
+from fastapi import HTTPException, UploadFile
+from pydantic import BaseModel
 from pytz import timezone
 from sqlalchemy.orm import Session
 
 from app.models import Recording
 from app.schemas import RecordingResponse, RecordingUpdate
+from app.utils.ai import summarization_service
 from app.utils.recording_utils import apply_recording_update
 from app.utils.text import md_to_html
 
 
+class RecordingChatResponse(BaseModel):
+    response: str
+
+
+async def chat_with_recording_transcription(
+    db: Session,
+    recording_id: int,
+    user_id: int,
+    message: str,
+    history: List[Dict] = None,
+) -> RecordingChatResponse:
+    # Query recording
+    recording = (
+        db.query(Recording)
+        .filter(
+            Recording.id == recording_id,
+            Recording.user_id == user_id,
+            Recording.is_deleted == False,
+        )
+        .first()
+    )
+    if not recording or not recording.transcription:
+        raise HTTPException(status_code=404, detail="Recording or transcription not found")
+
+    # Prompt engineering
+    system_prompt = f"Bạn là trợ lý AI, hãy trả lời dựa trên nội dung transcript sau.\n\nTranscript:\n{recording.transcription}"
+    # Build messages
+    messages = [{"role": "system", "content": system_prompt}]
+    if history:
+        messages.extend(history)
+    messages.append({"role": "user", "content": message})
+
+    # Gọi chat model (dùng ai.py)
+    response = await summarization_service.chat_with_transcription(
+        transcription=recording.transcription,
+        message=message,
+        message_history=history or [],
+    )
+    return RecordingChatResponse(response=response)
+
+
 async def save_uploaded_file(db: Session, file: UploadFile, user_id: int) -> RecordingResponse:
-    from app.utils.minio import minio_client
     from app.core.config import settings
+    from app.utils.minio import minio_client
 
     # Create temp directory
     upload_dir = f"audio_sessions/tmp_{user_id}"
     os.makedirs(upload_dir, exist_ok=True)
     filename = file.filename
     file_path = os.path.join(upload_dir, filename)
-    
+
     # Save file temporarily
     with open(file_path, "wb") as f:
         content = await file.read()
@@ -31,15 +74,12 @@ async def save_uploaded_file(db: Session, file: UploadFile, user_id: int) -> Rec
     # Upload to MinIO
     bucket_name = f"{settings.minio_bucket_prefix}-user-{user_id}"
     object_name = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{filename}"
-    
+
     try:
         minio_client.upload_file(file_path, bucket_name, object_name)
     except Exception as e:
         os.remove(file_path)
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to upload file to MinIO: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to upload file to MinIO: {str(e)}")
 
     # Use ffmpeg to get duration
     try:
@@ -85,6 +125,7 @@ async def save_uploaded_file(db: Session, file: UploadFile, user_id: int) -> Rec
 
     # Trigger audio processing task
     from app.tasks.audio_tasks import transcribe_audio_task
+
     transcribe_audio_task.delay(recording.id, bucket_name, object_name)
 
     return RecordingResponse.model_validate(recording, from_attributes=True)
@@ -142,6 +183,7 @@ def delete_recording(db: Session, recording_id: int, user_id: int) -> None:
     if recording:
         recording.is_deleted = True
         db.commit()
+
 
 def add_html_fields_to_recording(recording: Recording) -> Recording:
     """Add HTML versions of markdown fields to recording"""

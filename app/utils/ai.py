@@ -134,9 +134,7 @@ class ASRService:
                     if max_speakers is not None:
                         data["max_speakers"] = str(max_speakers)
 
-                    response = await client.post(
-                        f"{self.base_url}/transcribe", files=files, data=data
-                    )
+                    response = await client.post(f"{self.base_url}/transcribe", files=files, data=data)
                     response.raise_for_status()
 
                     return response.json()
@@ -156,9 +154,7 @@ class SummarizationService:
             "x-header-checksum": "fixed-checksum-that-never-changes-123456789",
         }
 
-    async def generate_summary(
-        self, transcription: str, email: str | None = None
-    ) -> str:
+    async def generate_summary(self, transcription: str, email: str | None = None) -> str:
         """
         Gửi transcript tới endpoint post_message để lấy summary
         Args:
@@ -175,9 +171,7 @@ class SummarizationService:
             else:
                 payload["email"] = ""
             async with aiohttp.ClientSession() as session:
-                async with session.post(
-                    endpoint, headers=self.headers, json=payload
-                ) as response:
+                async with session.post(endpoint, headers=self.headers, json=payload) as response:
                     response.raise_for_status()
                     result = await response.json()
                     # Giả sử API trả về summary trong trường 'summary'
@@ -221,9 +215,7 @@ class SummarizationService:
         except Exception as e:
             raise Exception(f"Chat failed: {str(e)}")
 
-    async def identify_speakers_from_text(
-        self, transcription: str, current_speaker_map: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, str]:
+    async def identify_speakers_from_text(self, transcription: str, current_speaker_map: Optional[Dict[str, Any]] = None) -> Dict[str, str]:
         """Identify speakers from transcription text using LLM"""
         if not transcription.strip():
             return {}

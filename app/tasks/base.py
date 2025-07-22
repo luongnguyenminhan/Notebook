@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 # These helper functions ensure robust DB connection handling for tasks that may
 # run for extended periods or experience connection timeouts.
 
+
 def get_db_session():
     """Get a fresh database session with connection retry
 
@@ -31,15 +32,16 @@ def get_db_session():
         try:
             session = SessionLocal()
             # Test the connection
-            session.execute(text('SELECT 1'))
+            session.execute(text("SELECT 1"))
             return session
         except (SQLAlchemyError, DisconnectionError) as e:
-            logger.warning(f'Database connection attempt {attempt + 1} failed: {e}')
+            logger.warning(f"Database connection attempt {attempt + 1} failed: {e}")
             if attempt < max_retries - 1:
                 time.sleep(1)  # Wait 1 second before retry
             else:
-                logger.error('Failed to establish database connection after all retries')
+                logger.error("Failed to establish database connection after all retries")
                 raise
+
 
 def refresh_db_session(session):
     """Refresh database session if connection is lost
@@ -49,15 +51,16 @@ def refresh_db_session(session):
     """
     try:
         # Test if connection is still alive
-        session.execute(text('SELECT 1'))
+        session.execute(text("SELECT 1"))
         return session
     except (SQLAlchemyError, DisconnectionError) as e:
-        logger.warning(f'Database connection lost, refreshing: {e}')
+        logger.warning(f"Database connection lost, refreshing: {e}")
         try:
             session.close()
         except Exception:
             pass
         return get_db_session()
+
 
 def safe_db_operation(session, operation_func, *args, **kwargs):
     """Safely execute database operation with connection retry
@@ -70,13 +73,14 @@ def safe_db_operation(session, operation_func, *args, **kwargs):
         try:
             return operation_func(session, *args, **kwargs)
         except (SQLAlchemyError, DisconnectionError) as e:
-            logger.warning(f'Database operation attempt {attempt + 1} failed: {e}')
+            logger.warning(f"Database operation attempt {attempt + 1} failed: {e}")
             if attempt < max_retries - 1:
                 session = refresh_db_session(session)
-                kwargs['session'] = session if 'session' in kwargs else None
+                kwargs["session"] = session if "session" in kwargs else None
             else:
-                logger.error('Database operation failed after all retries')
+                logger.error("Database operation failed after all retries")
                 raise
+
 
 def dispose_db_connections():
     """Dispose all database connections
@@ -89,6 +93,7 @@ def dispose_db_connections():
     except Exception:
         pass
 
+
 class CallbackTask(Task):
     """Base task class with success/failure callbacks"""
 
@@ -99,7 +104,7 @@ class CallbackTask(Task):
         args - Original arguments for the executed task.
         kwargs - Original keyword arguments for the executed task.
         """
-        logger.debug(f'Task {task_id} succeeded with result: {retval}')
+        logger.debug(f"Task {task_id} succeeded with result: {retval}")
         pass
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
@@ -109,5 +114,5 @@ class CallbackTask(Task):
         args - Original arguments for the task that failed.
         kwargs - Original keyword arguments for the task that failed.
         """
-        logger.debug(f'Task {task_id} failed with exception: {exc}')
+        logger.debug(f"Task {task_id} failed with exception: {exc}")
         pass

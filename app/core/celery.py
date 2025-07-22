@@ -25,6 +25,7 @@ celery.conf.update(
     worker_max_tasks_per_child=1000,
 )
 
+
 # Example simple task
 def add(x: int, y: int) -> int:
     return x + y
