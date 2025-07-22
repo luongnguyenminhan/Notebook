@@ -14,7 +14,7 @@ from app.models import Recording
 from app.utils.ai import asr_service, summarization_service, transcription_service
 from app.utils.text import generate_title_from_transcription
 
-from ..core.database import SessionLocal
+from .base import get_db_session, safe_db_operation
 
 import asyncio
 
@@ -33,7 +33,7 @@ def transcribe_audio_task(
     """Celery task to transcribe audio"""
     from app.utils.minio import minio_client
 
-    db = SessionLocal()
+    db = get_db_session()
 
     # Create temp directory
     temp_dir = f"audio_tmp/{recording_id}"
@@ -54,7 +54,9 @@ def transcribe_audio_task(
         )
 
         # Get recording
-        recording = db.query(Recording).filter(Recording.id == recording_id).first()
+        def get_recording(session):
+            return session.query(Recording).filter(Recording.id == recording_id).first()
+        recording = safe_db_operation(db, get_recording)
         if not recording:
             raise Exception("Recording not found")
 
@@ -72,7 +74,7 @@ def transcribe_audio_task(
         # Choose transcription service
         from app.core.config import settings
 
-        if settings.USE_ASR_ENDPOINT and diarize:
+        if settings.use_asr_endpoint and diarize:
             # Use ASR service for diarization
             result = asyncio.run(
                 asr_service.transcribe_audio_asr(
@@ -83,11 +85,13 @@ def transcribe_audio_task(
         else:
             # Use OpenAI Whisper
             result = asyncio.run(
-                transcription_service.transcribe_audio(
-                    audio_file_path, language, diarize, min_speakers, max_speakers
+                transcription_service.process_audio(
+                    audio_file_path
                 )
             )
             transcription = result.get("transcript", "")
+            print("====="*100)
+            print(transcription)
 
         # Update task status
         current_task.update_state(
@@ -96,12 +100,12 @@ def transcribe_audio_task(
         )
 
         # Update recording with transcription
-        recording.transcription = transcription
+        recording.transcription = str(transcription)
         recording.status = "SUMMARIZING"
 
         # Generate title if not provided
         if not recording.title:
-            recording.title = generate_title_from_transcription(transcription)
+            recording.title = generate_title_from_transcription(str(transcription))
 
         db.commit()
 
@@ -121,7 +125,9 @@ def transcribe_audio_task(
 
     except Exception as e:
         # Update recording with error
-        recording = db.query(Recording).filter(Recording.id == recording_id).first()
+        def get_recording(session):
+            return session.query(Recording).filter(Recording.id == recording_id).first()
+        recording = safe_db_operation(db, get_recording)
         if recording:
             recording.status = "FAILED"
             recording.error_message = str(e)
@@ -145,7 +151,7 @@ def generate_summary_task(
     output_language: Optional[str] = None,
 ):
     """Celery task to generate summary"""
-    db = SessionLocal()
+    db = get_db_session()
 
     try:
         # Update task status
@@ -155,7 +161,9 @@ def generate_summary_task(
         )
 
         # Get recording
-        recording = db.query(Recording).filter(Recording.id == recording_id).first()
+        def get_recording(session):
+            return session.query(Recording).filter(Recording.id == recording_id).first()
+        recording = safe_db_operation(db, get_recording)
         if not recording:
             raise Exception("Recording not found")
 
@@ -166,12 +174,18 @@ def generate_summary_task(
         )
 
         # Generate summary
+        # summary = asyncio.run(
+        #     summarization_service.generate_summary(
+        #         transcription, custom_prompt, output_language or "English"
+        #     )
+        # )
         summary = asyncio.run(
             summarization_service.generate_summary(
-                transcription, custom_prompt, output_language or "English"
+                transcription
             )
         )
-
+        print("====--===-=-=-=-="*100)
+        print("summary hererererer", summary)
         # Update task status
         current_task.update_state(
             state="PROGRESS",
@@ -193,7 +207,9 @@ def generate_summary_task(
 
     except Exception as e:
         # Update recording with error
-        recording = db.query(Recording).filter(Recording.id == recording_id).first()
+        def get_recording(session):
+            return session.query(Recording).filter(Recording.id == recording_id).first()
+        recording = safe_db_operation(db, get_recording)
         if recording:
             recording.status = "FAILED"
             recording.error_message = str(e)
@@ -221,7 +237,7 @@ def transcribe_audio_asr_task(
     """Celery task to transcribe audio using ASR endpoint"""
     from app.utils.minio import minio_client
 
-    db = SessionLocal()
+    db = get_db_session()
 
     # Create temp directory
     temp_dir = f"audio_tmp/{recording_id}"
@@ -246,7 +262,9 @@ def transcribe_audio_asr_task(
         )
 
         # Get recording
-        recording = db.query(Recording).filter(Recording.id == recording_id).first()
+        def get_recording(session):
+            return session.query(Recording).filter(Recording.id == recording_id).first()
+        recording = safe_db_operation(db, get_recording)
         if not recording:
             raise Exception("Recording not found")
 
@@ -276,12 +294,20 @@ def transcribe_audio_asr_task(
         )
 
         # Update recording with transcription
-        recording.transcription = transcription
+        import json
+        if isinstance(transcription, dict) or isinstance(transcription, list):
+            recording.transcription = json.dumps(transcription, ensure_ascii=False)
+        else:
+            recording.transcription = transcription
         recording.status = "SUMMARIZING"
 
         # Generate title if not provided
         if not recording.title:
-            recording.title = generate_title_from_transcription(transcription)
+            if isinstance(transcription, (dict, list)):
+                text_for_title = json.dumps(transcription, ensure_ascii=False)
+            else:
+                text_for_title = transcription
+            recording.title = generate_title_from_transcription(text_for_title)
 
         db.commit()
 
@@ -301,7 +327,9 @@ def transcribe_audio_asr_task(
 
     except Exception as e:
         # Update recording with error
-        recording = db.query(Recording).filter(Recording.id == recording_id).first()
+        def get_recording(session):
+            return session.query(Recording).filter(Recording.id == recording_id).first()
+        recording = safe_db_operation(db, get_recording)
         if recording:
             recording.status = "FAILED"
             recording.error_message = str(e)

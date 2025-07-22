@@ -27,7 +27,7 @@ services:
   worker:
     image: app-base
     environment:
-      - DATABASE_URL=mysql+pymysql://root:11minhan@db:3306/sercuescribe
+      - DATABASE_URL=mysql+pymysql://root:11minhan@host.docker.internal:3306/sercuescribe
       - REDIS_URL=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
       - MINIO_ENDPOINT=minio:9000

@@ -11,6 +11,7 @@ import httpx
 import logging
 
 from app.core.config import settings
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -60,9 +61,24 @@ class TranscriptionService:
                         data = await response.read()
                         result = json.loads(data.decode("utf-8"))
                         logger.debug(f"Nhận dữ liệu response hoàn chỉnh")
-                        print("Kết quả:", result)
+                        transcript = result.get("transcript", "")
+                        transcript = re.sub(
+                            r"\s\[\d{2}/\d{2}/\d{4} \d{2}:\d{2} (AM|PM)\]", ":", transcript
+                        ).strip()
+                        entries = re.split(r'(?=SPEAKER_\d+:)', transcript.strip())
+
+                        # Convert to desired structure
+                        trs: List[Dict[str, str]] = []
+                        for entry in entries:
+                            match = re.match(r'(SPEAKER_\d+):\s*(.*)', entry, re.DOTALL)
+                            if match:
+                                speaker = match.group(1).strip()
+                                sentence = re.sub(r'\s+', ' ', match.group(2).strip())
+                                if sentence:
+                                    trs.append({"speaker": speaker, "sentence": re.sub(r'[^a-zA-Z0-9À-ỹ\s]', '', sentence.lower())})
+                        print("Kết quả:", trs)
                         return {
-                            "transcript": result.get("transcript", ""),
+                            "transcript": trs,
                             "tokens": result.get(
                                 "tokens",
                                 {"totalTokens": 0, "cachedContentTokenCount": 0},
@@ -141,7 +157,7 @@ class SummarizationService:
         """
         try:
             endpoint = f"{self.base_url}/api/v2/meeting-note/post-messages"
-            payload = {"prompt": transcription}
+            payload = {"prompt": str(transcription)}
             if email:
                 payload["email"] = email
             else:
@@ -153,7 +169,7 @@ class SummarizationService:
                     response.raise_for_status()
                     result = await response.json()
                     # Giả sử API trả về summary trong trường 'summary'
-                    return result.get("summary", "")
+                    return result.get("meeting_note", "")
         except aiohttp.ClientError as e:
             logger.error(f"Lỗi khi gửi post_message: {str(e)}")
             raise Exception(f"Lỗi khi gửi post_message: {str(e)}")
