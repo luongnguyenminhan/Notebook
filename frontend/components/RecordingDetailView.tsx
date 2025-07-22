@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Box,
   Flex,
@@ -31,8 +31,8 @@ import {
   FaCopy,
   FaRobot,
   FaPaperPlane,
-  FaFileAlt,
 } from 'react-icons/fa';
+import SimpleMarkDownEditor from './SimpleMarkDownEditor';
 
 interface RecordingDetailViewProps {
   selectedRecording: any;
@@ -70,6 +70,27 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
   const [chatInput, setChatInput] = useState('');
   const [chatMessages, setChatMessages] = useState<any[]>([]);
   const [copySuccess, setCopySuccess] = useState<string | null>(null);
+  const [isWaitingBot, setIsWaitingBot] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [chatMessages]);
+
+  const handleSendChat = async () => {
+    if (!chatInput.trim() || isWaitingBot) return;
+    setChatMessages((msgs) => [...msgs, { role: 'user', content: chatInput }]);
+    setChatInput('');
+    setIsWaitingBot(true);
+    setTimeout(() => {
+      setChatMessages((msgs) => [
+        ...msgs,
+        { role: 'bot', content: 'Đây là phản hồi từ bot.' },
+      ]);
+      setIsWaitingBot(false);
+    }, 500);
+  };
 
   const handleCopyTranscript = async () => {
     try {
@@ -428,14 +449,7 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                     if (!cleaned.startsWith('[')) cleaned = '[' + cleaned;
                     if (!cleaned.endsWith(']')) cleaned = cleaned + ']';
                     cleaned = cleaned.replace(/'/g, '"');
-                    try {
-                      arr = JSON.parse(cleaned);
-                    } catch (e1) {
-                      try {
-                        // eslint-disable-next-line no-eval
-                        arr = eval(cleaned);
-                      } catch (e2) {}
-                    }
+                    arr = JSON.parse(cleaned);
                     if (Array.isArray(arr)) {
                       return parseTranscriptToHtml(arr);
                     }
@@ -450,12 +464,12 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                 {/* Summary Panel */}
                 {editingSummary ? (
                   <Box>
-                    <Textarea
-                      value={summary}
-                      onChange={(e) => setSummary(e.target.value)}
-                      borderRadius="xl"
-                      bg="#f7fafc"
-                      color="#1a202c"
+                    <SimpleMarkDownEditor
+                      initialValue={summary}
+                      onChange={setSummary}
+                      mode="edit"
+                      height="45vh"
+                      placeholder="Nhập tóm tắt dạng markdown..."
                     />
                     <Flex justify="end" gap={2} mt={2}>
                       <Button
@@ -505,12 +519,12 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                 {/* Notes Panel */}
                 {editingNotes ? (
                   <Box>
-                    <Textarea
-                      value={notes}
-                      onChange={(e) => setNotes(e.target.value)}
-                      borderRadius="xl"
-                      bg="#f7fafc"
-                      color="#1a202c"
+                    <SimpleMarkDownEditor
+                      initialValue={notes}
+                      onChange={setNotes}
+                      mode="edit"
+                      height="200px"
+                      placeholder="Nhập ghi chú dạng markdown..."
                     />
                     <Flex justify="end" gap={2} mt={2}>
                       <Button
@@ -555,54 +569,88 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                 )}
               </TabPanel>
               <TabPanel p={4}>
-                {/* Chat Panel */}
-                <Box flex="1" overflowY="auto">
-                  {chatMessages.length === 0 ? (
-                    <Flex direction="column" align="center" py={8} color="#888">
-                      <FaRobot size={32} />
-                      <Text>Ask questions about this transcription</Text>
-                    </Flex>
-                  ) : (
-                    chatMessages.map((msg, idx) => (
-                      <Box
-                        key={idx}
-                        className={
-                          msg.role === 'user' ? 'user-message' : 'ai-message'
-                        }
+                <Flex
+                  direction="column"
+                  h="55vh"
+                  bg="white"
+                  borderRadius="xl"
+                  shadow="sm"
+                  overflow="hidden"
+                >
+                  <Box flex="1" overflowY="auto" p={4} bg="#f0f4f8">
+                    {chatMessages.length === 0 ? (
+                      <Flex
+                        direction="column"
+                        align="center"
+                        justify="center"
+                        h="100%"
+                        color="#888"
                       >
-                        {msg.content}
-                      </Box>
-                    ))
-                  )}
-                  {/* Chat input */}
-                  <Flex gap={2} mt={4}>
+                        <FaRobot size={32} />
+                        <Text mt={2}>
+                          Ask questions about this transcription
+                        </Text>
+                      </Flex>
+                    ) : (
+                      <>
+                        {chatMessages.map((msg, idx) => (
+                          <Box
+                            key={idx}
+                            mb={3}
+                            p={2}
+                            bg={msg.role === 'user' ? '#0070f3' : '#e2e8f0'}
+                            color={msg.role === 'user' ? 'white' : '#1a202c'}
+                            alignSelf={
+                              msg.role === 'user' ? 'flex-end' : 'flex-start'
+                            }
+                            borderRadius="lg"
+                            maxW="80%"
+                            textAlign={msg.role === 'user' ? 'right' : 'left'}
+                          >
+                            {msg.content}
+                          </Box>
+                        ))}
+                        <div ref={chatEndRef} />
+                      </>
+                    )}
+                  </Box>
+                  <Flex
+                    p={4}
+                    gap={2}
+                    borderTop="1px solid"
+                    borderColor="gray.200"
+                  >
                     <Textarea
                       value={chatInput}
                       onChange={(e) => setChatInput(e.target.value)}
-                      rows={2}
-                      size="sm"
                       placeholder="Ask about this transcription..."
+                      flex="1"
+                      rows={1}
+                      resize="none"
                       borderRadius="xl"
                       bg="#f7fafc"
                       color="#1a202c"
+                      _focus={{ borderColor: '#0070f3' }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSendChat();
+                        }
+                      }}
                     />
                     <Button
+                      onClick={handleSendChat}
                       leftIcon={<FaPaperPlane />}
                       bg="#0070f3"
-                      color="#fff"
+                      color="white"
                       borderRadius="xl"
                       _hover={{ bg: '#339dff' }}
-                      onClick={() =>
-                        setChatMessages((msgs) => [
-                          ...msgs,
-                          { role: 'user', content: chatInput },
-                        ])
-                      }
+                      disabled={isWaitingBot}
                     >
                       Send
                     </Button>
                   </Flex>
-                </Box>
+                </Flex>
               </TabPanel>
             </TabPanels>
           </Tabs>
@@ -789,14 +837,7 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                   if (!cleaned.startsWith('[')) cleaned = '[' + cleaned;
                   if (!cleaned.endsWith(']')) cleaned = cleaned + ']';
                   cleaned = cleaned.replace(/'/g, '"');
-                  try {
-                    arr = JSON.parse(cleaned);
-                  } catch (e1) {
-                    try {
-                      // eslint-disable-next-line no-eval
-                      arr = eval(cleaned);
-                    } catch (e2) {}
-                  }
+                  arr = JSON.parse(cleaned);
                   if (Array.isArray(arr)) {
                     return parseTranscriptToHtml(arr);
                   }
@@ -878,12 +919,12 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                   {/* Summary Panel */}
                   {editingSummary ? (
                     <Box>
-                      <Textarea
-                        value={summary}
-                        onChange={(e) => setSummary(e.target.value)}
-                        borderRadius="xl"
-                        bg="#f7fafc"
-                        color="#1a202c"
+                      <SimpleMarkDownEditor
+                        initialValue={summary}
+                        onChange={setSummary}
+                        mode="edit"
+                        height="50vh"
+                        placeholder="Nhập tóm tắt dạng markdown..."
                       />
                       <Flex justify="end" gap={2} mt={2}>
                         <Button
@@ -933,12 +974,12 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                   {/* Notes Panel */}
                   {editingNotes ? (
                     <Box>
-                      <Textarea
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
-                        borderRadius="xl"
-                        bg="#f7fafc"
-                        color="#1a202c"
+                      <SimpleMarkDownEditor
+                        initialValue={notes}
+                        onChange={setNotes}
+                        mode="edit"
+                        height="200px"
+                        placeholder="Nhập ghi chú dạng markdown..."
                       />
                       <Flex justify="end" gap={2} mt={2}>
                         <Button
@@ -983,59 +1024,95 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                   )}
                 </TabPanel>
                 <TabPanel p={4}>
-                  {/* Chat Panel */}
-                  <Box flex="1" overflowY="auto">
-                    {chatMessages.length === 0 ? (
-                      <Flex
-                        direction="column"
-                        align="center"
-                        py={8}
-                        color="#888"
-                      >
-                        <FaRobot size={32} />
-                        <Text>Ask questions about this transcription</Text>
-                      </Flex>
-                    ) : (
-                      chatMessages.map((msg, idx) => (
-                        <Box
-                          key={idx}
-                          className={
-                            msg.role === 'user' ? 'user-message' : 'ai-message'
-                          }
+                  <Flex
+                    direction="column"
+                    h="60vh"
+                    bg="white"
+                    borderRadius="xl"
+                    shadow="sm"
+                    overflow="hidden"
+                  >
+                    <Box flex="1" overflowY="auto" p={4} bg="#f0f4f8">
+                      {chatMessages.length === 0 ? (
+                        <Flex
+                          direction="column"
+                          align="center"
+                          justify="center"
+                          h="100%"
+                          color="#888"
                         >
-                          {msg.content}
-                        </Box>
-                      ))
-                    )}
-                    {/* Chat input */}
-                    <Flex gap={2} mt={4}>
+                          <FaRobot size={32} />
+                          <Text mt={2}>
+                            Ask questions about this transcription
+                          </Text>
+                        </Flex>
+                      ) : (
+                        <>
+                          {chatMessages.map((msg, idx) => (
+                            <Flex
+                              key={idx}
+                              justify={
+                                msg.role === 'user' ? 'flex-end' : 'flex-start'
+                              }
+                            >
+                              <Box
+                                mb={3}
+                                p={2}
+                                bg={msg.role === 'user' ? '#0070f3' : '#e2e8f0'}
+                                color={
+                                  msg.role === 'user' ? 'white' : '#1a202c'
+                                }
+                                borderRadius="lg"
+                                maxW="80%"
+                                textAlign={
+                                  msg.role === 'user' ? 'right' : 'left'
+                                }
+                              >
+                                {msg.content}
+                              </Box>
+                            </Flex>
+                          ))}
+                          <div ref={chatEndRef} />
+                        </>
+                      )}
+                    </Box>
+                    <Flex
+                      p={4}
+                      gap={2}
+                      borderTop="1px solid"
+                      borderColor="gray.200"
+                    >
                       <Textarea
                         value={chatInput}
                         onChange={(e) => setChatInput(e.target.value)}
-                        rows={2}
-                        size="sm"
                         placeholder="Ask about this transcription..."
+                        flex="1"
+                        rows={1}
+                        resize="none"
                         borderRadius="xl"
                         bg="#f7fafc"
                         color="#1a202c"
+                        _focus={{ borderColor: '#0070f3' }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSendChat();
+                          }
+                        }}
                       />
                       <Button
+                        onClick={handleSendChat}
                         leftIcon={<FaPaperPlane />}
                         bg="#0070f3"
-                        color="#fff"
+                        color="white"
                         borderRadius="xl"
                         _hover={{ bg: '#339dff' }}
-                        onClick={() =>
-                          setChatMessages((msgs) => [
-                            ...msgs,
-                            { role: 'user', content: chatInput },
-                          ])
-                        }
+                        disabled={isWaitingBot}
                       >
                         Send
                       </Button>
                     </Flex>
-                  </Box>
+                  </Flex>
                 </TabPanel>
               </TabPanels>
             </Tabs>
