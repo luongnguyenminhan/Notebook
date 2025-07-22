@@ -13,6 +13,7 @@ import {
   useBreakpointValue,
   Badge,
   Textarea,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import {
   FaInbox,
@@ -136,6 +137,27 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
     };
   };
 
+  // Thêm biến màu cho markdown render
+  const headingColor = useColorModeValue('var(--color-primary)', 'gray.200');
+  const subHeadingColor = useColorModeValue(
+    'var(--color-secondary)',
+    'gray.200',
+  );
+  const textColor = useColorModeValue('gray.800', 'gray.200');
+  const borderColor = useColorModeValue('#eee', '#444');
+
+  // Thêm biến màu cho chat
+  const chatBg = useColorModeValue('gray.50', 'gray.800');
+  const chatPanelBorder = useColorModeValue('#eee', '#444');
+  const chatText = useColorModeValue('gray.800', 'gray.200');
+  const chatUserBg = useColorModeValue('#0070f3', 'blue.400');
+  const chatUserColor = 'white';
+  const chatBotBg = useColorModeValue('gray.200', 'gray.700');
+  const chatBotColor = chatText;
+  const chatInputBg = useColorModeValue('gray.100', 'gray.700');
+  const chatInputBorder = chatPanelBorder;
+  const chatInputColor = chatText;
+
   /**
    * Formats meeting note markdown for display
    * @param noteText Raw meeting note markdown text
@@ -143,13 +165,13 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
    */
   const formatMeetingNoteForDisplay = (noteText: string): string => {
     if (!noteText) {
-      return '<div class="p-4 text-center text-gray-500">Không có nội dung ghi chú.</div>';
+      return `<div class="p-4 text-center" style="color:${textColor}">Không có nội dung ghi chú.</div>`;
     }
     // Helper function to process bold text in any string
     const processBoldText = (text: string): string => {
       return text.replace(
         /\*\*(.*?)\*\*/g,
-        '<strong class="font-semibold">$1</strong>',
+        '<strong style="font-weight:600">$1</strong>',
       );
     };
     const processedData = processMeetingNote(noteText);
@@ -165,64 +187,47 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
       // H1 headers (# Title)
       if (trimmedLine.startsWith('# ')) {
         const title = processBoldText(trimmedLine.replace('# ', ''));
-        html += `<h1 class="text-2xl font-bold text-[var(--color-primary)] mb-5 mt-7 first:mt-0">${title}</h1>`;
+        html += `<h1 style="font-size:2rem;font-weight:bold;margin-bottom:20px;margin-top:28px;color:${headingColor}">${title}</h1>`;
       }
       // Main headers (## Title)
       else if (trimmedLine.startsWith('## ')) {
         const title = processBoldText(trimmedLine.replace('## ', ''));
-        html += `<h2 class="text-xl font-bold text-[var(--color-primary)] mb-4 mt-6 first:mt-0">${title}</h2>`;
+        html += `<h2 style="font-size:1.25rem;font-weight:bold;margin-bottom:16px;margin-top:24px;color:${headingColor}">${title}</h2>`;
       }
       // Sub headers (### Title)
       else if (trimmedLine.startsWith('### ')) {
         const title = processBoldText(trimmedLine.replace('### ', ''));
-        html += `<h3 class="text-lg font-semibold text-[var(--color-secondary)] mb-3 mt-5">${title}</h3>`;
+        html += `<h3 style="font-size:1.125rem;font-weight:600;margin-bottom:12px;margin-top:20px;color:${subHeadingColor}">${title}</h3>`;
       }
       // Sub-sub headers (#### Title)
       else if (trimmedLine.startsWith('#### ')) {
         const title = processBoldText(trimmedLine.replace('#### ', ''));
-        html += `<h4 class="text-md font-medium text-gray-700 mb-2 mt-4">${title}</h4>`;
+        html += `<h4 style="font-size:1rem;font-weight:500;margin-bottom:8px;margin-top:16px;color:${textColor}">${title}</h4>`;
       }
       // List items with bullet points (- or *)
       else if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ')) {
         const text = processBoldText(trimmedLine.substring(2));
         const indentLevel = line.length - line.trimStart().length;
         // Determine list style based on indentation
-        let listClass = 'list-disc';
-        let marginClass = 'ml-5';
-        let textClass = 'text-gray-800';
-        if (indentLevel >= 6) {
-          listClass = 'list-[square]';
-          marginClass = 'ml-10';
-          textClass = 'text-gray-600';
-        } else if (indentLevel >= 4) {
-          listClass = 'list-[circle]';
-          marginClass = 'ml-7';
-          textClass = 'text-gray-700';
-        }
-        html += `<div class="${marginClass} mb-1">
-          <div class="flex items-start">
-            <span class="mr-2 mt-1.5 w-1.5 h-1.5 ${listClass === 'list-disc' ? 'bg-gray-600 rounded-full' : listClass === 'list-[circle]' ? 'border border-gray-500 rounded-full' : 'bg-gray-500'} flex-shrink-0"></span>
-            <span class="${textClass}">${text}</span>
-          </div>
-        </div>`;
+        let bullet =
+          '<span style="display:inline-block;width:6px;height:6px;margin-right:8px;margin-top:6px;background:' +
+          borderColor +
+          ';border-radius:50%"></span>';
+        let margin = indentLevel >= 6 ? 40 : indentLevel >= 4 ? 28 : 20;
+        html += `<div style="margin-left:${margin}px;margin-bottom:4px;display:flex;align-items:flex-start;color:${textColor}">${bullet}<span>${text}</span></div>`;
       }
       // Sub-list items with + marker
       else if (trimmedLine.startsWith('+ ')) {
         const text = processBoldText(trimmedLine.substring(2));
-        html += `<div class="ml-12 mb-1">
-          <div class="flex items-start">
-            <span class="mr-2 mt-1.5 w-1 h-1 bg-gray-400 flex-shrink-0"></span>
-            <span class="text-gray-600 text-sm">${text}</span>
-          </div>
-        </div>`;
+        html += `<div style="margin-left:48px;margin-bottom:4px;display:flex;align-items:flex-start;color:${textColor}"><span style="display:inline-block;width:4px;height:4px;margin-right:8px;margin-top:6px;background:${borderColor}"></span><span style="font-size:0.95em">${text}</span></div>`;
       }
       // Regular paragraph (including bold text processing)
       else {
         const formattedText = processBoldText(trimmedLine);
-        html += `<p class="mb-2 text-gray-800">${formattedText}</p>`;
+        html += `<p style="margin-bottom:8px;color:${textColor}">${formattedText}</p>`;
       }
     }
-    return `<div class="meeting-note-content">${html}</div>`;
+    return `<div style="color:${textColor}">${html}</div>`;
   };
 
   // Mobile View
@@ -232,14 +237,17 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
         flex="1"
         direction="column"
         overflow="hidden"
-        bg="#fff"
+        bg="var(--input-bg-light)"
+        _dark={{ bg: 'var(--input-bg-dark)' }}
         minH="calc(100vh - 100px)"
         maxH="calc(100vh - 100px)"
       >
         {/* Mobile Header */}
         <Box
-          bg="#f7fafc"
-          borderBottom="1px solid #e5e7eb"
+          bg="var(--input-bg-light)"
+          _dark={{ bg: 'var(--input-bg-dark)', borderColor: '#444' }}
+          borderBottom="1px solid"
+          borderColor="gray.200"
           p={4}
           flexShrink={0}
           borderRadius="0 0 1.5rem 1.5rem"
@@ -251,14 +259,20 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                 <Text
                   fontSize="lg"
                   fontWeight="bold"
-                  color="#1a202c"
+                  color="var(--text-color-light)"
+                  _dark={{ color: 'var(--text-color-dark)' }}
                   isTruncated
                 >
                   {selectedRecording.title ||
                     selectedRecording.filename ||
                     'Untitled Recording'}
                 </Text>
-                <Text fontSize="sm" color="#888" isTruncated>
+                <Text
+                  fontSize="sm"
+                  color="var(--text-color-light)"
+                  _dark={{ color: 'var(--text-color-dark)' }}
+                  isTruncated
+                >
                   {selectedRecording.original_filename ||
                     'No original filename'}
                 </Text>
@@ -268,7 +282,13 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
           </Box>
           {metaOpen && (
             <Box mt={4}>
-              <Flex align="center" gap={2} color="#888" fontSize="sm">
+              <Flex
+                align="center"
+                gap={2}
+                color="var(--text-color-light)"
+                _dark={{ color: 'var(--text-color-dark)' }}
+                fontSize="sm"
+              >
                 <FaCalendar color="#0070f3" />
                 <span>
                   {selectedRecording.created_at
@@ -354,11 +374,15 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
           maxH="calc(100vh - 100px)"
           display="flex"
           flexDirection="column"
+          bg="var(--input-bg-light)"
+          _dark={{ bg: 'var(--input-bg-dark)' }}
         >
           <Box
-            bg="#f7fafc"
+            bg="var(--input-bg-light)"
+            _dark={{ bg: 'var(--input-bg-dark)', borderColor: '#444' }}
             p={4}
-            borderBottom="1px solid #e5e7eb"
+            borderBottom="1px solid"
+            borderColor="#aaa"
             flexShrink={0}
           >
             <audio
@@ -368,7 +392,13 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
             >
               <track kind="captions" src="" label="No captions" default />
             </audio>
-            <Flex mt={2} gap={4} color="#888" fontSize="sm">
+            <Flex
+              mt={2}
+              gap={4}
+              color="var(--text-color-light)"
+              _dark={{ color: 'var(--text-color-dark)' }}
+              fontSize="sm"
+            >
               {selectedRecording.duration !== undefined && (
                 <Box>
                   <strong>Duration:</strong> {selectedRecording.duration}s
@@ -392,11 +422,15 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
             minH={0}
             display="flex"
             flexDirection="column"
+            borderColor="#444"
+            bg="var(--input-bg-light)"
+            _dark={{ bg: 'var(--input-bg-dark)', borderColor: '#444' }}
           >
             <TabList
-              bg="#f0f4fa"
-              borderBottom="1px solid #e5e7eb"
-              borderRadius="xl"
+              bg="var(--input-bg-light)"
+              _dark={{ bg: 'var(--input-bg-dark)', borderColor: '#444' }}
+              borderBottom="1px solid"
+              borderColor="#444"
               px={2}
             >
               <Tab
@@ -428,17 +462,30 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
               flex="1"
               minH={0}
               overflowY="auto"
-              bg="#fff"
-              borderRadius="xl"
+              bg="var(--input-bg-light)"
+              _dark={{ bg: 'var(--input-bg-dark)' }}
               boxShadow="0 2px 8px 0 rgba(0,0,0,0.04)"
               mt={2}
             >
-              <TabPanel p={4}>
+              <TabPanel
+                p={4}
+                color="var(--text-color-light)"
+                _dark={{
+                  bg: 'var(--input-bg-dark)',
+                  color: 'var(--text-color-dark)',
+                }}
+              >
                 {/* Transcript Panel */}
                 {(() => {
                   const t = selectedRecording.transcription;
                   if (Array.isArray(t)) {
-                    return parseTranscriptToHtml(t);
+                    return (
+                      <ParseTranscriptToHtml
+                        transcriptArr={t}
+                        textColor={textColor}
+                        borderColor={borderColor}
+                      />
+                    );
                   }
                   if (typeof t === 'string') {
                     let arr = null;
@@ -451,16 +498,41 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                     cleaned = cleaned.replace(/'/g, '"');
                     arr = JSON.parse(cleaned);
                     if (Array.isArray(arr)) {
-                      return parseTranscriptToHtml(arr);
+                      return (
+                        <ParseTranscriptToHtml
+                          transcriptArr={arr}
+                          textColor={textColor}
+                          borderColor={borderColor}
+                        />
+                      );
                     }
                     return (
-                      <Text color="#888">{'No transcription available.'}</Text>
+                      <Text
+                        color="var(--text-color-light)"
+                        _dark={{ color: 'var(--text-color-dark)' }}
+                      >
+                        {'No transcription available.'}
+                      </Text>
                     );
                   }
-                  return <Text color="#888">No transcription available.</Text>;
+                  return (
+                    <Text
+                      color="var(--text-color-light)"
+                      _dark={{ color: 'var(--text-color-dark)' }}
+                    >
+                      No transcription available.
+                    </Text>
+                  );
                 })()}
               </TabPanel>
-              <TabPanel p={4}>
+              <TabPanel
+                p={4}
+                color="var(--text-color-light)"
+                _dark={{
+                  bg: 'var(--input-bg-dark)',
+                  color: 'var(--text-color-dark)',
+                }}
+              >
                 {/* Summary Panel */}
                 {editingSummary ? (
                   <Box>
@@ -515,7 +587,14 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                   </Box>
                 )}
               </TabPanel>
-              <TabPanel p={4}>
+              <TabPanel
+                p={4}
+                color="var(--text-color-light)"
+                _dark={{
+                  bg: 'var(--input-bg-dark)',
+                  color: 'var(--text-color-dark)',
+                }}
+              >
                 {/* Notes Panel */}
                 {editingNotes ? (
                   <Box>
@@ -563,7 +642,14 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                       Edit
                     </Button>
                     <Box>
-                      {notes || <Text color="#888">No notes available</Text>}
+                      {notes || (
+                        <Text
+                          color="var(--text-color-light)"
+                          _dark={{ color: 'var(--text-color-dark)' }}
+                        >
+                          No notes available
+                        </Text>
+                      )}
                     </Box>
                   </Box>
                 )}
@@ -572,19 +658,21 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                 <Flex
                   direction="column"
                   h="55vh"
-                  bg="white"
+                  bg={chatBg}
                   borderRadius="xl"
-                  shadow="sm"
+                  boxShadow="sm"
                   overflow="hidden"
+                  borderWidth="1px"
+                  borderColor={chatPanelBorder}
                 >
-                  <Box flex="1" overflowY="auto" p={4} bg="#f0f4f8">
+                  <Box flex="1" overflowY="auto" p={4} bg={chatBg}>
                     {chatMessages.length === 0 ? (
                       <Flex
                         direction="column"
                         align="center"
                         justify="center"
                         h="100%"
-                        color="#888"
+                        color={chatText}
                       >
                         <FaRobot size={32} />
                         <Text mt={2}>
@@ -598,14 +686,18 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                             key={idx}
                             mb={3}
                             p={2}
-                            bg={msg.role === 'user' ? '#0070f3' : '#e2e8f0'}
-                            color={msg.role === 'user' ? 'white' : '#1a202c'}
+                            bg={msg.role === 'user' ? chatUserBg : chatBotBg}
+                            color={
+                              msg.role === 'user' ? chatUserColor : chatBotColor
+                            }
                             alignSelf={
                               msg.role === 'user' ? 'flex-end' : 'flex-start'
                             }
                             borderRadius="lg"
                             maxW="80%"
                             textAlign={msg.role === 'user' ? 'right' : 'left'}
+                            fontSize="md"
+                            boxShadow="xs"
                           >
                             {msg.content}
                           </Box>
@@ -618,7 +710,7 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                     p={4}
                     gap={2}
                     borderTop="1px solid"
-                    borderColor="gray.200"
+                    borderColor={chatPanelBorder}
                   >
                     <Textarea
                       value={chatInput}
@@ -628,9 +720,10 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                       rows={1}
                       resize="none"
                       borderRadius="xl"
-                      bg="#f7fafc"
-                      color="#1a202c"
-                      _focus={{ borderColor: '#0070f3' }}
+                      bg={chatInputBg}
+                      color={chatInputColor}
+                      borderColor={chatInputBorder}
+                      _focus={{ borderColor: '#0070f3', bg: chatInputBg }}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
                           e.preventDefault();
@@ -665,13 +758,16 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
       flex="1"
       direction="column"
       overflow="hidden"
-      bg="#fff"
+      bg="var(--input-bg-light)"
+      _dark={{ bg: 'var(--input-bg-dark)' }}
       minH="100vh - 120px"
     >
       {/* Header */}
       <Box
-        bg="#f7fafc"
-        borderBottom="1px solid #e5e7eb"
+        bg="var(--input-bg-light)"
+        _dark={{ bg: 'var(--input-bg-dark)', borderColor: '#444' }}
+        borderBottom="1px solid"
+        borderColor="gray.200"
         p={6}
         flexShrink={0}
         borderRadius="0 0 1.5rem 1.5rem"
@@ -679,7 +775,13 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
       >
         <Flex align="start" justify="space-between">
           <Box flex="1" minW={0}>
-            <Text fontSize="2xl" fontWeight="bold" color="#1a202c" mb={2}>
+            <Text
+              fontSize="2xl"
+              fontWeight="bold"
+              color="var(--text-color-light)"
+              _dark={{ color: 'var(--text-color-dark)' }}
+              mb={2}
+            >
               {selectedRecording.title ||
                 selectedRecording.filename ||
                 'Untitled Recording'}
@@ -739,7 +841,8 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
           align="center"
           gap={6}
           fontSize="sm"
-          color="#888"
+          color="var(--text-color-light)"
+          _dark={{ color: 'var(--text-color-dark)' }}
           mt={2}
         >
           <Flex align="center" gap={2}>
@@ -767,7 +870,12 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
         </Flex>
       </Box>
       {/* Main Content Split View */}
-      <Box height="calc(100vh - 230px)" minH={0}>
+      <Box
+        height="calc(100vh - 230px)"
+        minH={0}
+        bg="var(--input-bg-light)"
+        _dark={{ bg: 'var(--input-bg-dark)' }}
+      >
         <Flex flex="1" height="100%" minH={0} overflow="hidden">
           {/* Left Panel: Transcript */}
           <Box
@@ -775,16 +883,21 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
             minW={0}
             display="flex"
             flexDirection="column"
-            borderRight="1px solid #e5e7eb"
+            borderRight="1px solid"
+            borderColor="gray.200"
             height="100%"
             minH={0}
+            bg="var(--input-bg-light)"
+            _dark={{ bg: 'var(--input-bg-dark)', borderColor: '#444' }}
           >
             <Box
-              bg="#f0f4fa"
+              bg="var(--input-bg-light)"
+              _dark={{ bg: 'var(--input-bg-dark)', borderColor: '#444' }}
               h="60px"
               px={4}
               py={3}
-              borderBottom="1px solid #e5e7eb"
+              borderBottom="1px solid"
+              borderColor="gray.200"
               display="flex"
               alignItems="center"
               justifyContent="space-between"
@@ -822,11 +935,24 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                 </Button>
               </Flex>
             </Box>
-            <Box flex="1" overflowY="auto" p={4} minH={0}>
+            <Box
+              flex="1"
+              overflowY="auto"
+              p={4}
+              minH={0}
+              bg="var(--input-bg-light)"
+              _dark={{ bg: 'var(--input-bg-dark)' }}
+            >
               {(() => {
                 const t = selectedRecording.transcription;
                 if (Array.isArray(t)) {
-                  return parseTranscriptToHtml(t);
+                  return (
+                    <ParseTranscriptToHtml
+                      transcriptArr={t}
+                      textColor={textColor}
+                      borderColor={borderColor}
+                    />
+                  );
                 }
                 if (typeof t === 'string') {
                   let arr = null;
@@ -839,13 +965,31 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                   cleaned = cleaned.replace(/'/g, '"');
                   arr = JSON.parse(cleaned);
                   if (Array.isArray(arr)) {
-                    return parseTranscriptToHtml(arr);
+                    return (
+                      <ParseTranscriptToHtml
+                        transcriptArr={arr}
+                        textColor={textColor}
+                        borderColor={borderColor}
+                      />
+                    );
                   }
                   return (
-                    <Text color="#888">{'No transcription available.'}</Text>
+                    <Text
+                      color="var(--text-color-light)"
+                      _dark={{ color: 'var(--text-color-dark)' }}
+                    >
+                      {'No transcription available.'}
+                    </Text>
                   );
                 }
-                return <Text color="#888">No transcription available.</Text>;
+                return (
+                  <Text
+                    color="var(--text-color-light)"
+                    _dark={{ color: 'var(--text-color-dark)' }}
+                  >
+                    No transcription available.
+                  </Text>
+                );
               })()}
             </Box>
           </Box>
@@ -857,9 +1001,17 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
             flexDirection="column"
             height="100%"
             minH={0}
+            bg="var(--input-bg-light)"
+            _dark={{ bg: 'var(--input-bg-dark)' }}
           >
             {/* Audio Player */}
-            <Box bg="#f7fafc" p={4} borderBottom="1px solid #e5e7eb">
+            <Box
+              bg="var(--input-bg-light)"
+              _dark={{ bg: 'var(--input-bg-dark)', borderColor: '#444' }}
+              p={4}
+              borderBottom="1px solid"
+              borderColor="#eee"
+            >
               <audio
                 controls
                 src={selectedRecording.audio_path || ''}
@@ -867,7 +1019,13 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
               >
                 <track kind="captions" src="" label="No captions" default />
               </audio>
-              <Flex mt={2} gap={4} color="#888" fontSize="sm">
+              <Flex
+                mt={2}
+                gap={4}
+                color="var(--text-color-light)"
+                _dark={{ color: 'var(--text-color-dark)' }}
+                fontSize="sm"
+              >
                 {selectedRecording.duration !== undefined && (
                   <Box>
                     <strong>Duration:</strong> {selectedRecording.duration}s
@@ -888,11 +1046,15 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
               minH={0}
               display="flex"
               flexDirection="column"
+              borderColor="#444"
+              bg="var(--input-bg-light)"
+              _dark={{ bg: 'var(--input-bg-dark)', borderColor: '#444' }}
             >
               <TabList
-                bg="#f0f4fa"
-                borderBottom="1px solid #e5e7eb"
-                borderRadius="xl"
+                bg="var(--input-bg-light)"
+                _dark={{ bg: 'var(--input-bg-dark)', borderColor: '#444' }}
+                borderBottom="1px solid"
+                borderColor="#eee"
                 px={2}
               >
                 <Tab
@@ -914,8 +1076,21 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                   Chat
                 </Tab>
               </TabList>
-              <TabPanels flex="1" overflowY="auto" minH={0}>
-                <TabPanel p={4}>
+              <TabPanels
+                flex="1"
+                overflowY="auto"
+                minH={0}
+                bg="var(--input-bg-light)"
+                _dark={{ bg: 'var(--input-bg-dark)', borderColor: '#444' }}
+              >
+                <TabPanel
+                  p={4}
+                  color="var(--text-color-light)"
+                  _dark={{
+                    bg: 'var(--input-bg-dark)',
+                    color: 'var(--text-color-dark)',
+                  }}
+                >
                   {/* Summary Panel */}
                   {editingSummary ? (
                     <Box>
@@ -970,7 +1145,14 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                     </Box>
                   )}
                 </TabPanel>
-                <TabPanel p={4}>
+                <TabPanel
+                  p={4}
+                  color="var(--text-color-light)"
+                  _dark={{
+                    bg: 'var(--input-bg-dark)',
+                    color: 'var(--text-color-dark)',
+                  }}
+                >
                   {/* Notes Panel */}
                   {editingNotes ? (
                     <Box>
@@ -1018,7 +1200,14 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                         Edit
                       </Button>
                       <Box>
-                        {notes || <Text color="#888">No notes available</Text>}
+                        {notes || (
+                          <Text
+                            color="var(--text-color-light)"
+                            _dark={{ color: 'var(--text-color-dark)' }}
+                          >
+                            No notes available
+                          </Text>
+                        )}
                       </Box>
                     </Box>
                   )}
@@ -1027,19 +1216,21 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                   <Flex
                     direction="column"
                     h="60vh"
-                    bg="white"
+                    bg={chatBg}
                     borderRadius="xl"
-                    shadow="sm"
+                    boxShadow="sm"
                     overflow="hidden"
+                    borderWidth="1px"
+                    borderColor={chatPanelBorder}
                   >
-                    <Box flex="1" overflowY="auto" p={4} bg="#f0f4f8">
+                    <Box flex="1" overflowY="auto" p={4} bg={chatBg}>
                       {chatMessages.length === 0 ? (
                         <Flex
                           direction="column"
                           align="center"
                           justify="center"
                           h="100%"
-                          color="#888"
+                          color={chatText}
                         >
                           <FaRobot size={32} />
                           <Text mt={2}>
@@ -1058,15 +1249,21 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                               <Box
                                 mb={3}
                                 p={2}
-                                bg={msg.role === 'user' ? '#0070f3' : '#e2e8f0'}
+                                bg={
+                                  msg.role === 'user' ? chatUserBg : chatBotBg
+                                }
                                 color={
-                                  msg.role === 'user' ? 'white' : '#1a202c'
+                                  msg.role === 'user'
+                                    ? chatUserColor
+                                    : chatBotColor
                                 }
                                 borderRadius="lg"
                                 maxW="80%"
                                 textAlign={
                                   msg.role === 'user' ? 'right' : 'left'
                                 }
+                                fontSize="md"
+                                boxShadow="xs"
                               >
                                 {msg.content}
                               </Box>
@@ -1080,7 +1277,7 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                       p={4}
                       gap={2}
                       borderTop="1px solid"
-                      borderColor="gray.200"
+                      borderColor={chatPanelBorder}
                     >
                       <Textarea
                         value={chatInput}
@@ -1090,9 +1287,10 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                         rows={1}
                         resize="none"
                         borderRadius="xl"
-                        bg="#f7fafc"
-                        color="#1a202c"
-                        _focus={{ borderColor: '#0070f3' }}
+                        bg={chatInputBg}
+                        color={chatInputColor}
+                        borderColor={chatInputBorder}
+                        _focus={{ borderColor: '#0070f3', bg: chatInputBg }}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
@@ -1124,7 +1322,15 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
 };
 
 // Parse transcript array to HTML
-function parseTranscriptToHtml(transcriptArr: any[]) {
+function ParseTranscriptToHtml({
+  transcriptArr,
+  textColor,
+  borderColor,
+}: {
+  transcriptArr: any[];
+  textColor: string;
+  borderColor: string;
+}) {
   if (!Array.isArray(transcriptArr)) return null;
   // Tạo màu cho từng speaker
   const speakerColors = [
@@ -1151,9 +1357,10 @@ function parseTranscriptToHtml(transcriptArr: any[]) {
           style={{
             marginBottom: 4,
             padding: '6px 0',
-            borderBottom: '1px solid #f0f0f0',
+            borderBottom: `1px solid ${borderColor}`,
             display: 'flex',
             alignItems: 'flex-start',
+            color: textColor,
           }}
         >
           <span
@@ -1167,7 +1374,9 @@ function parseTranscriptToHtml(transcriptArr: any[]) {
           >
             {item.speaker}:
           </span>
-          <span style={{ color: '#222', fontSize: 16 }}>{item.sentence}</span>
+          <span style={{ color: textColor, fontSize: 16 }}>
+            {item.sentence}
+          </span>
         </div>
       ))}
     </div>

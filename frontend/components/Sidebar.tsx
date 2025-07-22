@@ -1,24 +1,16 @@
 /* eslint-disable no-unused-vars */
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Box,
   Flex,
   Button,
-  Input,
-  IconButton,
   Spinner,
   Text,
   VStack,
-  Collapse,
   Badge,
 } from '@chakra-ui/react';
 import {
-  AddIcon,
-  SearchIcon,
-  CalendarIcon,
-  ArrowUpDownIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
+  AddIcon
 } from '@chakra-ui/icons';
 import { useTranslations } from 'next-intl';
 import { FaMicrophoneAlt } from 'react-icons/fa';
@@ -41,20 +33,10 @@ const Sidebar: React.FC<SidebarProps> = ({
   selectedId,
 }) => {
   const t = useTranslations('UserSidebar');
-  const [search, setSearch] = useState('');
-  const [sortBy, setSortBy] = useState<'created_at' | 'meeting_date'>(
-    'created_at',
-  );
-  const [showTips, setShowTips] = useState(false);
 
   // Filter + sort using backend fields
-  const filtered = recordings.filter((r) =>
-    r.filename.toLowerCase().includes(search.toLowerCase()),
-  );
-  const sorted = [...filtered].sort((a, b) =>
-    sortBy === 'created_at'
-      ? b.created_at.localeCompare(a.created_at)
-      : (b.created_at || '').localeCompare(a.created_at || ''),
+  const sorted = [...recordings].sort((a, b) =>
+    b.created_at.localeCompare(a.created_at),
   );
 
   return (
@@ -62,7 +44,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       as="aside"
       w={{ base: '64', md: '72' }}
       bg="var(--input-bg-light)"
-      _dark={{ bg: 'var(--input-bg-dark)' }}
+      _dark={{ bg: 'var(--input-bg-dark)', borderColor: '#444' }}
       h="100%"
       display="flex"
       flexDirection="column"
@@ -114,114 +96,13 @@ const Sidebar: React.FC<SidebarProps> = ({
               {t('upload', { defaultValue: 'New Upload' })}
             </Button>
           </Flex>
-          {/* <VStack align="stretch" spacing={3}>
-            <Box position="relative">
-              <Input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder={t('search', { defaultValue: 'Search...' })}
-                pl={9}
-                pr={8}
-                size="md"
-                bg="var(--input-bg-light)"
-                color="var(--text-color-light)"
-                _dark={{
-                  bg: 'var(--input-bg-dark)',
-                  color: 'var(--text-color-dark)',
-                }}
-                border="none"
-                borderRadius="xl"
-                boxShadow="sm"
-                _focus={{
-                  boxShadow: '0 0 0 3px var(--primary-color)',
-                  transform: 'scale(1.03)',
-                }}
-                transition="all 0.2s"
-              />
-              <SearchIcon
-                position="absolute"
-                left={3}
-                top="50%"
-                transform="translateY(-50%)"
-                color="var(--text-color-light)"
-                _dark={{ color: 'var(--text-color-dark)' }}
-                fontSize="sm"
-              />
-              {search && (
-                <IconButton
-                  aria-label="clear"
-                  icon={<ChevronUpIcon />}
-                  size="xs"
-                  variant="ghost"
-                  position="absolute"
-                  right={2}
-                  top="50%"
-                  transform="translateY(-50%)"
-                  color="var(--text-color-light)"
-                  _dark={{ color: 'var(--text-color-dark)' }}
-                  onClick={() => setSearch('')}
-                />
-              )}
-            </Box>
-            <Button
-              size="sm"
-              w="full"
-              leftIcon={
-                sortBy === 'meeting_date' ? (
-                  <CalendarIcon />
-                ) : (
-                  <ArrowUpDownIcon />
-                )
-              }
-              rightIcon={<ArrowUpDownIcon />}
-              onClick={() =>
-                setSortBy(
-                  sortBy === 'created_at' ? 'meeting_date' : 'created_at',
-                )
-              }
-              bg="var(--input-bg-light)"
-              color="var(--text-color-light)"
-              _dark={{
-                bg: 'var(--input-bg-dark)',
-                color: 'var(--text-color-dark)',
-              }}
-              border="none"
-              borderRadius="xl"
-              boxShadow="sm"
-              _hover={{ filter: 'brightness(1.05)', transform: 'scale(1.02)' }}
-              transition="all 0.2s"
-            >
-              {t('sort', { defaultValue: 'Sort' })} :{' '}
-              {sortBy === 'meeting_date'
-                ? t('meetingDate', { defaultValue: 'Meeting Date' })
-                : t('uploadDate', { defaultValue: 'Upload Date' })}
-            </Button>
-            <Box
-              fontSize="xs"
-              color="var(--text-color-light)"
-              _dark={{ color: 'var(--text-color-dark)' }}
-            >
-              <Button
-                variant="link"
-                size="xs"
-                onClick={() => setShowTips((v) => !v)}
-                rightIcon={showTips ? <ChevronUpIcon /> : <ChevronDownIcon />}
-              >
-                {t('tips', { defaultValue: 'Tip: date:today, date:thisweek' })}
-              </Button>
-              <Collapse in={showTips} animateOpacity>
-                <Box pl={2} pt={1}>
-                </Box>
-              </Collapse>
-            </Box>
-          </VStack> */}
         </Box>
         <Box flex="1" overflowY="auto" p={4}>
           {loading ? (
             <Flex justify="center" align="center" minH="120px">
               <Spinner size="lg" />
             </Flex>
-          ) : sorted.length === 0 ? (
+          ) : recordings.length === 0 ? (
             <Flex
               direction="column"
               align="center"
@@ -253,11 +134,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                           ? '0 4px 4px 0 #0070f3'
                           : '0 4px 4px 0 #aaa'
                       }
-                      bg={
-                        selectedId === r.id
-                          ? '#fff'
-                          : '#fff'
-                      }
+                      bg={selectedId === r.id ? '#fff' : '#fff'}
                       color="var(--text-color-light)"
                       _dark={{
                         bg:

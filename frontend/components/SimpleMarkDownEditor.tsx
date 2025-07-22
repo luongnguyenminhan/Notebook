@@ -105,7 +105,7 @@ const SimpleMarkdownEditor: React.FC<SimpleMarkdownEditorProps> = ({
             disabled={disabled || isSaving}
             className={`w-full resize-none border-0 outline-none p-4 font-mono text-sm leading-relaxed ${
               disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'
-            } bg-[var(--input-bg-light)] text-[var(--text-color-light)] dark:bg-[var(--input-bg-dark)] dark:text-[var(--text-color-dark)]`}
+            } bg-[var(--input-bg-light)] text-[var(--text-color-light)] dark:bg-[var(--input-bg-dark)] dark:text-[var(--text-color-dark)] dark:placeholder-gray-400 placeholder-gray-400 border border-gray-200 dark:border-gray-700`}
             style={{
               height,
               minHeight: '200px',
@@ -119,7 +119,7 @@ const SimpleMarkdownEditor: React.FC<SimpleMarkdownEditorProps> = ({
         ) : (
           /* View mode with markdown preview */
           <div
-            className="prose prose-sm max-w-none p-4 overflow-y-auto bg-[var(--input-bg-light)] text-[var(--text-color-light)] dark:bg-[var(--input-bg-dark)] dark:text-[var(--text-color-dark)]"
+            className="prose prose-sm max-w-none p-4 overflow-y-auto bg-[var(--input-bg-light)] text-[var(--text-color-light)] dark:bg-[var(--input-bg-dark)] dark:text-[var(--text-color-dark)] border border-gray-200 dark:border-gray-700"
             style={{ height, minHeight: '200px', transition: 'all 0.2s' }}
           >
             {content ? (
@@ -129,7 +129,14 @@ const SimpleMarkdownEditor: React.FC<SimpleMarkdownEditorProps> = ({
                 components={{
                   // Custom styling for markdown elements
                   h1: ({ children }) => (
-                    <h1 className="text-2xl font-bold mb-5 mt-7 first:mt-0 text-[var(--text-color-light)] dark:text-[var(--text-color-dark)]">
+                    <h1
+                      className="text-2xl font-bold mb-5 mt-7 first:mt-0 text-[var(--text-color-light)] dark:text-[var(--text-color-dark)]"
+                      style={{
+                        borderBottom: '1px solid var(--border-color-light)',
+                        borderBottomColor: 'var(--border-color-light)',
+                        borderBottomWidth: 1,
+                      }}
+                    >
                       {children}
                     </h1>
                   ),
