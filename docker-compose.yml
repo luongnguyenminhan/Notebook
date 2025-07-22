@@ -9,8 +9,14 @@ services:
     environment:
       - DATABASE_URL=mysql+pymysql://root:11minhan@db:3306/sercuescribe?charset=utf8mb4
       - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_SECURE=false
+      - MINIO_BUCKET_PREFIX=sercuescribe
       - ENVIRONMENT=development
-      - OLLAMA_API_BASE=${OLLAMA_API_BASE:-http://ollama:11434}
+      - HUGGINGFACE_TOKEN=${HUGGINGFACE_TOKEN}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -22,10 +28,16 @@ services:
   worker:
     image: app-base
     environment:
-      - DATABASE_URL=mysql+pymysql://root:11minhan@db:3306/sercuescribe?charset=utf8mb4
+      - DATABASE_URL=mysql+pymysql://root:11minhan@db:3306/sercuescribe
       - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_SECURE=false
+      - MINIO_BUCKET_PREFIX=sercuescribe
       - ENVIRONMENT=development
-      - OLLAMA_API_BASE=${OLLAMA_API_BASE:-http://ollama:11434}
+      - HUGGINGFACE_TOKEN=${HUGGINGFACE_TOKEN}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -38,7 +50,6 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=11minhan
       - MYSQL_DATABASE=sercuescribe
-      - MYSQL_USER=root
       - MYSQL_PASSWORD=11minhan
     ports:
       - "3306:3306"
@@ -54,17 +65,6 @@ services:
     volumes:
       - redis_data:/data
     command: redis-server --appendonly yes
-
-  flower:
-    image: app-base
-    environment:
-      - REDIS_URL=redis://redis:6379/0
-    ports:
-      - "5555:5555"
-    depends_on:
-      - redis
-      - app
-    command: celery -A app.core.celery flower --port=5555
 
   minio:
     image: minio/minio
@@ -97,27 +97,26 @@ services:
       timeout: 10s
       retries: 3
 
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    image: sercuescribe-frontend
-    ports:
-      - "3000:3000"
-    working_dir: /app
+  adminer:
+    image: adminer
+    restart: always
     environment:
-      - NODE_ENV=production
+      - ADMINER_DEFAULT_SERVER=db
+    ports:
+      - "8080:8080"
     depends_on:
-      - app
-    restart: unless-stopped
+      - db
+
   qdrant:
     image: qdrant/qdrant:latest
     ports:
       - "6333:6333"
     volumes:
       - qdrant_data:/qdrant/storage
+
 volumes:
   mysql_data:
+  minio_data:
   redis_data:
   ollama_data:
   qdrant_data:

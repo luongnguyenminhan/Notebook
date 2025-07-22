@@ -284,7 +284,7 @@ class QdrantMeetingVectorStore:
         self.embedding = OllamaEmbeddings(
             model=embedding_model,
             base_url=os.environ.get(
-                "OLLAMA_API_BASE", "http://host.docker.internal:11434"
+                "OLLAMA_API_BASE", "http://ollama:11434"
             ),
         )
 

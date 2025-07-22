@@ -49,7 +49,7 @@ class ChatService:
         model: str = "hf.co/namanhngco/merged_meetingqa_mistral-4bit-gguf:Q5_K_S",
     ):
         if base_url is None:
-            base_url = os.environ.get("OLLAMA_API_BASE", "http://host.docker.internal:11434")
+            base_url = os.environ.get("OLLAMA_API_BASE", "http://ollama:11434")
         self.llm = ChatOllama(base_url=base_url, model=model)
 
     def chat(
