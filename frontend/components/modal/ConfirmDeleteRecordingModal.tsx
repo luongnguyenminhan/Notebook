@@ -23,7 +23,7 @@ const ConfirmDeleteRecordingModal: React.FC<
 > = ({ isOpen, onClose, onDelete, recordingTitle }) => (
   <Modal isOpen={isOpen} onClose={onClose} isCentered>
     <ModalOverlay />
-    <ModalContent bg="var(--bg-secondary)">
+    <ModalContent bg="white" _dark={{ bg: 'gray.800' }} borderRadius="xl">
       <ModalBody p={6}>
         <Flex align="center" gap={4} mb={4}>
           <Box
@@ -55,7 +55,7 @@ const ConfirmDeleteRecordingModal: React.FC<
           <Button
             onClick={onDelete}
             bg="var(--bg-danger)"
-            color="white"
+            color="red"
             _hover={{ bg: 'var(--bg-danger-hover)' }}
           >
             Delete

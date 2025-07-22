@@ -51,17 +51,28 @@ const DashboardGate = () => {
   return (
     <DashboardRefreshContext.Provider value={{ refreshDashboard }}>
       <Header />
-      {loading ? (
-        <div className="flex justify-center items-center h-screen">
-          <Spinner size="xl" />
-        </div>
-      ) : !user ? (
-        <UnAuthenticatedDashboard />
-      ) : user.is_admin ? (
-        <AdminDashboard />
-      ) : (
-        <UserDashboard />
-      )}
+      <main
+        style={{
+          marginTop: '90px',
+          height: 'calc(100vh - 90px)',
+          width: '100%',
+          paddingTop: 0,
+          boxSizing: 'border-box',
+          overflowY: 'auto',
+        }}
+      >
+        {loading ? (
+          <div className="flex justify-center items-center flex-1">
+            <Spinner size="xl" />
+          </div>
+        ) : !user ? (
+          <UnAuthenticatedDashboard />
+        ) : user.is_admin ? (
+          <AdminDashboard />
+        ) : (
+          <UserDashboard />
+        )}
+      </main>
     </DashboardRefreshContext.Provider>
   );
 };
