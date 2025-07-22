@@ -39,17 +39,35 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
   chatInputBorder,
   chatInputColor,
 }) => (
-  <Flex direction="column" h="60vh" bg={chatBg} borderRadius="xl" boxShadow="sm" overflow="hidden" borderWidth="1px" borderColor={chatPanelBorder}>
+  <Flex
+    direction="column"
+    h="60vh"
+    bg={chatBg}
+    borderRadius="xl"
+    boxShadow="sm"
+    overflow="hidden"
+    borderWidth="1px"
+    borderColor={chatPanelBorder}
+  >
     <Box flex="1" overflowY="auto" p={4} bg={chatBg}>
       {chatMessages.length === 0 ? (
-        <Flex direction="column" align="center" justify="center" h="100%" color={chatText}>
+        <Flex
+          direction="column"
+          align="center"
+          justify="center"
+          h="100%"
+          color={chatText}
+        >
           <FaRobot size={32} />
           <Text mt={2}>Ask questions about this transcription</Text>
         </Flex>
       ) : (
         <>
           {chatMessages.map((msg, idx) => (
-            <Flex key={idx} justify={msg.role === 'user' ? 'flex-end' : 'flex-start'}>
+            <Flex
+              key={idx}
+              justify={msg.role === 'user' ? 'flex-end' : 'flex-start'}
+            >
               <Box
                 mb={3}
                 p={2}

@@ -1,4 +1,6 @@
 // app/dashboard/layout.tsx
+'use client';
+import Header from '@/components/layout/Header';
 import React from 'react';
 
 export default function DashboardLayout({
@@ -8,7 +10,8 @@ export default function DashboardLayout({
 }) {
   return (
     <div>
-      <aside>Dashboard Sidebar</aside>
+      <Header />
+      {/* <aside>Dashboard Sidebar</aside> */}
       <main>{children}</main>
     </div>
   );

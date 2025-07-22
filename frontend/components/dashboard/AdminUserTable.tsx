@@ -1,34 +1,35 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState } from 'react';
-import {
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  Box,
-  Spinner,
-  Button,
-  useDisclosure,
-  Flex,
-  IconButton,
-  Tooltip,
-  Switch,
-  HStack,
-} from '@chakra-ui/react';
-import { EditIcon, DeleteIcon } from '@chakra-ui/icons';
-import {
-  getAllUsers,
-  createUser,
-  updateUser,
-  deleteUser,
-  toggleAdmin,
-} from '@/services/api/user';
-import { useTranslations } from 'next-intl';
+import ConfirmDeleteModal from '@/components/modal/ConfirmDeleteModal';
 import CreateUserModal from '@/components/modal/CreateUserModal';
 import EditUserModal from '@/components/modal/EditUserModal';
-import ConfirmDeleteModal from '@/components/modal/ConfirmDeleteModal';
+import { showToast } from '@/hooks/useShowToast';
+import {
+  createUser,
+  deleteUser,
+  getAllUsers,
+  toggleAdmin,
+  updateUser,
+} from '@/services/api/user';
+import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
+import {
+  Box,
+  Button,
+  Flex,
+  HStack,
+  IconButton,
+  Spinner,
+  Switch,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tooltip,
+  Tr,
+  useDisclosure,
+} from '@chakra-ui/react';
+import { useTranslations } from 'next-intl';
+import { useEffect, useState } from 'react';
 
 const AdminUserTable = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -41,7 +42,6 @@ const AdminUserTable = () => {
   const [editLoading, setEditLoading] = useState(false);
   const [deleteUserId, setDeleteUserId] = useState<number | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const toast = useTranslations('AdminUserTable');
   const t = useTranslations('AdminUserTable');
 
   const fetchUsers = () => {
@@ -63,19 +63,18 @@ const AdminUserTable = () => {
     setCreating(true);
     try {
       await createUser(form);
-      toast({
-        title: t('createSuccess', { defaultValue: 'Tạo user thành công' }),
-        status: 'success',
-      });
+      showToast(
+        'success',
+        t('createSuccess', { defaultValue: 'Tạo user thành công' }),
+      );
       setForm({ username: '', email: '', password: '' });
       onClose();
       fetchUsers();
-    } catch (e: any) {
-      toast({
-        title: t('createFail', { defaultValue: 'Tạo user thất bại' }),
-        status: 'error',
-        description: e?.response?.data?.detail || '',
-      });
+    } catch {
+      showToast(
+        'error',
+        t('createFail', { defaultValue: 'Tạo user thất bại' }),
+      );
     } finally {
       setCreating(false);
     }
@@ -92,18 +91,17 @@ const AdminUserTable = () => {
       const data = { ...editUser };
       if (!data.password) delete data.password;
       await updateUser(editUser.id, data);
-      toast({
-        title: t('editSuccess', { defaultValue: 'Cập nhật user thành công' }),
-        status: 'success',
-      });
+      showToast(
+        'success',
+        t('editSuccess', { defaultValue: 'Cập nhật user thành công' }),
+      );
       setEditUser(null);
       fetchUsers();
-    } catch (e: any) {
-      toast({
-        title: t('editFail', { defaultValue: 'Cập nhật user thất bại' }),
-        status: 'error',
-        description: e?.response?.data?.detail || '',
-      });
+    } catch {
+      showToast(
+        'error',
+        t('editFail', { defaultValue: 'Cập nhật user thất bại' }),
+      );
     } finally {
       setEditLoading(false);
     }
@@ -118,18 +116,17 @@ const AdminUserTable = () => {
     setDeleteLoading(true);
     try {
       await deleteUser(deleteUserId);
-      toast({
-        title: t('deleteSuccess', { defaultValue: 'Xóa user thành công' }),
-        status: 'success',
-      });
+      showToast(
+        'success',
+        t('deleteSuccess', { defaultValue: 'Xóa user thành công' }),
+      );
       setDeleteUserId(null);
       fetchUsers();
-    } catch (e: any) {
-      toast({
-        title: t('deleteFail', { defaultValue: 'Xóa user thất bại' }),
-        status: 'error',
-        description: e?.response?.data?.detail || '',
-      });
+    } catch {
+      showToast(
+        'error',
+        t('deleteFail', { defaultValue: 'Xóa user thất bại' }),
+      );
     } finally {
       setDeleteLoading(false);
     }
@@ -138,19 +135,18 @@ const AdminUserTable = () => {
   const handleToggleAdmin = async (user: any) => {
     try {
       await toggleAdmin(user.id);
-      toast({
-        title: t('toggleAdminSuccess', { defaultValue: 'Đã đổi quyền admin' }),
-        status: 'success',
-      });
+      showToast(
+        'success',
+        t('toggleAdminSuccess', { defaultValue: 'Đổi quyền admin thành công' }),
+      );
       fetchUsers();
-    } catch (e: any) {
-      toast({
-        title: t('toggleAdminFail', {
+    } catch {
+      showToast(
+        'error',
+        t('toggleAdminFail', {
           defaultValue: 'Đổi quyền admin thất bại',
         }),
-        status: 'error',
-        description: e?.response?.data?.detail || '',
-      });
+      );
     }
   };
 
