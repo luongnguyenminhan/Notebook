@@ -9,17 +9,30 @@ from typing import Optional
 from celery import current_task
 from pytz import timezone
 
-from app.db import SessionLocal
+from app.core.celery import celery
 from app.models import Recording
-from app.tasks.celery_app import celery_app
 from app.utils.ai import asr_service, summarization_service, transcription_service
 from app.utils.text import generate_title_from_transcription
 
+from ..core.database import SessionLocal
 
-@celery_app.task(bind=True)
-async def transcribe_audio_task(self, recording_id: int, bucket_name: str, object_name: str, language: Optional[str] = None, diarize: bool = False, min_speakers: Optional[int] = None, max_speakers: Optional[int] = None):
+import asyncio
+
+
+@celery.task(bind=True)
+def transcribe_audio_task(
+    self,
+    recording_id: int,
+    bucket_name: str,
+    object_name: str,
+    language: Optional[str] = None,
+    diarize: bool = False,
+    min_speakers: Optional[int] = None,
+    max_speakers: Optional[int] = None,
+):
     """Celery task to transcribe audio"""
     from app.utils.minio import minio_client
+
     db = SessionLocal()
 
     # Create temp directory
@@ -35,7 +48,10 @@ async def transcribe_audio_task(self, recording_id: int, bucket_name: str, objec
 
     try:
         # Update task status
-        current_task.update_state(state="PROGRESS", meta={"current": 0, "total": 100, "status": "Starting transcription..."})
+        current_task.update_state(
+            state="PROGRESS",
+            meta={"current": 0, "total": 100, "status": "Starting transcription..."},
+        )
 
         # Get recording
         recording = db.query(Recording).filter(Recording.id == recording_id).first()
@@ -48,22 +64,36 @@ async def transcribe_audio_task(self, recording_id: int, bucket_name: str, objec
         db.commit()
 
         # Update task status
-        current_task.update_state(state="PROGRESS", meta={"current": 25, "total": 100, "status": "Transcribing audio..."})
+        current_task.update_state(
+            state="PROGRESS",
+            meta={"current": 25, "total": 100, "status": "Transcribing audio..."},
+        )
 
         # Choose transcription service
         from app.core.config import settings
 
         if settings.USE_ASR_ENDPOINT and diarize:
             # Use ASR service for diarization
-            result = await asr_service.transcribe_audio_asr(audio_file_path, diarize, min_speakers, max_speakers)
+            result = asyncio.run(
+                asr_service.transcribe_audio_asr(
+                    audio_file_path, diarize, min_speakers, max_speakers
+                )
+            )
             transcription = result.get("transcript", "")
         else:
             # Use OpenAI Whisper
-            result = await transcription_service.transcribe_audio(audio_file_path, language, diarize, min_speakers, max_speakers)
+            result = asyncio.run(
+                transcription_service.transcribe_audio(
+                    audio_file_path, language, diarize, min_speakers, max_speakers
+                )
+            )
             transcription = result.get("transcript", "")
 
         # Update task status
-        current_task.update_state(state="PROGRESS", meta={"current": 75, "total": 100, "status": "Processing transcription..."})
+        current_task.update_state(
+            state="PROGRESS",
+            meta={"current": 75, "total": 100, "status": "Processing transcription..."},
+        )
 
         # Update recording with transcription
         recording.transcription = transcription
@@ -76,9 +106,18 @@ async def transcribe_audio_task(self, recording_id: int, bucket_name: str, objec
         db.commit()
 
         # Start summarization task
-        generate_summary_task.delay(recording_id, transcription, recording.owner.summary_prompt, recording.owner.output_language)
+        generate_summary_task.delay(
+            recording_id,
+            transcription,
+            recording.owner.summary_prompt,
+            recording.owner.output_language,
+        )
 
-        return {"status": "SUCCESS", "recording_id": recording_id, "transcription_length": len(transcription)}
+        return {
+            "status": "SUCCESS",
+            "recording_id": recording_id,
+            "transcription_length": len(transcription),
+        }
 
     except Exception as e:
         # Update recording with error
@@ -86,7 +125,9 @@ async def transcribe_audio_task(self, recording_id: int, bucket_name: str, objec
         if recording:
             recording.status = "FAILED"
             recording.error_message = str(e)
-            recording.processing_completed_at = datetime.now(timezone("Asia/Ho_Chi_Minh"))
+            recording.processing_completed_at = datetime.now(
+                timezone("Asia/Ho_Chi_Minh")
+            )
             db.commit()
 
         raise Exception(f"Transcription failed: {str(e)}")
@@ -95,14 +136,23 @@ async def transcribe_audio_task(self, recording_id: int, bucket_name: str, objec
         db.close()
 
 
-@celery_app.task(bind=True)
-async def generate_summary_task(self, recording_id: int, transcription: str, custom_prompt: Optional[str] = None, output_language: Optional[str] = None):
+@celery.task(bind=True)
+def generate_summary_task(
+    self,
+    recording_id: int,
+    transcription: str,
+    custom_prompt: Optional[str] = None,
+    output_language: Optional[str] = None,
+):
     """Celery task to generate summary"""
     db = SessionLocal()
 
     try:
         # Update task status
-        current_task.update_state(state="PROGRESS", meta={"current": 0, "total": 100, "status": "Starting summarization..."})
+        current_task.update_state(
+            state="PROGRESS",
+            meta={"current": 0, "total": 100, "status": "Starting summarization..."},
+        )
 
         # Get recording
         recording = db.query(Recording).filter(Recording.id == recording_id).first()
@@ -110,13 +160,23 @@ async def generate_summary_task(self, recording_id: int, transcription: str, cus
             raise Exception("Recording not found")
 
         # Update task status
-        current_task.update_state(state="PROGRESS", meta={"current": 50, "total": 100, "status": "Generating summary..."})
+        current_task.update_state(
+            state="PROGRESS",
+            meta={"current": 50, "total": 100, "status": "Generating summary..."},
+        )
 
         # Generate summary
-        summary = await summarization_service.generate_summary(transcription, custom_prompt, output_language or "English")
+        summary = asyncio.run(
+            summarization_service.generate_summary(
+                transcription, custom_prompt, output_language or "English"
+            )
+        )
 
         # Update task status
-        current_task.update_state(state="PROGRESS", meta={"current": 90, "total": 100, "status": "Finalizing..."})
+        current_task.update_state(
+            state="PROGRESS",
+            meta={"current": 90, "total": 100, "status": "Finalizing..."},
+        )
 
         # Update recording
         recording.summary = summary
@@ -125,7 +185,11 @@ async def generate_summary_task(self, recording_id: int, transcription: str, cus
 
         db.commit()
 
-        return {"status": "SUCCESS", "recording_id": recording_id, "summary_length": len(summary)}
+        return {
+            "status": "SUCCESS",
+            "recording_id": recording_id,
+            "summary_length": len(summary),
+        }
 
     except Exception as e:
         # Update recording with error
@@ -133,7 +197,9 @@ async def generate_summary_task(self, recording_id: int, transcription: str, cus
         if recording:
             recording.status = "FAILED"
             recording.error_message = str(e)
-            recording.processing_completed_at = datetime.now(timezone("Asia/Ho_Chi_Minh"))
+            recording.processing_completed_at = datetime.now(
+                timezone("Asia/Ho_Chi_Minh")
+            )
             db.commit()
 
         raise Exception(f"Summarization failed: {str(e)}")
@@ -142,10 +208,19 @@ async def generate_summary_task(self, recording_id: int, transcription: str, cus
         db.close()
 
 
-@celery_app.task(bind=True)
-async def transcribe_audio_asr_task(self, recording_id: int, bucket_name: str, object_name: str, diarize: bool = True, min_speakers: Optional[int] = None, max_speakers: Optional[int] = None):
+@celery.task(bind=True)
+def transcribe_audio_asr_task(
+    self,
+    recording_id: int,
+    bucket_name: str,
+    object_name: str,
+    diarize: bool = True,
+    min_speakers: Optional[int] = None,
+    max_speakers: Optional[int] = None,
+):
     """Celery task to transcribe audio using ASR endpoint"""
     from app.utils.minio import minio_client
+
     db = SessionLocal()
 
     # Create temp directory
@@ -161,7 +236,14 @@ async def transcribe_audio_asr_task(self, recording_id: int, bucket_name: str, o
 
     try:
         # Update task status
-        current_task.update_state(state="PROGRESS", meta={"current": 0, "total": 100, "status": "Starting ASR transcription..."})
+        current_task.update_state(
+            state="PROGRESS",
+            meta={
+                "current": 0,
+                "total": 100,
+                "status": "Starting ASR transcription...",
+            },
+        )
 
         # Get recording
         recording = db.query(Recording).filter(Recording.id == recording_id).first()
@@ -174,14 +256,24 @@ async def transcribe_audio_asr_task(self, recording_id: int, bucket_name: str, o
         db.commit()
 
         # Update task status
-        current_task.update_state(state="PROGRESS", meta={"current": 25, "total": 100, "status": "Processing with ASR..."})
+        current_task.update_state(
+            state="PROGRESS",
+            meta={"current": 25, "total": 100, "status": "Processing with ASR..."},
+        )
 
         # Use ASR service
-        result = await asr_service.transcribe_audio_asr(audio_file_path, diarize, min_speakers, max_speakers)
+        result = asyncio.run(
+            asr_service.transcribe_audio_asr(
+                audio_file_path, diarize, min_speakers, max_speakers
+            )
+        )
         transcription = result.get("transcript", "")
 
         # Update task status
-        current_task.update_state(state="PROGRESS", meta={"current": 75, "total": 100, "status": "Processing transcription..."})
+        current_task.update_state(
+            state="PROGRESS",
+            meta={"current": 75, "total": 100, "status": "Processing transcription..."},
+        )
 
         # Update recording with transcription
         recording.transcription = transcription
@@ -194,9 +286,18 @@ async def transcribe_audio_asr_task(self, recording_id: int, bucket_name: str, o
         db.commit()
 
         # Start summarization task
-        generate_summary_task.delay(recording_id, transcription, recording.owner.summary_prompt, recording.owner.output_language)
+        generate_summary_task.delay(
+            recording_id,
+            transcription,
+            recording.owner.summary_prompt,
+            recording.owner.output_language,
+        )
 
-        return {"status": "SUCCESS", "recording_id": recording_id, "transcription_length": len(transcription)}
+        return {
+            "status": "SUCCESS",
+            "recording_id": recording_id,
+            "transcription_length": len(transcription),
+        }
 
     except Exception as e:
         # Update recording with error
@@ -204,7 +305,9 @@ async def transcribe_audio_asr_task(self, recording_id: int, bucket_name: str, o
         if recording:
             recording.status = "FAILED"
             recording.error_message = str(e)
-            recording.processing_completed_at = datetime.now(timezone("Asia/Ho_Chi_Minh"))
+            recording.processing_completed_at = datetime.now(
+                timezone("Asia/Ho_Chi_Minh")
+            )
             db.commit()
 
         raise Exception(f"ASR transcription failed: {str(e)}")

@@ -13,6 +13,8 @@ redis>=4.5.0
 flower>=2.0.0
 pymysql>=1.0.0
 minio==7.2.15
+aiohttp==3.11.18
+openai
 
 # Authentication dependencies
 passlib[bcrypt]>=1.7.4
