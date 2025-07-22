@@ -224,10 +224,18 @@
     "logout": "Đăng xuất"
   },
   "UserSidebar": {
+    "recordings": "Bản ghi",
     "upload": "Tải lên mới",
     "search": "Tìm kiếm...",
     "sort": "Sắp xếp",
-    "tips": "Gợi ý: date:today, date:thisweek"
+    "meetingDate": "Ngày họp",
+    "uploadDate": "Ngày tải lên",
+    "tips": "Gợi ý: date:today, date:thisweek",
+    "noRecordings": "Không có bản ghi",
+    "completed": "Hoàn thành",
+    "processing": "Đang xử lý",
+    "pending": "Chờ xử lý",
+    "failed": "Thất bại"
   },
   "RecordingList": {
     "noData": "Không có bản ghi",
@@ -248,6 +256,13 @@
   "UploadModal": {
     "uploadTitle": "Tải lên bản ghi mới",
     "close": "Đóng",
-    "upload": "Tải lên"
+    "upload": "Tải lên",
+    "success": "Tải lên thành công!",
+    "error": "Tải lên thất bại!"
+  },
+  "EmptyState": {
+    "selectTitle": "Chọn bản ghi",
+    "selectDescription": "Chọn một bản ghi từ thanh bên để xem nội dung và tóm tắt",
+    "uploadButton": "Tải lên bản ghi mới"
   }
 }

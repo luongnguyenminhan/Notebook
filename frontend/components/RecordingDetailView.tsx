@@ -89,14 +89,21 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
   // Mobile View
   if (isMobile) {
     return (
-      <Flex flex="1" direction="column" overflow="hidden">
+      <Flex
+        flex="1"
+        direction="column"
+        overflow="hidden"
+        bg="#fff"
+        minH="100vh"
+      >
         {/* Mobile Header */}
         <Box
-          bg="var(--bg-secondary)"
-          borderBottom="1px"
-          borderColor="var(--border-primary)"
+          bg="#f7fafc"
+          borderBottom="1px solid #e5e7eb"
           p={4}
           flexShrink={0}
+          borderRadius="0 0 1.5rem 1.5rem"
+          boxShadow="0 2px 8px 0 rgba(0,0,0,0.04)"
         >
           <Box onClick={() => setMetaOpen((v) => !v)} cursor="pointer">
             <Flex align="start" justify="space-between">
@@ -104,14 +111,14 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                 <Text
                   fontSize="lg"
                   fontWeight="bold"
-                  color="var(--text-primary)"
+                  color="#1a202c"
                   isTruncated
                 >
                   {selectedRecording.title ||
                     selectedRecording.filename ||
                     'Untitled Recording'}
                 </Text>
-                <Text fontSize="sm" color="var(--text-muted)" isTruncated>
+                <Text fontSize="sm" color="#888" isTruncated>
                   {selectedRecording.original_filename ||
                     'No original filename'}
                 </Text>
@@ -121,13 +128,8 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
           </Box>
           {metaOpen && (
             <Box mt={4}>
-              <Flex
-                align="center"
-                gap={2}
-                color="var(--text-muted)"
-                fontSize="sm"
-              >
-                <FaCalendar color="var(--text-accent)" />
+              <Flex align="center" gap={2} color="#888" fontSize="sm">
+                <FaCalendar color="#0070f3" />
                 <span>
                   {selectedRecording.created_at
                     ? new Date(selectedRecording.created_at).toLocaleString()
@@ -137,7 +139,13 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
               <Flex align="center" gap={2} mt={2}>
                 {selectedRecording.status &&
                   selectedRecording.status !== 'COMPLETED' && (
-                    <Badge colorScheme="yellow">
+                    <Badge
+                      colorScheme="yellow"
+                      borderRadius="xl"
+                      px={2}
+                      py={1}
+                      fontSize="xs"
+                    >
                       {selectedRecording.status}
                     </Badge>
                   )}
@@ -148,14 +156,14 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                   aria-label="Inbox"
                   icon={<FaInbox />}
                   onClick={onToggleInbox}
-                  color={selectedRecording.is_inbox ? 'blue.500' : undefined}
+                  color={selectedRecording.is_inbox ? '#0070f3' : undefined}
                 />
                 <IconButton
                   aria-label="Star"
                   icon={<FaStar />}
                   onClick={onToggleHighlight}
                   color={
-                    selectedRecording.is_highlighted ? 'yellow.500' : undefined
+                    selectedRecording.is_highlighted ? '#ffd600' : undefined
                   }
                 />
                 <IconButton
@@ -177,7 +185,7 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                   aria-label="Reset"
                   icon={<FaUndo />}
                   onClick={onReset}
-                  color="orange.500"
+                  color="#ff9800"
                 />
                 <IconButton
                   aria-label="Speaker"
@@ -193,20 +201,14 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                   aria-label="Delete"
                   icon={<FaTrash />}
                   onClick={onDelete}
-                  color="red.500"
+                  color="#f44336"
                 />
               </Flex>
             </Box>
           )}
         </Box>
         {/* Audio Player */}
-        <Box
-          bg="var(--bg-secondary)"
-          p={4}
-          borderBottom="1px"
-          borderColor="var(--border-primary)"
-          flexShrink={0}
-        >
+        <Box bg="#f7fafc" p={4} borderBottom="1px solid #e5e7eb" flexShrink={0}>
           <audio
             controls
             src={selectedRecording.audio_path || ''}
@@ -214,7 +216,7 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
           >
             <track kind="captions" src="" label="No captions" default />
           </audio>
-          <Flex mt={2} gap={4} color="var(--text-muted)" fontSize="sm">
+          <Flex mt={2} gap={4} color="#888" fontSize="sm">
             {selectedRecording.duration !== undefined && (
               <Box>
                 <strong>Duration:</strong> {selectedRecording.duration}s
@@ -237,23 +239,81 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
           }
         >
           <TabList
-            bg="var(--bg-tertiary)"
-            borderBottom="1px"
-            borderColor="var(--border-primary)"
+            bg="#f0f4fa"
+            borderBottom="1px solid #e5e7eb"
+            borderRadius="xl"
+            px={2}
           >
-            <Tab>Transcript</Tab>
-            <Tab>Summary</Tab>
-            <Tab>Notes</Tab>
-            <Tab>Chat</Tab>
+            <Tab _selected={{ bg: '#0070f3', color: '#fff' }} borderRadius="xl">
+              Transcript
+            </Tab>
+            <Tab _selected={{ bg: '#0070f3', color: '#fff' }} borderRadius="xl">
+              Summary
+            </Tab>
+            <Tab _selected={{ bg: '#0070f3', color: '#fff' }} borderRadius="xl">
+              Notes
+            </Tab>
+            <Tab _selected={{ bg: '#0070f3', color: '#fff' }} borderRadius="xl">
+              Chat
+            </Tab>
           </TabList>
-          <TabPanels flex="1" overflowY="auto">
+          <TabPanels
+            flex="1"
+            overflowY="auto"
+            bg="#fff"
+            borderRadius="xl"
+            boxShadow="0 2px 8px 0 rgba(0,0,0,0.04)"
+            mt={2}
+          >
             <TabPanel p={4}>
               {/* Transcript Panel */}
-              <Text color="gray.400">
-                {selectedRecording.transcription
-                  ? selectedRecording.transcription
-                  : 'No transcription available.'}
-              </Text>
+              {(() => {
+                const t = selectedRecording.transcription;
+                if (Array.isArray(t)) {
+                  console.log('transcription is array:', t);
+                  return parseTranscriptToHtml(t);
+                }
+                if (typeof t === 'string') {
+                  let arr = null;
+                  // Làm sạch chuỗi
+                  let cleaned = t
+                    .replace(/\n/g, ' ')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+                  if (!cleaned.startsWith('[')) cleaned = '[' + cleaned;
+                  if (!cleaned.endsWith(']')) cleaned = cleaned + ']';
+                  cleaned = cleaned.replace(/'/g, '"');
+                  console.log('transcription cleaned:', cleaned);
+                  try {
+                    arr = JSON.parse(cleaned);
+                    console.log('transcription parsed JSON after clean:', arr);
+                  } catch (e1) {
+                    console.log('JSON.parse after clean failed', e1);
+                    try {
+                      // eslint-disable-next-line no-eval
+                      arr = eval(cleaned);
+                      console.log('transcription parsed eval:', arr);
+                    } catch (e2) {
+                      console.log('eval failed', e2);
+                    }
+                  }
+                  console.log(
+                    'transcription parsed: is array true',
+                    Array.isArray(arr),
+                  );
+                  if (Array.isArray(arr)) {
+                    console.log(
+                      'transcription parsed: parseTranscriptToHtml',
+                      parseTranscriptToHtml(arr),
+                    );
+                    return parseTranscriptToHtml(arr);
+                  }
+                  return (
+                    <Text color="#888">{'No transcription available.'}</Text>
+                  );
+                }
+                return <Text color="#888">No transcription available.</Text>;
+              })()}
             </TabPanel>
             <TabPanel p={4}>
               {/* Summary Panel */}
@@ -262,15 +322,27 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                   <Textarea
                     value={summary}
                     onChange={(e) => setSummary(e.target.value)}
+                    borderRadius="xl"
+                    bg="#f7fafc"
+                    color="#1a202c"
                   />
                   <Flex justify="end" gap={2} mt={2}>
-                    <Button size="sm" onClick={() => setEditingSummary(false)}>
+                    <Button
+                      size="sm"
+                      onClick={() => setEditingSummary(false)}
+                      bg="#eee"
+                      color="#1a202c"
+                      borderRadius="xl"
+                    >
                       Cancel
                     </Button>
                     <Button
                       size="sm"
-                      colorScheme="blue"
+                      bg="#0070f3"
+                      color="#fff"
+                      borderRadius="xl"
                       onClick={() => setEditingSummary(false)}
+                      _hover={{ bg: '#339dff' }}
                     >
                       Save
                     </Button>
@@ -283,13 +355,15 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                     leftIcon={<FaEdit />}
                     onClick={() => setEditingSummary(true)}
                     mb={2}
+                    bg="#0070f3"
+                    color="#fff"
+                    borderRadius="xl"
+                    _hover={{ bg: '#339dff' }}
                   >
                     Edit
                   </Button>
                   <Box>
-                    {summary || (
-                      <Text color="gray.400">No summary available</Text>
-                    )}
+                    {summary || <Text color="#888">No summary available</Text>}
                   </Box>
                 </Box>
               )}
@@ -301,15 +375,27 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                   <Textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
+                    borderRadius="xl"
+                    bg="#f7fafc"
+                    color="#1a202c"
                   />
                   <Flex justify="end" gap={2} mt={2}>
-                    <Button size="sm" onClick={() => setEditingNotes(false)}>
+                    <Button
+                      size="sm"
+                      onClick={() => setEditingNotes(false)}
+                      bg="#eee"
+                      color="#1a202c"
+                      borderRadius="xl"
+                    >
                       Cancel
                     </Button>
                     <Button
                       size="sm"
-                      colorScheme="blue"
+                      bg="#0070f3"
+                      color="#fff"
+                      borderRadius="xl"
                       onClick={() => setEditingNotes(false)}
+                      _hover={{ bg: '#339dff' }}
                     >
                       Save
                     </Button>
@@ -322,11 +408,15 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                     leftIcon={<FaEdit />}
                     onClick={() => setEditingNotes(true)}
                     mb={2}
+                    bg="#0070f3"
+                    color="#fff"
+                    borderRadius="xl"
+                    _hover={{ bg: '#339dff' }}
                   >
                     Edit
                   </Button>
                   <Box>
-                    {notes || <Text color="gray.400">No notes available</Text>}
+                    {notes || <Text color="#888">No notes available</Text>}
                   </Box>
                 </Box>
               )}
@@ -335,12 +425,7 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
               {/* Chat Panel */}
               <Box flex="1" overflowY="auto">
                 {chatMessages.length === 0 ? (
-                  <Flex
-                    direction="column"
-                    align="center"
-                    py={8}
-                    color="gray.400"
-                  >
+                  <Flex direction="column" align="center" py={8} color="#888">
                     <FaRobot size={32} />
                     <Text>Ask questions about this transcription</Text>
                   </Flex>
@@ -364,10 +449,16 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
                     rows={2}
                     size="sm"
                     placeholder="Ask about this transcription..."
+                    borderRadius="xl"
+                    bg="#f7fafc"
+                    color="#1a202c"
                   />
                   <Button
                     leftIcon={<FaPaperPlane />}
-                    colorScheme="blue"
+                    bg="#0070f3"
+                    color="#fff"
+                    borderRadius="xl"
+                    _hover={{ bg: '#339dff' }}
                     onClick={() =>
                       setChatMessages((msgs) => [
                         ...msgs,
@@ -388,23 +479,19 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
 
   // Desktop View
   return (
-    <Flex flex="1" direction="column" overflow="hidden">
+    <Flex flex="1" direction="column" overflow="hidden" bg="#fff" minH="100vh - 120px">
       {/* Header */}
       <Box
-        bg="var(--bg-secondary)"
-        borderBottom="1px"
-        borderColor="var(--border-primary)"
+        bg="#f7fafc"
+        borderBottom="1px solid #e5e7eb"
         p={6}
         flexShrink={0}
+        borderRadius="0 0 1.5rem 1.5rem"
+        boxShadow="0 2px 8px 0 rgba(0,0,0,0.04)"
       >
         <Flex align="start" justify="space-between">
           <Box flex="1" minW={0}>
-            <Text
-              fontSize="2xl"
-              fontWeight="bold"
-              color="var(--text-primary)"
-              mb={2}
-            >
+            <Text fontSize="2xl" fontWeight="bold" color="#1a202c" mb={2}>
               {selectedRecording.title ||
                 selectedRecording.filename ||
                 'Untitled Recording'}
@@ -415,15 +502,13 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
               aria-label="Inbox"
               icon={<FaInbox />}
               onClick={onToggleInbox}
-              color={selectedRecording.is_inbox ? 'blue.500' : undefined}
+              color={selectedRecording.is_inbox ? '#0070f3' : undefined}
             />
             <IconButton
               aria-label="Star"
               icon={<FaStar />}
               onClick={onToggleHighlight}
-              color={
-                selectedRecording.is_highlighted ? 'yellow.500' : undefined
-              }
+              color={selectedRecording.is_highlighted ? '#ffd600' : undefined}
             />
             <IconButton aria-label="Edit" icon={<FaEdit />} onClick={onEdit} />
             <IconButton
@@ -440,7 +525,7 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
               aria-label="Reset"
               icon={<FaUndo />}
               onClick={onReset}
-              color="orange.500"
+              color="#ff9800"
             />
             <IconButton
               aria-label="Speaker"
@@ -456,7 +541,7 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
               aria-label="Delete"
               icon={<FaTrash />}
               onClick={onDelete}
-              color="red.500"
+              color="#f44336"
             />
           </Flex>
         </Flex>
@@ -466,257 +551,410 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
           align="center"
           gap={6}
           fontSize="sm"
-          color="var(--text-muted)"
+          color="#888"
           mt={2}
         >
           <Flex align="center" gap={2}>
-            <FaUsers color="var(--text-accent)" />
+            <FaUsers color="#0070f3" />
             {selectedRecording.original_filename || 'No original filename'}
           </Flex>
           <Flex align="center" gap={2}>
-            <FaCalendar color="var(--text-accent)" />
+            <FaCalendar color="#0070f3" />
             {selectedRecording.created_at
               ? new Date(selectedRecording.created_at).toLocaleString()
               : 'No date set'}
           </Flex>
           {selectedRecording.status &&
             selectedRecording.status !== 'COMPLETED' && (
-              <Badge colorScheme="yellow">{selectedRecording.status}</Badge>
+              <Badge
+                colorScheme="yellow"
+                borderRadius="xl"
+                px={2}
+                py={1}
+                fontSize="xs"
+              >
+                {selectedRecording.status}
+              </Badge>
             )}
         </Flex>
       </Box>
       {/* Main Content Split View */}
-      <Flex flex="1" overflow="hidden">
-        {/* Left Panel: Transcript */}
-        <Box
-          flex="1"
-          minW={0}
-          display="flex"
-          flexDirection="column"
-          borderRight="1px"
-          borderColor="var(--border-primary)"
-        >
+      <Box height="calc(100vh - 230px)" minH={0}>
+        <Flex flex="1" height="100%" minH={0} overflow="hidden">
+          {/* Left Panel: Transcript */}
           <Box
-            bg="var(--bg-tertiary)"
-            px={4}
-            py={3}
-            borderBottom="1px"
-            borderColor="var(--border-primary)"
+            flex="1"
+            minW={0}
             display="flex"
-            alignItems="center"
-            justifyContent="space-between"
+            flexDirection="column"
+            borderRight="1px solid #e5e7eb"
+            height="100%"
+            minH={0}
           >
-            <Text fontWeight="semibold" display="flex" alignItems="center">
-              <FaFileAlt style={{ marginRight: 8 }} />
-              Transcript
-            </Text>
-            <Flex gap={2}>
-              <Button
-                size="sm"
-                leftIcon={<FaCopy />}
-                onClick={handleCopyTranscript}
-              >
-                Copy
-              </Button>
-              {copySuccess && (
-                <Text
-                  fontSize="sm"
-                  color={copySuccess === 'Copied!' ? 'green.500' : 'red.500'}
-                  ml={2}
+            <Box
+              bg="#f0f4fa"
+              h="60px"
+              px={4}
+              py={3}
+              borderBottom="1px solid #e5e7eb"
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+            >
+              <Flex gap={2}>
+                <Button
+                  size="sm"
+                  leftIcon={<FaCopy />}
+                  onClick={handleCopyTranscript}
+                  bg="#0070f3"
+                  color="#fff"
+                  borderRadius="xl"
+                  _hover={{ bg: '#339dff' }}
                 >
-                  {copySuccess}
-                </Text>
-              )}
-              <Button size="sm" leftIcon={<FaEdit />}>
-                Edit
-              </Button>
-            </Flex>
+                  Copy
+                </Button>
+                {copySuccess && (
+                  <Text
+                    fontSize="sm"
+                    color={copySuccess === 'Copied!' ? 'green.500' : 'red.500'}
+                    ml={2}
+                  >
+                    {copySuccess}
+                  </Text>
+                )}
+                <Button
+                  size="sm"
+                  leftIcon={<FaEdit />}
+                  bg="#0070f3"
+                  color="#fff"
+                  borderRadius="xl"
+                  _hover={{ bg: '#339dff' }}
+                >
+                  Edit
+                </Button>
+              </Flex>
+            </Box>
+            <Box flex="1" overflowY="auto" p={4} minH={0}>
+              {(() => {
+                const t = selectedRecording.transcription;
+                if (Array.isArray(t)) {
+                  return parseTranscriptToHtml(t);
+                }
+                if (typeof t === 'string') {
+                  let arr = null;
+                  let cleaned = t
+                    .replace(/\n/g, ' ')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+                  if (!cleaned.startsWith('[')) cleaned = '[' + cleaned;
+                  if (!cleaned.endsWith(']')) cleaned = cleaned + ']';
+                  cleaned = cleaned.replace(/'/g, '"');
+                  try {
+                    arr = JSON.parse(cleaned);
+                  } catch (e1) {
+                    try {
+                      // eslint-disable-next-line no-eval
+                      arr = eval(cleaned);
+                    } catch (e2) {}
+                  }
+                  if (Array.isArray(arr)) {
+                    return parseTranscriptToHtml(arr);
+                  }
+                  return (
+                    <Text color="#888">{'No transcription available.'}</Text>
+                  );
+                }
+                return <Text color="#888">No transcription available.</Text>;
+              })()}
+            </Box>
           </Box>
-          <Box flex="1" overflowY="auto" p={4}>
-            <Text color="gray.400">
-              {selectedRecording.transcription
-                ? selectedRecording.transcription
-                : 'No transcription available.'}
-            </Text>
-          </Box>
-        </Box>
-        {/* Right Panel: Summary/Notes/Chat */}
-        <Box flex="1" minW={0} display="flex" flexDirection="column">
-          {/* Audio Player */}
+          {/* Right Panel: Summary/Notes/Chat */}
           <Box
-            bg="var(--bg-secondary)"
-            p={4}
-            borderBottom="1px"
-            borderColor="var(--border-primary)"
+            flex="1"
+            minW={0}
+            display="flex"
+            flexDirection="column"
+            height="100%"
+            minH={0}
           >
-            <audio
-              controls
-              src={selectedRecording.audio_path || ''}
-              style={{ width: '100%' }}
-            >
-              <track kind="captions" src="" label="No captions" default />
-            </audio>
-            <Flex mt={2} gap={4} color="var(--text-muted)" fontSize="sm">
-              {selectedRecording.duration !== undefined && (
-                <Box>
-                  <strong>Duration:</strong> {selectedRecording.duration}s
-                </Box>
-              )}
-              {selectedRecording.file_size !== undefined && (
-                <Box>
-                  <strong>Size:</strong> {selectedRecording.file_size} bytes
-                </Box>
-              )}
-            </Flex>
-          </Box>
-          {/* Tabs */}
-          <Tabs variant="soft-rounded" colorScheme="blue" flex="1">
-            <TabList
-              bg="var(--bg-tertiary)"
-              borderBottom="1px"
-              borderColor="var(--border-primary)"
-            >
-              <Tab>Summary</Tab>
-              <Tab>Notes</Tab>
-              <Tab>Chat</Tab>
-            </TabList>
-            <TabPanels flex="1" overflowY="auto">
-              <TabPanel p={4}>
-                {/* Summary Panel */}
-                {editingSummary ? (
+            {/* Audio Player */}
+            <Box bg="#f7fafc" p={4} borderBottom="1px solid #e5e7eb">
+              <audio
+                controls
+                src={selectedRecording.audio_path || ''}
+                style={{ width: '100%' }}
+              >
+                <track kind="captions" src="" label="No captions" default />
+              </audio>
+              <Flex mt={2} gap={4} color="#888" fontSize="sm">
+                {selectedRecording.duration !== undefined && (
                   <Box>
-                    <Textarea
-                      value={summary}
-                      onChange={(e) => setSummary(e.target.value)}
-                    />
-                    <Flex justify="end" gap={2} mt={2}>
-                      <Button
-                        size="sm"
-                        onClick={() => setEditingSummary(false)}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        size="sm"
-                        colorScheme="blue"
-                        onClick={() => setEditingSummary(false)}
-                      >
-                        Save
-                      </Button>
-                    </Flex>
-                  </Box>
-                ) : (
-                  <Box>
-                    <Button
-                      size="sm"
-                      leftIcon={<FaEdit />}
-                      onClick={() => setEditingSummary(true)}
-                      mb={2}
-                    >
-                      Edit
-                    </Button>
-                    <Box>
-                      {summary || (
-                        <Text color="gray.400">No summary available</Text>
-                      )}
-                    </Box>
+                    <strong>Duration:</strong> {selectedRecording.duration}s
                   </Box>
                 )}
-              </TabPanel>
-              <TabPanel p={4}>
-                {/* Notes Panel */}
-                {editingNotes ? (
+                {selectedRecording.file_size !== undefined && (
                   <Box>
-                    <Textarea
-                      value={notes}
-                      onChange={(e) => setNotes(e.target.value)}
-                    />
-                    <Flex justify="end" gap={2} mt={2}>
-                      <Button size="sm" onClick={() => setEditingNotes(false)}>
-                        Cancel
-                      </Button>
-                      <Button
-                        size="sm"
-                        colorScheme="blue"
-                        onClick={() => setEditingNotes(false)}
-                      >
-                        Save
-                      </Button>
-                    </Flex>
-                  </Box>
-                ) : (
-                  <Box>
-                    <Button
-                      size="sm"
-                      leftIcon={<FaEdit />}
-                      onClick={() => setEditingNotes(true)}
-                      mb={2}
-                    >
-                      Edit
-                    </Button>
-                    <Box>
-                      {notes || (
-                        <Text color="gray.400">No notes available</Text>
-                      )}
-                    </Box>
+                    <strong>Size:</strong> {selectedRecording.file_size} bytes
                   </Box>
                 )}
-              </TabPanel>
-              <TabPanel p={4}>
-                {/* Chat Panel */}
-                <Box flex="1" overflowY="auto">
-                  {chatMessages.length === 0 ? (
-                    <Flex
-                      direction="column"
-                      align="center"
-                      py={8}
-                      color="gray.400"
-                    >
-                      <FaRobot size={32} />
-                      <Text>Ask questions about this transcription</Text>
-                    </Flex>
+              </Flex>
+            </Box>
+            {/* Tabs */}
+            <Tabs
+              variant="soft-rounded"
+              colorScheme="blue"
+              flex="1"
+              minH={0}
+              display="flex"
+              flexDirection="column"
+            >
+              <TabList
+                bg="#f0f4fa"
+                borderBottom="1px solid #e5e7eb"
+                borderRadius="xl"
+                px={2}
+              >
+                <Tab
+                  _selected={{ bg: '#0070f3', color: '#fff' }}
+                  borderRadius="xl"
+                >
+                  Summary
+                </Tab>
+                <Tab
+                  _selected={{ bg: '#0070f3', color: '#fff' }}
+                  borderRadius="xl"
+                >
+                  Notes
+                </Tab>
+                <Tab
+                  _selected={{ bg: '#0070f3', color: '#fff' }}
+                  borderRadius="xl"
+                >
+                  Chat
+                </Tab>
+              </TabList>
+              <TabPanels flex="1" overflowY="auto" minH={0}>
+                <TabPanel p={4}>
+                  {/* Summary Panel */}
+                  {editingSummary ? (
+                    <Box>
+                      <Textarea
+                        value={summary}
+                        onChange={(e) => setSummary(e.target.value)}
+                        borderRadius="xl"
+                        bg="#f7fafc"
+                        color="#1a202c"
+                      />
+                      <Flex justify="end" gap={2} mt={2}>
+                        <Button
+                          size="sm"
+                          onClick={() => setEditingSummary(false)}
+                          bg="#eee"
+                          color="#1a202c"
+                          borderRadius="xl"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          size="sm"
+                          bg="#0070f3"
+                          color="#fff"
+                          borderRadius="xl"
+                          onClick={() => setEditingSummary(false)}
+                          _hover={{ bg: '#339dff' }}
+                        >
+                          Save
+                        </Button>
+                      </Flex>
+                    </Box>
                   ) : (
-                    chatMessages.map((msg, idx) => (
-                      <Box
-                        key={idx}
-                        className={
-                          msg.role === 'user' ? 'user-message' : 'ai-message'
+                    <Box>
+                      <Button
+                        size="sm"
+                        leftIcon={<FaEdit />}
+                        onClick={() => setEditingSummary(true)}
+                        mb={2}
+                        bg="#0070f3"
+                        color="#fff"
+                        borderRadius="xl"
+                        _hover={{ bg: '#339dff' }}
+                      >
+                        Edit
+                      </Button>
+                      <Box>
+                        {summary || (
+                          <Text color="#888">No summary available</Text>
+                        )}
+                      </Box>
+                    </Box>
+                  )}
+                </TabPanel>
+                <TabPanel p={4}>
+                  {/* Notes Panel */}
+                  {editingNotes ? (
+                    <Box>
+                      <Textarea
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        borderRadius="xl"
+                        bg="#f7fafc"
+                        color="#1a202c"
+                      />
+                      <Flex justify="end" gap={2} mt={2}>
+                        <Button
+                          size="sm"
+                          onClick={() => setEditingNotes(false)}
+                          bg="#eee"
+                          color="#1a202c"
+                          borderRadius="xl"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          size="sm"
+                          bg="#0070f3"
+                          color="#fff"
+                          borderRadius="xl"
+                          onClick={() => setEditingNotes(false)}
+                          _hover={{ bg: '#339dff' }}
+                        >
+                          Save
+                        </Button>
+                      </Flex>
+                    </Box>
+                  ) : (
+                    <Box>
+                      <Button
+                        size="sm"
+                        leftIcon={<FaEdit />}
+                        onClick={() => setEditingNotes(true)}
+                        mb={2}
+                        bg="#0070f3"
+                        color="#fff"
+                        borderRadius="xl"
+                        _hover={{ bg: '#339dff' }}
+                      >
+                        Edit
+                      </Button>
+                      <Box>
+                        {notes || <Text color="#888">No notes available</Text>}
+                      </Box>
+                    </Box>
+                  )}
+                </TabPanel>
+                <TabPanel p={4}>
+                  {/* Chat Panel */}
+                  <Box flex="1" overflowY="auto">
+                    {chatMessages.length === 0 ? (
+                      <Flex
+                        direction="column"
+                        align="center"
+                        py={8}
+                        color="#888"
+                      >
+                        <FaRobot size={32} />
+                        <Text>Ask questions about this transcription</Text>
+                      </Flex>
+                    ) : (
+                      chatMessages.map((msg, idx) => (
+                        <Box
+                          key={idx}
+                          className={
+                            msg.role === 'user' ? 'user-message' : 'ai-message'
+                          }
+                        >
+                          {msg.content}
+                        </Box>
+                      ))
+                    )}
+                    {/* Chat input */}
+                    <Flex gap={2} mt={4}>
+                      <Textarea
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        rows={2}
+                        size="sm"
+                        placeholder="Ask about this transcription..."
+                        borderRadius="xl"
+                        bg="#f7fafc"
+                        color="#1a202c"
+                      />
+                      <Button
+                        leftIcon={<FaPaperPlane />}
+                        bg="#0070f3"
+                        color="#fff"
+                        borderRadius="xl"
+                        _hover={{ bg: '#339dff' }}
+                        onClick={() =>
+                          setChatMessages((msgs) => [
+                            ...msgs,
+                            { role: 'user', content: chatInput },
+                          ])
                         }
                       >
-                        {msg.content}
-                      </Box>
-                    ))
-                  )}
-                  {/* Chat input */}
-                  <Flex gap={2} mt={4}>
-                    <Textarea
-                      value={chatInput}
-                      onChange={(e) => setChatInput(e.target.value)}
-                      rows={2}
-                      size="sm"
-                      placeholder="Ask about this transcription..."
-                    />
-                    <Button
-                      leftIcon={<FaPaperPlane />}
-                      colorScheme="blue"
-                      onClick={() =>
-                        setChatMessages((msgs) => [
-                          ...msgs,
-                          { role: 'user', content: chatInput },
-                        ])
-                      }
-                    >
-                      Send
-                    </Button>
-                  </Flex>
-                </Box>
-              </TabPanel>
-            </TabPanels>
-          </Tabs>
-        </Box>
-      </Flex>
+                        Send
+                      </Button>
+                    </Flex>
+                  </Box>
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
+          </Box>
+        </Flex>
+      </Box>
     </Flex>
   );
 };
+
+// Parse transcript array to HTML
+function parseTranscriptToHtml(transcriptArr: any[]) {
+  if (!Array.isArray(transcriptArr)) return null;
+  // Tạo màu cho từng speaker
+  const speakerColors = [
+    '#0070f3',
+    '#ff9800',
+    '#43a047',
+    '#d81b60',
+    '#6d4cff',
+    '#00897b',
+  ];
+  const speakerMap: Record<string, string> = {};
+  let colorIdx = 0;
+  transcriptArr.forEach((item) => {
+    if (!speakerMap[item.speaker]) {
+      speakerMap[item.speaker] = speakerColors[colorIdx % speakerColors.length];
+      colorIdx++;
+    }
+  });
+  return (
+    <div style={{ lineHeight: 1.8 }}>
+      {transcriptArr.map((item, idx) => (
+        <div
+          key={idx}
+          style={{
+            marginBottom: 4,
+            padding: '6px 0',
+            borderBottom: '1px solid #f0f0f0',
+            display: 'flex',
+            alignItems: 'flex-start',
+          }}
+        >
+          <span
+            style={{
+              fontWeight: 700,
+              color: speakerMap[item.speaker],
+              marginRight: 12,
+              minWidth: 110,
+              display: 'inline-block',
+            }}
+          >
+            {item.speaker}:
+          </span>
+          <span style={{ color: '#222', fontSize: 16 }}>{item.sentence}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default RecordingDetailView;

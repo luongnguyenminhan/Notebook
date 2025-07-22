@@ -3,25 +3,43 @@ import subprocess
 from datetime import datetime
 from typing import List, Optional
 
-from fastapi import UploadFile
+from fastapi import UploadFile, HTTPException
+from pytz import timezone
 from sqlalchemy.orm import Session
 
-from app.models.recording import Recording
-from app.schemas.recording import RecordingCreate, RecordingResponse, RecordingUpdate
+from app.models import Recording
+from app.schemas import RecordingResponse, RecordingUpdate
 from app.utils.recording_utils import apply_recording_update
+from app.utils.text import md_to_html
 
 
-async def save_uploaded_file(
-    db: Session, file: UploadFile, user_id: int
-) -> RecordingResponse:
-    # Save uploaded file to disk (e.g., ./audio_sessions/user_{user_id}/)
-    upload_dir = f"audio_sessions/user_{user_id}"
+async def save_uploaded_file(db: Session, file: UploadFile, user_id: int) -> RecordingResponse:
+    from app.utils.minio import minio_client
+    from app.core.config import settings
+
+    # Create temp directory
+    upload_dir = f"audio_sessions/tmp_{user_id}"
     os.makedirs(upload_dir, exist_ok=True)
     filename = file.filename
     file_path = os.path.join(upload_dir, filename)
+    
+    # Save file temporarily
     with open(file_path, "wb") as f:
         content = await file.read()
         f.write(content)
+
+    # Upload to MinIO
+    bucket_name = f"{settings.minio_bucket_prefix}-user-{user_id}"
+    object_name = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{filename}"
+    
+    try:
+        minio_client.upload_file(file_path, bucket_name, object_name)
+    except Exception as e:
+        os.remove(file_path)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to upload file to MinIO: {str(e)}"
+        )
 
     # Use ffmpeg to get duration
     try:
@@ -52,7 +70,9 @@ async def save_uploaded_file(
         filename=filename,
         title=f"Recording - {os.path.splitext(filename)[0]}",
         original_filename=file.filename,
-        audio_path=file_path,
+        audio_path=f"minio://{bucket_name}/{object_name}",
+        bucket_name=bucket_name,
+        object_name=object_name,
         duration=duration,
         file_size=len(content),
         status="PENDING",
@@ -62,27 +82,20 @@ async def save_uploaded_file(
     db.add(recording)
     db.commit()
     db.refresh(recording)
+
+    # Trigger audio processing task
+    from app.tasks.audio_tasks import transcribe_audio_task
+    transcribe_audio_task.delay(recording.id, bucket_name, object_name)
+
     return RecordingResponse.model_validate(recording, from_attributes=True)
 
 
-def get_recordings(
-    db: Session, user_id: int, skip: int = 0, limit: int = 100
-) -> List[RecordingResponse]:
-    recordings = (
-        db.query(Recording)
-        .filter(Recording.user_id == user_id, ~Recording.is_deleted)
-        .offset(skip)
-        .limit(limit)
-        .all()
-    )
-    return [
-        RecordingResponse.model_validate(r, from_attributes=True) for r in recordings
-    ]
+def get_recordings(db: Session, user_id: int, skip: int = 0, limit: int = 100) -> List[RecordingResponse]:
+    recordings = db.query(Recording).filter(Recording.user_id == user_id, ~Recording.is_deleted).offset(skip).limit(limit).all()
+    return [RecordingResponse.model_validate(r, from_attributes=True) for r in recordings]
 
 
-def get_recording(
-    db: Session, recording_id: int, user_id: int
-) -> Optional[RecordingResponse]:
+def get_recording(db: Session, recording_id: int, user_id: int) -> Optional[RecordingResponse]:
     recording = (
         db.query(Recording)
         .filter(
@@ -97,9 +110,7 @@ def get_recording(
     return RecordingResponse.model_validate(recording, from_attributes=True)
 
 
-def update_recording(
-    db: Session, recording_id: int, recording_in: RecordingUpdate, user_id: int
-) -> Optional[RecordingResponse]:
+def update_recording(db: Session, recording_id: int, recording_in: RecordingUpdate, user_id: int) -> Optional[RecordingResponse]:
     recording = (
         db.query(Recording)
         .filter(
@@ -112,7 +123,7 @@ def update_recording(
     if not recording:
         return None
     apply_recording_update(recording, recording_in)
-    recording.updated_at = datetime.utcnow()
+    recording.updated_at = datetime.now(timezone("Asia/Ho_Chi_Minh"))
     db.commit()
     db.refresh(recording)
     return RecordingResponse.model_validate(recording, from_attributes=True)
@@ -131,3 +142,21 @@ def delete_recording(db: Session, recording_id: int, user_id: int) -> None:
     if recording:
         recording.is_deleted = True
         db.commit()
+
+def add_html_fields_to_recording(recording: Recording) -> Recording:
+    """Add HTML versions of markdown fields to recording"""
+    # Convert summary to HTML
+    if recording.summary:
+        recording.summary_html = md_to_html(recording.summary)
+
+    # Convert notes to HTML
+    if recording.notes:
+        recording.notes_html = md_to_html(recording.notes)
+
+    return recording
+
+
+def get_user_storage_usage(db: Session, user_id: int) -> int:
+    """Get total storage usage for a user"""
+    result = db.query(Recording).filter(Recording.user_id == user_id).all()
+    return sum(r.file_size or 0 for r in result)

@@ -37,9 +37,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)) -> Any:
 
 
 @router.post("/login", response_model=Token)
-def login_for_access_token(
-    form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
-) -> Any:
+def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)) -> Any:
     """
     OAuth2 compatible token login, get an access token for future requests.
     """
@@ -108,9 +106,7 @@ def init_superuser(user_in: SuperUserCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/account", response_model=dict)
-def get_account_info(
-    current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
-) -> dict:
+def get_account_info(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)) -> dict:
     """
     Get account information with settings.
     """

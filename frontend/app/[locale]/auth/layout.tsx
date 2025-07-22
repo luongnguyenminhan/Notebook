@@ -14,7 +14,7 @@ export default function AuthLayout({
       }}
     >
       <div
-        className="w-full max-w-md p-8 rounded shadow"
+        className="w-full max-w-md p-8 rounded"
         style={{
           background: 'var(--input-bg-light)',
           color: 'var(--text-color-light)',

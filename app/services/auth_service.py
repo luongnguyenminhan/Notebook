@@ -32,9 +32,7 @@ class AuthService:
 
         # Create user
         hashed_password = get_password_hash(user.password)
-        db_user = User(
-            username=user.username, email=user.email, password=hashed_password
-        )
+        db_user = User(username=user.username, email=user.email, password=hashed_password)
         db.add(db_user)
         db.commit()
         db.refresh(db_user)
@@ -54,9 +52,7 @@ class AuthService:
     def create_access_token_for_user(user: User) -> str:
         """Create access token for authenticated user."""
         access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
-        return create_access_token(
-            data={"sub": str(user.id)}, expires_delta=access_token_expires
-        )
+        return create_access_token(data={"sub": str(user.id)}, expires_delta=access_token_expires)
 
     @staticmethod
     def update_user(db: Session, user: User, user_update: UserUpdate) -> User:
@@ -90,9 +86,7 @@ class AuthService:
         return user
 
     @staticmethod
-    def change_password(
-        db: Session, user: User, current_password: str, new_password: str
-    ) -> bool:
+    def change_password(db: Session, user: User, current_password: str, new_password: str) -> bool:
         """Change user password."""
         if not verify_password(current_password, str(user.password)):
             raise HTTPException(
@@ -107,15 +101,8 @@ class AuthService:
     @staticmethod
     def get_user_stats(db: Session, user: User) -> dict:
         """Get user statistics."""
-        recordings_count = (
-            db.query(Recording).filter(Recording.user_id == user.id).count()
-        )
-        storage_used = (
-            db.query(func.sum(Recording.file_size))
-            .filter(Recording.user_id == user.id)
-            .scalar()
-            or 0
-        )
+        recordings_count = db.query(Recording).filter(Recording.user_id == user.id).count()
+        storage_used = db.query(func.sum(Recording.file_size)).filter(Recording.user_id == user.id).scalar() or 0
 
         return {"recordings_count": recordings_count, "storage_used": storage_used}
 

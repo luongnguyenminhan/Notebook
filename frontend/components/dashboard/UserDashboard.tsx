@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Flex, Box } from '@chakra-ui/react';
-import UserHeader from './UserHeader';
 import Sidebar from '../Sidebar';
 import RecordingDetailView from '../RecordingDetailView';
 import UploadModal from './UploadModal';
@@ -71,13 +70,13 @@ const UserDashboard = () => {
 
   return (
     <Flex
-      h="80vh"
+      h="100%"
       w="100%"
+      pt={100}
       direction="column"
       bg="var(--input-bg-light)"
       _dark={{ bg: 'var(--input-bg-dark)' }}
     >
-      <UserHeader user={user} onUpload={() => setShowUpload(true)} />
       <Flex flex="1">
         <Sidebar
           recordings={recordings}
@@ -86,7 +85,7 @@ const UserDashboard = () => {
           onSelect={(rec: any) => setSelectedRecording(rec)}
           selectedId={selectedRecording?.id}
         />
-        <Box flex="1" p={4} minW={0}>
+        <Box flex="1" minW={0}>
           {selectedRecording ? (
             <RecordingDetailView selectedRecording={selectedRecording} />
           ) : (
@@ -100,7 +99,7 @@ const UserDashboard = () => {
         onClose={() => setShowUpload(false)}
         onUploaded={handleUploaded}
       />
-      <ColorSchemeModal
+      {/* <ColorSchemeModal
         isOpen={showColorScheme}
         onClose={() => setShowColorScheme(false)}
         colorSchemes={{ light: [], dark: [] }}
@@ -139,7 +138,7 @@ const UserDashboard = () => {
         finishedFilesInQueue={[]}
         completedInQueue={0}
         totalInQueue={0}
-      />
+      /> */}
     </Flex>
   );
 };

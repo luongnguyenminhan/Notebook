@@ -16,6 +16,7 @@ from app.services.recording_service import (
     save_uploaded_file,
     update_recording,
 )
+from ...utils.text import md_to_html
 
 router = APIRouter(prefix="/recordings", tags=["recordings"])
 
@@ -49,6 +50,7 @@ async def read_one(
     recording = get_recording(db=db, recording_id=recording_id, user_id=current_user.id)
     if not recording:
         raise HTTPException(status_code=404, detail="Recording not found")
+    recording.summary = md_to_html(recording.summary)
     return recording
 
 

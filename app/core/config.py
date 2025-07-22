@@ -18,24 +18,16 @@ class Settings(BaseSettings):
     )
 
     # Security Configuration
-    secret_key: str = os.getenv(
-        "SECRET_KEY", "your-super-secret-jwt-key-change-this-in-production"
-    )
+    secret_key: str = os.getenv("SECRET_KEY", "your-super-secret-jwt-key-change-this-in-production")
     algorithm: str = "HS256"
-    access_token_expire_minutes: int = int(
-        os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30")
-    )
+    access_token_expire_minutes: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 
     # Application Settings
     allow_registration: bool = os.getenv("ALLOW_REGISTRATION", "true").lower() == "true"
     environment: str = os.getenv("ENVIRONMENT", "development")
 
     # ASR Settings
-    asr_diarize: Optional[bool] = (
-        None
-        if os.getenv("ASR_DIARIZE") is None
-        else os.getenv("ASR_DIARIZE").lower() == "true"
-    )
+    asr_diarize: Optional[bool] = None if os.getenv("ASR_DIARIZE") is None else os.getenv("ASR_DIARIZE").lower() == "true"
     use_asr_endpoint: bool = os.getenv("USE_ASR_ENDPOINT", "true").lower() == "true"
 
     # Redis Configuration
@@ -44,6 +36,13 @@ class Settings(BaseSettings):
     # Development Settings (optional)
     log_level: str = os.getenv("LOG_LEVEL", "INFO")
     debug: bool = os.getenv("DEBUG", "false").lower() == "true"
+
+    # MinIO Configuration
+    minio_endpoint: str = os.getenv("MINIO_ENDPOINT", "localhost:9000")
+    minio_access_key: str = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
+    minio_secret_key: str = os.getenv("MINIO_SECRET_KEY", "minioadmin")
+    minio_secure: bool = os.getenv("MINIO_SECURE", "false").lower() == "true"
+    minio_bucket_prefix: str = os.getenv("MINIO_BUCKET_PREFIX", "sercuescribe")
 
     # Email Settings (for Meet automation) - keeping existing for compatibility
     email_id: Optional[str] = os.getenv("EMAIL_ID")
@@ -58,6 +57,9 @@ class Settings(BaseSettings):
         case_sensitive=False,
         extra="ignore",  # Allow extra fields but ignore them
     )
+    # - Thêm cấu hình Celery cho background tasks
+    celery_broker_url: str = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0")
+    celery_result_backend: str = os.getenv("CELERY_RESULT_BACKEND", "redis://localhost:6379/0")
 
 
 @lru_cache()

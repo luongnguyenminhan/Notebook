@@ -224,10 +224,18 @@
     "logout": "Logout"
   },
   "UserSidebar": {
+    "recordings": "Recordings",
     "upload": "New Upload",
     "search": "Search...",
     "sort": "Sort",
-    "tips": "Tip: date:today, date:thisweek"
+    "meetingDate": "Meeting Date",
+    "uploadDate": "Upload Date",
+    "tips": "Tip: date:today, date:thisweek",
+    "noRecordings": "No recordings",
+    "completed": "Completed",
+    "processing": "Processing",
+    "pending": "Pending",
+    "failed": "Failed"
   },
   "RecordingList": {
     "noData": "No recordings",
@@ -248,6 +256,13 @@
   "UploadModal": {
     "uploadTitle": "Upload new recording",
     "close": "Close",
-    "upload": "Upload"
+    "upload": "Upload",
+    "success": "Upload successful!",
+    "error": "Upload failed!"
+  },
+  "EmptyState": {
+    "selectTitle": "Select a Recording",
+    "selectDescription": "Choose a recording from the sidebar to view its transcription and summary",
+    "uploadButton": "Upload New Recording"
   }
 }

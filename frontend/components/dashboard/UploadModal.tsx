@@ -60,22 +60,89 @@ const UploadModal: React.FC<UploadModalProps> = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>
+      <ModalContent
+        style={{
+          borderRadius: '1.5rem',
+          background: '#fff',
+          color: 'var(--text-color-light)',
+          boxShadow: '0 8px 32px 0 var(--shadow-color)',
+        }}
+        _dark={{
+          background: '#fff',
+          color: 'var(--text-color-dark)',
+        }}
+      >
+        <ModalHeader
+          style={{
+            fontWeight: 700,
+            color: 'var(--primary-color)',
+            borderRadius: '1.5rem 1.5rem 0 0',
+            textAlign: 'center',
+          }}
+        >
           {t('uploadTitle', { defaultValue: 'Tải lên bản ghi mới' })}
         </ModalHeader>
         <ModalBody>
-          <Input ref={fileInputRef} type="file" accept="audio/*" />
+          <Input
+            ref={fileInputRef}
+            type="file"
+            accept="audio/*"
+            borderRadius="xl"
+            boxShadow="sm"
+            bg="var(--input-bg-light)"
+            color="var(--text-color-light)"
+            _dark={{
+              bg: 'var(--input-bg-dark)',
+              color: 'var(--text-color-dark)',
+            }}
+            border="none"
+            p={3}
+            _focus={{
+              boxShadow: '0 0 0 3px var(--primary-color)',
+              transform: 'scale(1.03)',
+            }}
+            transition="all 0.2s"
+          />
         </ModalBody>
         <ModalFooter>
-          <Button onClick={onClose} isDisabled={uploading}>
+          <Button
+            onClick={onClose}
+            isDisabled={uploading}
+            borderRadius="xl"
+            bg="var(--input-bg-light)"
+            color="var(--text-color-light)"
+            _dark={{
+              bg: 'var(--input-bg-dark)',
+              color: 'var(--text-color-dark)',
+            }}
+            boxShadow="sm"
+            border="none"
+            _hover={{ filter: 'brightness(1.05)', transform: 'scale(1.02)' }}
+            transition="all 0.2s"
+          >
             {t('close', { defaultValue: 'Đóng' })}
           </Button>
           <Button
-            colorScheme="blue"
             ml={3}
             onClick={handleUpload}
             isLoading={uploading}
+            borderRadius="xl"
+            style={{
+              background: '#0070f3',
+              color: '#fff',
+              fontWeight: 600,
+              boxShadow: '0 2px 8px 0 rgba(0,112,243,0.10)',
+            }}
+            _hover={{
+              filter: 'brightness(1.1)',
+              transform: 'scale(1.04)',
+              background: 'var(--primary-color)',
+            }}
+            _active={{
+              filter: 'brightness(0.95)',
+              background: 'var(--primary-color)',
+            }}
+            transition="all 0.2s"
           >
             {t('upload', { defaultValue: 'Tải lên' })}
           </Button>

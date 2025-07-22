@@ -1,4 +1,5 @@
 from sqlalchemy import BigInteger, Boolean, Column, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy.dialects.mysql import LONGTEXT
 from sqlalchemy.orm import relationship
 
 from app.db import BaseEntity
@@ -15,7 +16,9 @@ class Recording(BaseEntity):
     summary = Column(String(500), nullable=True)
     original_filename = Column(String(255), nullable=True)
     audio_path = Column(String(500), nullable=True)
-    transcription = Column(Text, nullable=True)
+    bucket_name = Column(String(255), nullable=True)
+    object_name = Column(String(255), nullable=True)
+    transcription = Column(LONGTEXT, nullable=True)  # Đã chuyển sang LONGTEXT cho MySQL
     summary = Column(Text, nullable=True)
     status = Column(String(20), default="PENDING")  # PENDING, PROCESSING, SUMMARIZING, COMPLETED, FAILED
     file_size = Column(BigInteger, nullable=True)
