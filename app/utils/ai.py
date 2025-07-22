@@ -12,6 +12,7 @@ import logging
 
 from app.core.config import settings
 import re
+from app.services.chat_service import chat_service
 
 logger = logging.getLogger(__name__)
 
@@ -63,19 +64,30 @@ class TranscriptionService:
                         logger.debug(f"Nhận dữ liệu response hoàn chỉnh")
                         transcript = result.get("transcript", "")
                         transcript = re.sub(
-                            r"\s\[\d{2}/\d{2}/\d{4} \d{2}:\d{2} (AM|PM)\]", ":", transcript
+                            r"\s\[\d{2}/\d{2}/\d{4} \d{2}:\d{2} (AM|PM)\]",
+                            ":",
+                            transcript,
                         ).strip()
-                        entries = re.split(r'(?=SPEAKER_\d+:)', transcript.strip())
+                        entries = re.split(r"(?=SPEAKER_\d+:)", transcript.strip())
 
                         # Convert to desired structure
                         trs: List[Dict[str, str]] = []
                         for entry in entries:
-                            match = re.match(r'(SPEAKER_\d+):\s*(.*)', entry, re.DOTALL)
+                            match = re.match(r"(SPEAKER_\d+):\s*(.*)", entry, re.DOTALL)
                             if match:
                                 speaker = match.group(1).strip()
-                                sentence = re.sub(r'\s+', ' ', match.group(2).strip())
+                                sentence = re.sub(r"\s+", " ", match.group(2).strip())
                                 if sentence:
-                                    trs.append({"speaker": speaker, "sentence": re.sub(r'[^a-zA-Z0-9À-ỹ\s]', '', sentence.lower())})
+                                    trs.append(
+                                        {
+                                            "speaker": speaker,
+                                            "sentence": re.sub(
+                                                r"[^a-zA-Z0-9À-ỹ\s]",
+                                                "",
+                                                sentence.lower(),
+                                            ),
+                                        }
+                                    )
                         print("Kết quả:", trs)
                         return {
                             "transcript": trs,
@@ -203,16 +215,8 @@ class SummarizationService:
         messages.append({"role": "user", "content": message})
 
         try:
-            # Xoá các hàm hoặc biến liên quan đến OpenAI
-            # response = self.client.chat.completions.create(
-            #     model=settings.text_model_name,
-            #     messages=messages,
-            #     max_tokens=settings.chat_max_tokens,
-            #     temperature=0.7,
-            # )
-
-            # return response.choices[0].message.content.strip()
-            return "Chat functionality is currently disabled."
+            # Gọi chat_service (Ollama)
+            return chat_service.chat(message, messages)
 
         except Exception as e:
             raise Exception(f"Chat failed: {str(e)}")
