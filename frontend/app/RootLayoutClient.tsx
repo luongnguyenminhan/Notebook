@@ -8,6 +8,7 @@ import store from '@/store/index';
 import { ChakraProvider } from '@chakra-ui/react';
 import '@/styles/globals.css';
 import Fonts from '@/styles/Fonts';
+import { Toaster } from 'sonner';
 
 export default function RootLayoutClient({
   children,
@@ -29,6 +30,7 @@ export default function RootLayoutClient({
               timeZone="Europe/Paris"
             >
               <ChakraProvider>
+                <Toaster position="top-right" richColors />
                 <Fonts />
                 <main className="w-full h-screen flex items-center justify-center">
                   {children}

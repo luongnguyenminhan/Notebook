@@ -1,26 +1,26 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import React, { useState, useRef, useEffect } from 'react';
 import {
   Box,
-  Flex,
-  Text,
   Button,
-  Tabs,
-  TabList,
-  TabPanels,
+  Flex,
   Tab,
+  TabList,
   TabPanel,
+  TabPanels,
+  Tabs,
+  Text,
   useBreakpointValue,
   useColorModeValue,
 } from '@chakra-ui/react';
-import { FaEdit, FaCopy } from 'react-icons/fa';
-import Header from './RecordingDetailView/Header';
+import React, { useEffect, useRef, useState } from 'react';
+import { FaCopy, FaEdit } from 'react-icons/fa';
 import AudioPlayer from './RecordingDetailView/AudioPlayer';
-import TranscriptPanel from './RecordingDetailView/TranscriptPanel';
-import SummaryPanel from './RecordingDetailView/SummaryPanel';
-import NotesPanel from './RecordingDetailView/NotesPanel';
 import ChatPanel from './RecordingDetailView/ChatPanel';
+import Header from './RecordingDetailView/Header';
 import MobileHeader from './RecordingDetailView/MobileHeader';
+import NotesPanel from './RecordingDetailView/NotesPanel';
+import SummaryPanel from './RecordingDetailView/SummaryPanel';
+import TranscriptPanel from './RecordingDetailView/TranscriptPanel';
 
 interface RecordingDetailViewProps {
   selectedRecording: any;
@@ -46,8 +46,8 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
   // Mock state for edit, chat, etc.
   const [editingSummary, setEditingSummary] = useState(false);
   const [editingNotes, setEditingNotes] = useState(false);
-  const [summary, setSummary] = useState(selectedRecording?.summary || '');
-  const [notes, setNotes] = useState(selectedRecording?.notes || '');
+  const [summary, setSummary] = useState('');
+  const [notes, setNotes] = useState('');
   const [chatInput, setChatInput] = useState('');
   const [chatMessages, setChatMessages] = useState<any[]>([]);
   const [copySuccess, setCopySuccess] = useState<string | null>(null);
@@ -58,6 +58,13 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
       chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [chatMessages]);
+
+  useEffect(() => {
+    if (selectedRecording) {
+      setSummary(selectedRecording.summary || '');
+      setNotes(selectedRecording.notes || '');
+    }
+  }, [selectedRecording]);
 
   const handleSendChat = async () => {
     if (!chatInput.trim() || isWaitingBot) return;
@@ -403,7 +410,7 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
         onDelete={onDelete}
       />
       <Box
-        height="calc(100vh - 230px)"
+        height="calc(100vh - 210px)"
         minH={0}
         bg="var(--input-bg-light)"
         _dark={{ bg: 'var(--input-bg-dark)' }}
@@ -498,111 +505,118 @@ const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({
               duration={selectedRecording.duration}
               file_size={selectedRecording.file_size}
             />
-            <Tabs
-              variant="soft-rounded"
-              colorScheme="blue"
-              flex="1"
-              minH={0}
-              display="flex"
-              flexDirection="column"
-              borderColor="#444"
-              bg="var(--input-bg-light)"
-              _dark={{ bg: 'var(--input-bg-dark)', borderColor: '#444' }}
-            >
-              <TabList
-                bg="var(--input-bg-light)"
-                _dark={{ bg: 'var(--input-bg-dark)', borderColor: '#444' }}
-                borderBottom="1px solid"
-                borderColor="#eee"
-                px={2}
-              >
-                <Tab
-                  _selected={{ bg: '#0070f3', color: '#fff' }}
-                  borderRadius="xl"
-                >
-                  Summary
-                </Tab>
-                <Tab
-                  _selected={{ bg: '#0070f3', color: '#fff' }}
-                  borderRadius="xl"
-                >
-                  Notes
-                </Tab>
-                <Tab
-                  _selected={{ bg: '#0070f3', color: '#fff' }}
-                  borderRadius="xl"
-                >
-                  Chat
-                </Tab>
-              </TabList>
-              <TabPanels
+            {notes || summary ? (
+              <Tabs
+                variant="soft-rounded"
+                colorScheme="blue"
                 flex="1"
-                overflowY="auto"
                 minH={0}
+                display="flex"
+                flexDirection="column"
+                borderColor="#444"
                 bg="var(--input-bg-light)"
                 _dark={{ bg: 'var(--input-bg-dark)', borderColor: '#444' }}
               >
-                <TabPanel
-                  p={4}
-                  color="var(--text-color-light)"
-                  _dark={{
-                    bg: 'var(--input-bg-dark)',
-                    color: 'var(--text-color-dark)',
-                  }}
+                <TabList
+                  bg="var(--input-bg-light)"
+                  _dark={{ bg: 'var(--input-bg-dark)', borderColor: '#444' }}
+                  borderBottom="1px solid"
+                  borderColor="#eee"
+                  px={2}
                 >
-                  <SummaryPanel
-                    summary={summary}
-                    editingSummary={editingSummary}
-                    setEditingSummary={setEditingSummary}
-                    setSummary={setSummary}
-                    formatMeetingNoteForDisplay={(noteText) =>
-                      formatMeetingNoteForDisplay(
-                        noteText,
-                        headingColor,
-                        subHeadingColor,
-                        textColor,
-                        borderColor,
-                      )
-                    }
-                  />
-                </TabPanel>
-                <TabPanel
-                  p={4}
-                  color="var(--text-color-light)"
-                  _dark={{
-                    bg: 'var(--input-bg-dark)',
-                    color: 'var(--text-color-dark)',
-                  }}
+                  <Tab
+                    _selected={{ bg: '#0070f3', color: '#fff' }}
+                    borderRadius="xl"
+                    fontSize={'13px'}
+                  >
+                    Summary
+                  </Tab>
+                  <Tab
+                    _selected={{ bg: '#0070f3', color: '#fff' }}
+                    borderRadius="xl"
+                    fontSize={'13px'}
+                  >
+                    Notes
+                  </Tab>
+                  <Tab
+                    _selected={{ bg: '#0070f3', color: '#fff' }}
+                    borderRadius="xl"
+                    fontSize={'13px'}
+                  >
+                    Chat
+                  </Tab>
+                </TabList>
+                <TabPanels
+                  flex="1"
+                  overflowY="auto"
+                  minH={0}
+                  bg="var(--input-bg-light)"
+                  _dark={{ bg: 'var(--input-bg-dark)', borderColor: '#444' }}
                 >
-                  <NotesPanel
-                    notes={notes}
-                    editingNotes={editingNotes}
-                    setEditingNotes={setEditingNotes}
-                    setNotes={setNotes}
-                  />
-                </TabPanel>
-                <TabPanel p={4}>
-                  <ChatPanel
-                    chatMessages={chatMessages}
-                    chatInput={chatInput}
-                    setChatInput={setChatInput}
-                    handleSendChat={handleSendChat}
-                    isWaitingBot={isWaitingBot}
-                    chatEndRef={chatEndRef}
-                    chatBg={chatBg}
-                    chatPanelBorder={chatPanelBorder}
-                    chatText={chatText}
-                    chatUserBg={chatUserBg}
-                    chatUserColor={chatUserColor}
-                    chatBotBg={chatBotBg}
-                    chatBotColor={chatBotColor}
-                    chatInputBg={chatInputBg}
-                    chatInputBorder={chatInputBorder}
-                    chatInputColor={chatInputColor}
-                  />
-                </TabPanel>
-              </TabPanels>
-            </Tabs>
+                  <TabPanel
+                    p={4}
+                    color="var(--text-color-light)"
+                    _dark={{
+                      bg: 'var(--input-bg-dark)',
+                      color: 'var(--text-color-dark)',
+                    }}
+                  >
+                    <SummaryPanel
+                      summary={summary}
+                      editingSummary={editingSummary}
+                      setEditingSummary={setEditingSummary}
+                      setSummary={setSummary}
+                      formatMeetingNoteForDisplay={(noteText) =>
+                        formatMeetingNoteForDisplay(
+                          noteText,
+                          headingColor,
+                          subHeadingColor,
+                          textColor,
+                          borderColor,
+                        )
+                      }
+                    />
+                  </TabPanel>
+                  <TabPanel
+                    p={4}
+                    color="var(--text-color-light)"
+                    _dark={{
+                      bg: 'var(--input-bg-dark)',
+                      color: 'var(--text-color-dark)',
+                    }}
+                  >
+                    <NotesPanel
+                      notes={notes}
+                      editingNotes={editingNotes}
+                      setEditingNotes={setEditingNotes}
+                      setNotes={setNotes}
+                    />
+                  </TabPanel>
+                  <TabPanel p={4}>
+                    <ChatPanel
+                      chatMessages={chatMessages}
+                      chatInput={chatInput}
+                      setChatInput={setChatInput}
+                      handleSendChat={handleSendChat}
+                      isWaitingBot={isWaitingBot}
+                      chatEndRef={chatEndRef}
+                      chatBg={chatBg}
+                      chatPanelBorder={chatPanelBorder}
+                      chatText={chatText}
+                      chatUserBg={chatUserBg}
+                      chatUserColor={chatUserColor}
+                      chatBotBg={chatBotBg}
+                      chatBotColor={chatBotColor}
+                      chatInputBg={chatInputBg}
+                      chatInputBorder={chatInputBorder}
+                      chatInputColor={chatInputColor}
+                    />
+                  </TabPanel>
+                </TabPanels>
+              </Tabs>
+            ) : (
+              ''
+            )}
           </Box>
         </Flex>
       </Box>

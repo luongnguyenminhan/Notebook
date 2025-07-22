@@ -1,6 +1,15 @@
+import { formatTimestampWithHour } from '@/lib/utils/utils';
+import { Badge, Box, Flex, IconButton, Text } from '@chakra-ui/react';
 import React from 'react';
-import { Box, Flex, Text, IconButton, Badge } from '@chakra-ui/react';
-import { FaStar, FaEdit, FaRedoAlt, FaSyncAlt, FaUndo, FaUserTag, FaTrash, FaUsers, FaCalendar } from 'react-icons/fa';
+import {
+  FaCalendar,
+  FaEdit,
+  FaRedoAlt,
+  FaStar,
+  FaSyncAlt,
+  FaTrash,
+  FaUsers,
+} from 'react-icons/fa';
 
 interface HeaderProps {
   selectedRecording: any;
@@ -26,7 +35,7 @@ const Header: React.FC<HeaderProps> = ({
     _dark={{ bg: 'var(--input-bg-dark)', borderColor: '#444' }}
     borderBottom="1px solid"
     borderColor="gray.200"
-    p={6}
+    p={3}
     flexShrink={0}
     borderRadius="0 0 1.5rem 1.5rem"
     boxShadow="0 2px 8px 0 rgba(0,0,0,0.04)"
@@ -87,22 +96,19 @@ const Header: React.FC<HeaderProps> = ({
       </Flex>
       <Flex align="center" gap={2}>
         <FaCalendar color="#0070f3" />
-        {selectedRecording.created_at
-          ? new Date(selectedRecording.created_at).toLocaleString()
-          : 'No date set'}
+        {formatTimestampWithHour(selectedRecording.created_at)}
       </Flex>
-      {selectedRecording.status &&
-        selectedRecording.status !== 'COMPLETED' && (
-          <Badge
-            colorScheme="yellow"
-            borderRadius="xl"
-            px={2}
-            py={1}
-            fontSize="xs"
-          >
-            {selectedRecording.status}
-          </Badge>
-        )}
+      {selectedRecording.status && selectedRecording.status !== 'COMPLETED' && (
+        <Badge
+          colorScheme="yellow"
+          borderRadius="xl"
+          px={2}
+          py={1}
+          fontSize="xs"
+        >
+          {selectedRecording.status}
+        </Badge>
+      )}
     </Flex>
   </Box>
 );

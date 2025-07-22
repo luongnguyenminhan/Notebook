@@ -29,6 +29,7 @@ import LanguageSwitcher from './LanguageSwitcher';
 import { getMeAsync } from '@/store/slices/authSlice';
 import { useContext } from 'react';
 import { DashboardRefreshContext } from '@/context/DashboardRefreshContext';
+import Image from 'next/image';
 
 // interface NavItem {
 //   label: string;
@@ -201,7 +202,7 @@ import { DashboardRefreshContext } from '@/context/DashboardRefreshContext';
 
 const Header = () => {
   const { isOpen, onToggle } = useDisclosure();
-  const textColorPrimary = useColorModeValue('#363636', '#FFFFFF');
+  // const textColorPrimary = useColorModeValue('#363636', '#FFFFFF');
   const textColorSecondary = useColorModeValue('#2563EB', '#60A5FA');
   const dispatch = useDispatch();
   const { isAuthenticated, user } = useSelector(
@@ -274,89 +275,45 @@ const Header = () => {
                 display="flex"
                 alignItems="center"
               >
-                {/* Mobile Logo (NS only) */}
-                <Box display={{ base: 'block', md: 'none' }}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="100%"
-                    height="100%"
-                    viewBox="0 0 1500 800"
+                <Flex direction="row" alignItems="center" gap={2}>
+                  <Box
+                    width="50px"
+                    height="50px"
+                    borderRadius="full"
+                    overflow="hidden"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Image
+                      src={'/images/logos/secure_scribe_logo.jpg'}
+                      width={50}
+                      height={50}
+                      alt="Secure Scribe"
+                      style={{
+                        objectFit: 'cover',
+                        width: '100%',
+                        height: '100%',
+                      }}
+                    />
+                  </Box>
+                  <p
                     style={{
-                      filter: 'drop-shadow(0px 2px 2px rgba(0, 0, 0, 0.1))',
+                      fontWeight: 'bold',
+                      fontSize: '1rem',
+                      color: textColorSecondary,
+                      margin: 0,
+                      letterSpacing: '0.5px',
+                      fontFamily: 'Montserrat, Arial, sans-serif',
+                      textShadow: useColorModeValue(
+                        '0 1px 2px #e0e7ef',
+                        '0 1px 2px #1e293b',
+                      ),
                     }}
                   >
-                    <text
-                      x="65"
-                      y="600"
-                      fontFamily="Sofia"
-                      fontSize="700"
-                      fill={textColorPrimary}
-                    >
-                      N
-                    </text>
-                    <text
-                      x="650"
-                      y="600"
-                      fontFamily="Sofia"
-                      fontSize="700"
-                      fill={textColorSecondary}
-                    >
-                      S
-                    </text>
-                  </svg>
-                </Box>
-
-                {/* Desktop Logo (full version) - keeping the same */}
-                <Box display={{ base: 'none', md: 'block' }}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="100%"
-                    height="100%"
-                    viewBox="0 0 3500 800"
-                    style={{
-                      filter: 'drop-shadow(0px 2px 2px rgba(0, 0, 0, 0.1))',
-                    }}
-                  >
-                    <text
-                      x="65"
-                      y="517.16989"
-                      fontFamily="Sofia"
-                      fontSize="420"
-                      fill={textColorPrimary}
-                    >
-                      N
-                    </text>
-                    <text
-                      x="459.65217"
-                      y="517.16989"
-                      fontFamily="Sofia"
-                      fontSize="420"
-                      fill={textColorSecondary}
-                    >
-                      S
-                    </text>
-                    <text
-                      x="800"
-                      y="517.16989"
-                      fontFamily="Afacad"
-                      fontSize="159"
-                      fontStyle="italic"
-                      fill={textColorSecondary}
-                    >
-                      NEXTJS
-                    </text>
-                    <text
-                      x="1200"
-                      y="517.16989"
-                      fontFamily="Afacad"
-                      fontSize="159"
-                      fontStyle="italic"
-                      fill={textColorPrimary}
-                    >
-                      STARTER KIT
-                    </text>
-                  </svg>
-                </Box>
+                    SecureScribe - AI meeting note
+                  </p>
+                </Flex>
               </Box>
             </Link>
           </Flex>

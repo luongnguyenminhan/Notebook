@@ -6,7 +6,11 @@ interface ParseTranscriptToHtmlProps {
   borderColor: string;
 }
 
-const ParseTranscriptToHtml: React.FC<ParseTranscriptToHtmlProps> = ({ transcriptArr, textColor, borderColor }) => {
+const ParseTranscriptToHtml: React.FC<ParseTranscriptToHtmlProps> = ({
+  transcriptArr,
+  textColor,
+  borderColor,
+}) => {
   if (!Array.isArray(transcriptArr)) return null;
   // Tạo màu cho từng speaker
   const speakerColors = [

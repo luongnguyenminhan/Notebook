@@ -5,11 +5,16 @@ import SimpleMarkDownEditor from '../SimpleMarkDownEditor';
 interface NotesPanelProps {
   notes: string;
   editingNotes: boolean;
-  setEditingNotes: (v: boolean) => void;
-  setNotes: (v: string) => void;
+  setEditingNotes: (value: boolean) => void;
+  setNotes: (value: string) => void;
 }
 
-const NotesPanel: React.FC<NotesPanelProps> = ({ notes, editingNotes, setEditingNotes, setNotes }) => {
+const NotesPanel: React.FC<NotesPanelProps> = ({
+  notes,
+  editingNotes,
+  setEditingNotes,
+  setNotes,
+}) => {
   return editingNotes ? (
     <Box>
       <SimpleMarkDownEditor
@@ -20,15 +25,44 @@ const NotesPanel: React.FC<NotesPanelProps> = ({ notes, editingNotes, setEditing
         placeholder="Nhập ghi chú dạng markdown..."
       />
       <Flex justify="end" gap={2} mt={2}>
-        <Button size="sm" onClick={() => setEditingNotes(false)} bg="#eee" color="#1a202c" borderRadius="xl">Cancel</Button>
-        <Button size="sm" bg="#0070f3" color="#fff" borderRadius="xl" onClick={() => setEditingNotes(false)} _hover={{ bg: '#339dff' }}>Save</Button>
+        <Button
+          size="sm"
+          onClick={() => setEditingNotes(false)}
+          bg="#eee"
+          color="#1a202c"
+          borderRadius="xl"
+        >
+          Cancel
+        </Button>
+        <Button
+          size="sm"
+          bg="#0070f3"
+          color="#fff"
+          borderRadius="xl"
+          onClick={() => setEditingNotes(false)}
+          _hover={{ bg: '#339dff' }}
+        >
+          Save
+        </Button>
       </Flex>
     </Box>
   ) : (
     <Box>
-      <Button size="sm" onClick={() => setEditingNotes(true)} mb={2} bg="#0070f3" color="#fff" borderRadius="xl" _hover={{ bg: '#339dff' }}>Edit</Button>
+      <Button
+        size="sm"
+        onClick={() => setEditingNotes(true)}
+        mb={2}
+        bg="#0070f3"
+        color="#fff"
+        borderRadius="xl"
+        _hover={{ bg: '#339dff' }}
+      >
+        Edit
+      </Button>
       <Box>
-        {notes || <Text color="var(--text-color-light)">No notes available</Text>}
+        {notes || (
+          <Text color="var(--text-color-light)">No notes available</Text>
+        )}
       </Box>
     </Box>
   );

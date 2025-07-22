@@ -1,3 +1,4 @@
+'use client';
 import React, { useState } from 'react';
 import { Flex, Box } from '@chakra-ui/react';
 import Sidebar from '../Sidebar';
@@ -13,8 +14,9 @@ import UploadProgressPopup from '../UploadProgressPopup';
 import EmptyStateView from '../EmptyStateView';
 
 import { useEffect } from 'react';
-import { getAllRecordings } from '@/services/api/recording';
+import { deleteRecording, getAllRecordings } from '@/services/api/recording';
 import { getMe } from '@/services/api/auth';
+import { showToast } from '@/hooks/useShowToast';
 
 const UserDashboard = () => {
   // State quản lý
@@ -50,7 +52,21 @@ const UserDashboard = () => {
   }, []);
 
   // Callback ví dụ
-  const handleDelete = () => {
+  const handleDelete = async () => {
+    console.log('Delete recording:', selectedRecording);
+    // del recording logic
+    if (selectedRecording) {
+      try {
+        await deleteRecording(selectedRecording.id);
+        showToast('success', 'Recording deleted successfully');
+        // refresh recordings
+        const data = await getAllRecordings();
+        setRecordings(data);
+      } catch (err) {
+        console.error('Error deleting recording:', err);
+        showToast('error', 'Failed to delete recording');
+      }
+    }
     setShowDeleteModal(false);
   };
   const handleReset = () => {
@@ -70,24 +86,38 @@ const UserDashboard = () => {
 
   return (
     <Flex
-      h="100%"
-      w="100%"
-      pt={100}
       direction="column"
       bg="var(--input-bg-light)"
       _dark={{ bg: 'var(--input-bg-dark)' }}
+      style={{ height: '100%', overflow: 'hidden' }}
     >
-      <Flex flex="1">
-        <Sidebar
-          recordings={recordings}
-          loading={false}
-          onUpload={() => setShowUpload(true)}
-          onSelect={(rec: any) => setSelectedRecording(rec)}
-          selectedId={selectedRecording?.id}
-        />
-        <Box flex="1" minW={0}>
+      <Flex flex="1" minH={0}>
+        <Box
+          as="aside"
+          w={{ base: '64', md: '72' }}
+          h="100%"
+          minH={0}
+          overflowY="auto"
+          flexShrink={0}
+          bg="var(--input-bg-light)"
+          _dark={{ bg: 'var(--input-bg-dark)', borderColor: '#444' }}
+          className="backdrop-blur-md border-r border-gray-300"
+          style={{ boxShadow: '0 8px 32px 0 var(--shadow-color)' }}
+        >
+          <Sidebar
+            recordings={recordings}
+            loading={false}
+            onUpload={() => setShowUpload(true)}
+            onSelect={(rec: any) => setSelectedRecording(rec)}
+            selectedId={selectedRecording?.id}
+          />
+        </Box>
+        <Box flex="1" minW={0} minH={0} overflow="hidden">
           {selectedRecording ? (
-            <RecordingDetailView selectedRecording={selectedRecording} />
+            <RecordingDetailView
+              selectedRecording={selectedRecording}
+              onDelete={() => setShowDeleteModal(true)}
+            />
           ) : (
             <EmptyStateView onUpload={() => setShowUpload(true)} />
           )}

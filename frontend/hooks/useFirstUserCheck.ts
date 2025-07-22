@@ -1,29 +1,20 @@
 // hooks/useFirstUserCheck.ts
 'use client';
-import { useEffect, useState } from 'react';
+
+import { useQuery } from '@tanstack/react-query';
 import { checkIsFirstUser } from '@/services/api/auth';
 
 export function useFirstUserCheck() {
-  const [isFirstUser, setIsFirstUser] = useState<boolean | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['isFirstUser'],
+    queryFn: checkIsFirstUser,
+    select: (data) => data.is_first_user,
+    refetchOnWindowFocus: true,
+  });
 
-  useEffect(() => {
-    async function fetchFirstUser() {
-      setLoading(true);
-      try {
-        const result = await checkIsFirstUser();
-        setIsFirstUser(result.is_first_user);
-        setError(null);
-      } catch (err: any) {
-        setError(err?.message || 'Failed to check first user');
-        setIsFirstUser(false);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchFirstUser();
-  }, []);
-
-  return { isFirstUser, loading, error };
+  return {
+    isFirstUser: typeof data === 'boolean' ? data : null,
+    loading: isLoading,
+    error: error ? (error as Error).message : null,
+  };
 }

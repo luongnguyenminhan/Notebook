@@ -14,6 +14,7 @@ import { useTranslations } from 'next-intl';
 import { FaMicrophoneAlt } from 'react-icons/fa';
 import { RecordingResponse } from '@/services/api/recording';
 import { motion, AnimatePresence } from 'framer-motion';
+import { formatTimestampWithHour } from '@/lib/utils/utils';
 
 interface SidebarProps {
   recordings: RecordingResponse[];
@@ -40,7 +41,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   return (
     <Box
       as="aside"
-      w={{ base: '64', md: '72' }}
       bg="var(--input-bg-light)"
       _dark={{ bg: 'var(--input-bg-dark)', borderColor: '#444' }}
       h="100%"
@@ -58,7 +58,12 @@ const Sidebar: React.FC<SidebarProps> = ({
         h="full"
       >
         {/* Header */}
-        <Box p={4} borderBottom="none" flexShrink={0}>
+        <Box
+          p={4}
+          borderBottom="none"
+          flexShrink={0}
+          style={{ position: 'sticky', top: 0, zIndex: 10 }}
+        >
           <Flex align="center" justify="space-between" mb={4}>
             <Text
               fontSize="lg"
@@ -125,12 +130,12 @@ const Sidebar: React.FC<SidebarProps> = ({
                     transition={{ duration: 0.25 }}
                   >
                     <Box
-                      p={3}
-                      borderRadius="2xl"
+                      p={2}
+                      borderRadius="xl"
                       boxShadow={
                         selectedId === r.id
-                          ? '0 4px 4px 0 #0070f3'
-                          : '0 4px 4px 0 #aaa'
+                          ? '0 3px 3px 0 #0070f3'
+                          : '0 3px 3px 0 #aaa'
                       }
                       bg={selectedId === r.id ? '#fff' : '#fff'}
                       color="var(--text-color-light)"
@@ -150,16 +155,18 @@ const Sidebar: React.FC<SidebarProps> = ({
                       }}
                       border="none"
                     >
-                      <Text fontWeight="bold">{r.filename}</Text>
-                      <Text
+                      <Text fontWeight="bold" fontSize={'sm'}>
+                        {r.filename}
+                      </Text>
+                      {/* <Text
                         fontSize="sm"
                         color="var(--text-color-light)"
                         _dark={{ color: 'var(--text-color-dark)' }}
                       >
                         User: {r.user_id}
-                      </Text>
+                      </Text> */}
                       <Text fontSize="xs" color="gray.400">
-                        {r.created_at}
+                        {formatTimestampWithHour(r.created_at)}
                       </Text>
                       <Badge
                         colorScheme={

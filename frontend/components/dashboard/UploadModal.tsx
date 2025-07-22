@@ -1,18 +1,18 @@
-import React, { useRef, useState } from 'react';
+import { showToast } from '@/hooks/useShowToast';
+import { uploadRecordingFile } from '@/services/api/recording';
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
   Button,
   Input,
-  useToast,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   useColorModeValue,
 } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
-import { uploadRecordingFile } from '@/services/api/recording';
+import React, { useRef, useState } from 'react';
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -26,7 +26,6 @@ const UploadModal: React.FC<UploadModalProps> = ({
   onUploaded,
 }) => {
   const t = useTranslations('UploadModal');
-  const toast = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -53,18 +52,19 @@ const UploadModal: React.FC<UploadModalProps> = ({
       formData.append('file', file);
       // You may need to add more fields depending on backend
       await uploadRecordingFile(formData);
-      toast({
-        title: t('success', { defaultValue: 'Tải lên thành công!' }),
-        status: 'success',
-      });
+      showToast(
+        'success',
+        t('success', { defaultValue: 'Tải lên thành công!' }),
+      );
+      // toast({
+      //   title: t('success', { defaultValue: 'Tải lên thành công!' }),
+      //   status: 'success',
+      // });
       onClose();
       if (onUploaded) onUploaded();
     } catch (err) {
       console.log(err);
-      toast({
-        title: t('error', { defaultValue: 'Tải lên thất bại!' }),
-        status: 'error',
-      });
+      showToast('error', t('error', { defaultValue: 'Tải lên thất bại!' }));
     } finally {
       setUploading(false);
     }
@@ -78,6 +78,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
         bg={modalBg}
         color={modalColor}
         boxShadow="0 8px 32px 0 rgba(0,0,0,0.12)"
+        height={300}
       >
         <ModalHeader
           fontWeight={700}
@@ -104,6 +105,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
               bg: inputBg,
             }}
             transition="all 0.2s"
+            height={100}
           />
         </ModalBody>
         <ModalFooter>
