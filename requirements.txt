@@ -28,7 +28,6 @@ babel>=2.12.0
 
 # File handling
 werkzeug>=2.3.0
-ollama
 langchain
 langgraph
-
+langchain_community
